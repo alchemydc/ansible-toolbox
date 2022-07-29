@@ -1,4 +1,4 @@
-# iptables template v1.0
+# iptables template v1.3
 *filter
 #:INPUT DROP
 :INPUT ACCEPT
@@ -28,7 +28,7 @@ COMMIT
 :INPUT ACCEPT
 :OUTPUT ACCEPT
 :POSTROUTING ACCEPT
-#-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination {{ docker_vm_host }}:80
-#-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination {{ docker_vm_host }}:443
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination {{ docker_vm_host }}:80
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination {{ docker_vm_host }}:443
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j MASQUERADE
 COMMIT

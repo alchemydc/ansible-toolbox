@@ -1,0 +1,52 @@
+# Configuration file for dnsmasq. 
+# VERSION = 1.0
+#
+
+interface={{ private_bridge }} 
+
+# On systems which support it, dnsmasq binds the wildcard address,
+# even when it is listening on only some interfaces. It then discards
+# requests that it shouldn't reply to. This has the advantage of
+# working even when interfaces come and go and change address. If you
+# want dnsmasq to really bind only the interfaces it is listening on,
+# uncomment this option. About the only time you may need this is when
+# running another nameserver on the same machine.
+bind-interfaces
+
+dhcp-range={{ dhcp_range }}
+
+# Supply parameters for specified hosts using DHCP. There are lots
+# of valid alternatives, so we will give examples of each. Note that
+# IP addresses DO NOT have to be in the range given above, they just
+# need to be on the same network. The order of the parameters in these
+# do not matter, it's permissible to give name, address and MAC in any
+# order.
+
+{% for static_dhcp_reservation in static_dhcp_reservations %}
+dhcp-host={{ static_dhcp_reservation }}
+{% endfor%}
+
+# adding these static entries via variable and lineinfile elsewhere
+#dhcp-host=a6:91:0d:95:88:30,10.10.70.100,docker-vm
+#dhcp-host=D6:CC:3A:10:C0:4D,10.10.70.110,agoric-relayer-0
+#dhcp-host=46:7A:12:B2:07:84,10.10.70.111,agoric-relayer-1
+#dhcp-host=C2:4E:B0:55:08:29,10.10.70.112,agoric-snapshot
+#dhcp-host=7E:D9:00:57:60:E1,10.10.70.113,agoric-main-0
+
+# Set the DHCP server to authoritative mode. In this mode it will barge in
+# and take over the lease for any client which broadcasts on the network,
+# whether it has a record of the lease or not. This avoids long timeouts
+# when a machine wakes up on a new network. DO NOT enable this if there's
+# the slightest chance that you might end up accidentally configuring a DHCP
+# server for your campus/company accidentally. The ISC server uses
+# the same option, and this URL provides more information:
+# http://www.isc.org/files/auth.html
+#dhcp-authoritative
+
+# Set the DHCP server to enable DHCPv4 Rapid Commit Option per RFC 4039.
+# In this mode it will respond to a DHCPDISCOVER message including a Rapid Commit
+# option with a DHCPACK including a Rapid Commit option and fully committed address
+# and configuration information. This must only be enabled if either the server is
+# the only server for the subnet, or multiple servers are present and they each
+# commit a binding for all clients.
+dhcp-rapid-commit
