@@ -15,10 +15,4 @@
     state: present
     key: "{{ authorized_key }}"
     manage_dir: yes
-
-#- name: firewall setup
-#  import_tasks: firewall.yml
-#
-#- name: configure vim
-#  import_tasks: vim.yml
   

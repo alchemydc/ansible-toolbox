@@ -22,6 +22,8 @@
       - screen
       - htop
       - sudo
+      - wireguard
+      - libpve-network-perl
     state: present
     update_cache: yes
 
@@ -44,10 +46,21 @@
     group: 'root'
     mode: '0644'
 
+- name: Configure networking
+  template:
+    backup: yes
+    src: interfaces.j2
+    dest: /etc/network/interfaces
+    owner: root
+    group: root
+    mode: '644'
+  notify:
+    - restart networking
+
 - name: Configure baseline iptables rules
   import_tasks: firewall.yml
 
-#- name: configure vim
-#  import_tasks: vim.yml
+- name: configure vim
+  import_tasks: vim.yml
 
   

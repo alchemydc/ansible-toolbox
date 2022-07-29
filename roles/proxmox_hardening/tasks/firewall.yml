@@ -6,9 +6,8 @@
     owner: root
     group: root
     mode: '600'
+  notify:
+    - reload iptables
 
-- name: Activate deployed iptables rules
-  shell: "/usr/sbin/iptables-restore < /etc/iptables.conf"
-  #when: iptables_rules.changed
-
-
+#- name: Activate deployed iptables rules
+#  shell: "/usr/sbin/iptables-restore < /etc/iptables.conf"
