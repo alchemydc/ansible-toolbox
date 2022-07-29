@@ -9,5 +9,19 @@
   notify:
     - reload iptables
 
-#- name: Activate deployed iptables rules
-#  shell: "/usr/sbin/iptables-restore < /etc/iptables.conf"
+- name: Configure rsyslog to split out iptables logs into a separate file
+  copy:
+    src: 'iptables_logging.conf'
+    dest: '/etc/rsyslog.d/iptables.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - restart rsyslog
+
+- name: Configure logrotate to rotate the iptables firewall log
+  lineinfile:
+    path: /etc/logrotate.d/rsyslog
+    insertbefore: '/var/log/syslog'
+    line: '/var/log/iptables.log'
+    state: present

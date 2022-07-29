@@ -15,7 +15,8 @@
 -A INPUT -i {{ private_bridge }} -p udp -m udp --dport 67 -j ACCEPT
 -A INPUT -i {{ private_bridge }} -p udp -m udp --dport 53 -j ACCEPT
 -A INPUT -j LOGANDDROP
--A LOGANDDROP -m limit --limit 1/sec -j LOG --log-prefix "iptables dropped: " --log-level 7
+-A LOGANDDROP -m limit --limit 1/sec -j LOG --log-prefix "IPT_" --log-level 7
+-A LOGANDDROP -j DROP
 COMMIT
 *raw
 :PREROUTING ACCEPT [510393:406568099]

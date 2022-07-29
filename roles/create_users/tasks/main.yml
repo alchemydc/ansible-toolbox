@@ -1,7 +1,7 @@
 - name: Create user 
   user:
     name: dc
-    password: ''
+    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
     state: present
     shell: /usr/bin/bash
     createhome: yes
@@ -15,4 +15,9 @@
     state: present
     key: "{{ authorized_key }}"
     manage_dir: yes
-  
+
+- name: Setup common aliases for created user
+  lineinfile:
+    path: /home/{{ user_to_create }}/.profile
+    line: alias ll='ls -laF'
+    state: present
