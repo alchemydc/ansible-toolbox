@@ -27,6 +27,7 @@
       - sudo
       - wireguard
       - libpve-network-perl
+      - vim
     state: present
     update_cache: yes
 
@@ -77,3 +78,6 @@
     owner: root
     group: root
     mode: '644'
+
+#- name: Configure passwordless SSH for root account on cluster members
+#  import_tasks: root_sshkeys.yml

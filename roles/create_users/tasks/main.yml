@@ -21,3 +21,17 @@
     path: /home/{{ user_to_create }}/.profile
     line: alias ll='ls -laF'
     state: present
+
+- name: Setup common aliases for root user
+  lineinfile:
+    path: /root/.profile
+    line: alias ll='ls -laF'
+    state: present
+
+- name: Copy restart_services.sh helper script to home dir
+  copy:
+    src: restart_pve_services.sh
+    dest: "/home/{{ user_to_create }}/restart_pve_services.sh"
+    owner: "{{ user_to_create }}"
+    group: "{{ user_to_create }}"
+    mode: '0740'
