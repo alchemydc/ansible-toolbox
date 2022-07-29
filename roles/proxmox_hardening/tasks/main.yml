@@ -1,0 +1,53 @@
+- name: Disable password auth for sshd
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regex: '^#PasswordAuthentication yes'
+    line: 'PasswordAuthentication no'
+  notify:
+    - restart sshd
+  
+- name: Disable proxmox enterprise repo
+  apt_repository:
+    repo: deb https://enterprise.proxmox.com/debian/pve bullseye pve-enterprise
+    state: absent
+
+- name: Enable proxmox community repo
+  apt_repository:
+    repo: deb [arch=amd64] http://download.proxmox.com/debian/pve bullseye pve-no-subscription
+    state: present
+    
+- name: Install needed packages
+  apt:
+    name: 
+      - screen
+      - htop
+      - sudo
+    state: present
+    update_cache: yes
+
+- name: Setup passwordless sudo for members of sudo group
+  lineinfile: 
+    path: /etc/sudoers
+    regexp: 'sudo	ALL=(ALL:ALL) ALL'
+    line: 'sudo	ALL=(ALL:ALL) NOPASSWD:ALL' 
+
+- name: Update and upgrade the machine
+  apt:
+    upgrade: dist
+    update_cache: true
+
+- name: Setup screenrc for all users
+  copy:
+    src: 'screenrc'
+    dest: '/etc/screenrc'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: Configure baseline iptables rules
+  import_tasks: firewall.yml
+
+#- name: configure vim
+#  import_tasks: vim.yml
+
+  

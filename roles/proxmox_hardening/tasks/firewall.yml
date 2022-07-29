@@ -1,0 +1,14 @@
+---
+- name: Create /etc/iptables.conf from template
+  template:
+    src: iptables.conf.j2
+    dest: /etc/iptables.conf
+    owner: root
+    group: root
+    mode: '600'
+
+- name: Activate deployed iptables rules
+  shell: "/usr/sbin/iptables-restore < /etc/iptables.conf"
+  #when: iptables_rules.changed
+
+

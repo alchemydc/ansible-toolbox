@@ -1,0 +1,24 @@
+- name: Create user 
+  user:
+    name: dc
+    password: ''
+    state: present
+    shell: /usr/bin/bash
+    createhome: yes
+    home: /home/{{ user_to_create }}
+    groups:
+      - sudo
+
+- name: Set authorized key for created user
+  authorized_key: 
+    user: "{{ user_to_create }}"
+    state: present
+    key: "{{ authorized_key }}"
+    manage_dir: yes
+
+#- name: firewall setup
+#  import_tasks: firewall.yml
+#
+#- name: configure vim
+#  import_tasks: vim.yml
+  

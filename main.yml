@@ -1,0 +1,17 @@
+- name: Main
+  hosts: '{{ target }}'
+  gather_facts: false
+  vars_files:
+    - '{{ var_file }}'
+  roles:
+    - proxmox_hardening
+    - create_users
+    #- node_initialize
+    #- node_configure
+    #- node_launch
+  handlers:
+      - name: restart sshd
+        service:
+          name: sshd
+          state: restarted
+
