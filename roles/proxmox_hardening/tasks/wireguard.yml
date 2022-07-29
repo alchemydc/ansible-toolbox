@@ -1,0 +1,16 @@
+--- 
+  - name: Deploy wireguard config to /etc/wireguard/wg0.conf
+    template:
+      src: "{{ wireguard_config_file_name }}"
+      dest: '/etc/wireguard/wg0.conf'
+      owner: 'root'
+      group: 'root'
+      mode: '0600'
+    notify:
+        - restart wireguard
+
+  - name: start wireguard and enable on boot
+    systemd:
+      name: wg-quick@wg0
+      enabled: yes
+      state: started

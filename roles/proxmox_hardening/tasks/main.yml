@@ -1,3 +1,6 @@
+- name: Show debug data
+  debug: var=hostvars
+
 - name: Disable password auth for sshd
   lineinfile:
     path: /etc/ssh/sshd_config
@@ -30,8 +33,8 @@
 - name: Setup passwordless sudo for members of sudo group
   lineinfile: 
     path: /etc/sudoers
-    regexp: 'sudo	ALL=(ALL:ALL) ALL'
-    line: 'sudo	ALL=(ALL:ALL) NOPASSWD:ALL' 
+    regexp: '%sudo	ALL=(ALL:ALL) ALL'
+    line: '%sudo	ALL=(ALL:ALL) NOPASSWD:ALL' 
 
 - name: Update and upgrade the machine
   apt:
@@ -60,7 +63,8 @@
 - name: Configure baseline iptables rules
   import_tasks: firewall.yml
 
-- name: configure vim
+- name: Configure vim
   import_tasks: vim.yml
 
-  
+- name: Configure Wireguard
+  import_tasks: wireguard.yml

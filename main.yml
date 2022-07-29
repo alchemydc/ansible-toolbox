@@ -1,6 +1,6 @@
 - name: Main
   hosts: '{{ target }}'
-  gather_facts: false
+  #gather_facts: false
   vars_files:
     - '{{ var_file }}'
   roles:
@@ -23,4 +23,9 @@
       - name: restart rsyslog
         service:
           name: rsyslog
+          state: restarted
+      
+      - name: restart wireguard
+        service:
+          name: wg-quick@wg0
           state: restarted
