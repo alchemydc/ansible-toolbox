@@ -9,6 +9,16 @@
   notify:
     - reload iptables
 
+- name: Create /etc/ip6tables.conf from template
+  template:
+    src: ip6tables.conf.j2
+    dest: /etc/ip6tables.conf
+    owner: root
+    group: root
+    mode: '600'
+  notify:
+    - reload ip6tables
+
 - name: Configure rsyslog to split out iptables logs into a separate file
   copy:
     src: 'iptables_logging.conf'

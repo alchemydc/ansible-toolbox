@@ -19,6 +19,9 @@
 
       - name: reload iptables
         shell: "/usr/sbin/iptables-restore < /etc/iptables.conf"
+      
+      - name: reload ip6tables
+        shell: "/usr/sbin/ip6tables-restore < /etc/ip6tables.conf"
 
       - name: restart rsyslog
         service:

@@ -1,9 +1,9 @@
 # iptables template
 *filter
-#:INPUT DROP [1611:127711]
-:INPUT ACCEPT [1611:127711]
-:FORWARD ACCEPT [395954:380901045]
-:OUTPUT ACCEPT [109664:29205557]
+#:INPUT DROP
+:INPUT ACCEPT
+:FORWARD ACCEPT
+:OUTPUT ACCEPT
 :LOGANDDROP - [0:0]
 -A INPUT -i lo -j ACCEPT
 -A INPUT -i wg0 -m state --state NEW -j ACCEPT
@@ -19,15 +19,15 @@
 -A LOGANDDROP -j DROP
 COMMIT
 *raw
-:PREROUTING ACCEPT [510393:406568099]
-:OUTPUT ACCEPT [109664:29205557]
+:PREROUTING ACCEPT
+:OUTPUT ACCEPT
 -A PREROUTING -i fwbr+ -j CT --zone 1
 COMMIT
 *nat
-:PREROUTING ACCEPT [81:6015]
-:INPUT ACCEPT [5:300]
-:OUTPUT ACCEPT [0:0]
-:POSTROUTING ACCEPT [4:163]
+:PREROUTING ACCEPT
+:INPUT ACCEPT
+:OUTPUT ACCEPT
+:POSTROUTING ACCEPT
 #-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination {{ docker_vm_host }}:80
 #-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination {{ docker_vm_host }}:443
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_iface }} -j MASQUERADE
