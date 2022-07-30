@@ -61,6 +61,17 @@
   notify:
     - restart networking
 
+- name: Configure SDN
+  template:
+    backup: yes
+    src: sdn.j2
+    dest: /etc/network/interfaces.d/sdn
+    owner: root
+    group: root
+    mode: '644'
+  notify:
+    - restart networking
+
 - name: Configure baseline iptables rules
   import_tasks: firewall.yml
 

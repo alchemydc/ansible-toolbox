@@ -3,6 +3,7 @@
 #
 
 interface={{ private_bridge }} 
+interface={{ sdn_bridge }}
 
 # On systems which support it, dnsmasq binds the wildcard address,
 # even when it is listening on only some interfaces. It then discards
@@ -14,6 +15,7 @@ interface={{ private_bridge }}
 bind-interfaces
 
 dhcp-range={{ dhcp_range }}
+dhcp-range={{ sdn_dhcp_range }}
 
 # Supply parameters for specified hosts using DHCP. There are lots
 # of valid alternatives, so we will give examples of each. Note that
@@ -49,4 +51,8 @@ dhcp-host={{ static_dhcp_reservation }}
 # and configuration information. This must only be enabled if either the server is
 # the only server for the subnet, or multiple servers are present and they each
 # commit a binding for all clients.
-dhcp-rapid-commit
+#dhcp-rapid-commit
+
+# set MTU on guest network. required for vxlan which eats 50b per packet
+dhcp-option={{ sdn_bridge }},26,{{ sdn_mtu }}
+

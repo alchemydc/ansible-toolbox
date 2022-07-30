@@ -1,0 +1,44 @@
+auto vnet1
+iface vnet1
+        address {{ anycast_address }}
+        post-up iptables -t nat -A POSTROUTING -s '{{ anycast_subnet }}' -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
+        post-down iptables -t nat -D POSTROUTING -s '{{ anycast_subnet }}' -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
+        post-up iptables -t raw -I PREROUTING -i fwbr+ -j CT --zone 1
+        post-down iptables -t raw -D PREROUTING -i fwbr+ -j CT --zone 1
+        hwaddress {{ anycast_mac }}
+        bridge_ports vxlan_vnet1
+        bridge_stp off
+        bridge_fd 0
+        mtu {{ sdn_mtu }}
+        ip-forward on
+        arp-accept on
+        vrf vrf_evpnzone
+
+auto vrf_evpnzone
+iface vrf_evpnzone
+        vrf-table auto
+        post-up ip route del vrf vrf_evpnzone unreachable default metric 4278198272
+
+auto vrfbr_evpnzone
+iface vrfbr_evpnzone
+        bridge-ports vrfvx_evpnzone
+        bridge_stp off
+        bridge_fd 0
+        mtu {{ sdn_mtu }}
+        vrf vrf_evpnzone
+
+auto vrfvx_evpnzone
+iface vrfvx_evpnzone
+        vxlan-id 10000
+        vxlan-local-tunnelip {{ wireguard_ip }}
+        bridge-learning off
+        bridge-arp-nd-suppress on
+        mtu {{ sdn_mtu }}
+
+auto vxlan_vnet1
+iface vxlan_vnet1
+        vxlan-id 11000
+        vxlan-local-tunnelip {{ wireguard_ip }}
+        bridge-learning off
+        bridge-arp-nd-suppress on
+        mtu {{ sdn_mtu }}

@@ -9,14 +9,12 @@
 # configuration from sourced files, so do not attempt to move any of
 # the PVE managed interfaces into external files!
 
-source /etc/network/interfaces.d/*
-
 auto lo
 iface lo inet loopback
 
 iface lo inet6 loopback
 
-auto 
+auto {{ public_iface }}
 iface {{ public_iface }} inet manual
   address {{ public_ip }}/{{ public_cidr_mask }}
   gateway {{ public_gateway }}
@@ -29,9 +27,10 @@ iface {{ public_bridge }} inet static
 	bridge-stp off
 	bridge-fd 0
 
-iface {{ public_iface}} inet6 static
-  address {{ public_ipv6 }}/{{ ipv6_cidr_mask }}
-  gateway fe80::1
+# disabling IPv6 for now as it doesn't play nicely w/ the evpn + vxlan config
+#iface {{ public_iface}} inet6 static
+#  address {{ public_ipv6 }}/{{ ipv6_cidr_mask }}
+#  gateway fe80::1
 
 # bridge interface for the VM's and containers
 auto {{ private_bridge }}
@@ -45,8 +44,6 @@ auto {{ private_bridge }}
 pre-up iptables-restore < /etc/iptables.conf
 pre-up ip6tables-restore < /etc/ip6tables.conf
 # NAT and masquerading moved to /etc/iptables.conf 
-# masquerade any traffic from the VM/CT network so that they have outbound internet access by default
-#post-up iptables -t nat -A POSTROUTING -s '{{ private_network }}/{{ private_cidr_mask }}' -o {{ public_iface }} -j MASQUERADE && iptables -t raw -I PREROUTING -i fwbr+ -j CT --zone 1
-# persist any rules added on the fly to the fs
-#pre-down iptables-save > /etc/iptables.conf
-#pre-down ip6tables-save > /etc/ip6tables.conf
+
+# include SDN config etc.
+source /etc/network/interfaces.d/*
