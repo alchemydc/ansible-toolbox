@@ -3,3 +3,4 @@ group_vars/vault.yml
 vault.yml
 *.encrypted
 *.cleartext
+private/*

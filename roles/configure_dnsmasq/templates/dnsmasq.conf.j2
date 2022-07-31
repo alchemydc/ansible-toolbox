@@ -1,9 +1,10 @@
 # Configuration file for dnsmasq. 
-# VERSION = 1.0
+# VERSION = 1.1
 #
 
 interface={{ private_bridge }} 
-interface={{ sdn_bridge }}
+#interface={{ sdn_bridge }}
+#except-interface={{ public_iface }}
 
 # On systems which support it, dnsmasq binds the wildcard address,
 # even when it is listening on only some interfaces. It then discards
@@ -15,7 +16,7 @@ interface={{ sdn_bridge }}
 bind-interfaces
 
 dhcp-range={{ dhcp_range }}
-dhcp-range={{ sdn_dhcp_range }}
+#dhcp-range={{ sdn_dhcp_range }}
 
 # Supply parameters for specified hosts using DHCP. There are lots
 # of valid alternatives, so we will give examples of each. Note that
@@ -54,5 +55,5 @@ dhcp-host={{ static_dhcp_reservation }}
 #dhcp-rapid-commit
 
 # set MTU on guest network. required for vxlan which eats 50b per packet
-dhcp-option={{ sdn_bridge }},26,{{ sdn_mtu }}
+#dhcp-option={{ sdn_bridge }},26,{{ sdn_mtu }}
 

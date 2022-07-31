@@ -13,7 +13,10 @@
 #-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
 -A INPUT -p udp -m state --state NEW -m udp --dport 51820 -j ACCEPT
 -A INPUT -i {{ private_bridge }} -p udp -m udp --dport 67 -j ACCEPT
--A INPUT -i {{ private_bridge }} -p udp -m udp --dport 53 -j ACCEPT
+# DHCP over evpn/vxlan [wip]
+#-A INPUT -i vrf_evpnzone -p udp -m udp --dport 67 -j ACCEPT
+#-A INPUT -i fwbr* -p udp -m udp --dport 67 -j ACCEPT
+#-A INPUT -i {{ private_bridge }} -p udp -m udp --dport 53 -j ACCEPT
 -A INPUT -j LOGANDDROP
 -A LOGANDDROP -m limit --limit 1/sec -j LOG --log-prefix "IPT_" --log-level 7
 -A LOGANDDROP -j DROP
@@ -30,5 +33,9 @@ COMMIT
 :POSTROUTING ACCEPT
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination {{ docker_vm_host }}:80
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination {{ docker_vm_host }}:443
--A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j MASQUERADE
+# masq traffic from private subnet guests
+#-A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j MASQUERADE
+-A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
+# masq traffic from SDN subnet guests
+-A POSTROUTING -s {{ anycast_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
 COMMIT

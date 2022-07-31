@@ -14,10 +14,13 @@
           name: sshd
           state: restarted
 
+      #- name: restart networking
+      #  service:
+      #    name: networking
+      #    state: restarted
+      
       - name: restart networking
-        service:
-          name: networking
-          state: restarted
+        command: '/usr/sbin/ifreload -a'
 
       - name: reload iptables
         shell: "/usr/sbin/iptables-restore < /etc/iptables.conf"

@@ -1,6 +1,6 @@
 - name: Create user 
   user:
-    name: dc
+    name: "{{ user_to_create }}"
     password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
     state: present
     shell: /usr/bin/bash
@@ -35,3 +35,6 @@
     owner: "{{ user_to_create }}"
     group: "{{ user_to_create }}"
     mode: '0740'
+
+- name: Configure vim
+  import_tasks: vim.yml

@@ -61,22 +61,20 @@
   notify:
     - restart networking
 
-- name: Configure SDN
-  template:
-    backup: yes
-    src: sdn.j2
-    dest: /etc/network/interfaces.d/sdn
-    owner: root
-    group: root
-    mode: '644'
-  notify:
-    - restart networking
+# removed SDN config b/c it's managed by the pvecfx cluster filesystem, so will automagically be pushed to any node that joins a cluster
+#- name: Configure SDN
+#  template:
+#    backup: yes
+#    src: sdn.j2
+#    dest: /etc/network/interfaces.d/sdn
+#    owner: root
+#    group: root
+#    mode: '644'
+#  notify:
+#    - restart networking
 
 - name: Configure baseline iptables rules
   import_tasks: firewall.yml
-
-- name: Configure vim
-  import_tasks: vim.yml
 
 - name: Configure Wireguard
   import_tasks: wireguard.yml
