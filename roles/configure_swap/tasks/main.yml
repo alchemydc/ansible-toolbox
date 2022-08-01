@@ -1,8 +1,8 @@
-# this works on hetzner AX41 and AX51 NVME SSD's configured with ZFS as proxmox root, and uses any remaining space on the disk
-# for swap
-
-- name: Show debug data
-  debug: var=hostvars
+# Proxmox kills LXC's that OOM without remorse, which is pretty uncool.
+# This task uses any remaining space on the SSD's to create swap partitions
+# since swap on ZFS is non-performant.
+# Tested on hetzner AX41 and AX51 NVME SSD's configured with ZFS as proxmox root, but in theory should work 
+# on any Proxmox ZFS/root installs with free space *after* the 3 default partitions (bios boot, EFI, and ZFS)
 
 - name: Install parted
   apt:
@@ -48,4 +48,43 @@
     part_end: "100%"
     part_start: "{{ nvme1n1_info.partitions[2].end + 1}}MiB" 
     state: present
+
+- name: Create swap filesystems on SSD's
+  filesystem:
+    fstype: swap
+    dev: "/dev/{{ item }}"
+  loop:
+    - "nvme0n1p4"
+    - "nvme1n1p4"
+
+- name: Get blkid for first swap partition
+  command: blkid -s UUID -o value /dev/nvme0n1p4
+  register: swap1_blkid
+
+#- name: Debug the nvme0 swap blkid
+#  debug:
+#    msg: "nvme0 swap blkid: {{ swap1_blkid.stdout }}"
+
+- name: Write nvme0 swap partition entry to /etc/fstab
+  lineinfile:
+    path: '/etc/fstab'
+    line: 'UUID={{ swap1_blkid.stdout }}   none            swap    sw              0       0'
+    state: present
+
+- name: Get blkid for second swap partition
+  command: blkid -s UUID -o value /dev/nvme1n1p4
+  register: swap2_blkid
+
+#- name: Debug the nvme1 swap blkid
+#  debug:
+#    msg: "nvme1 swap blkid: {{ swap2_blkid.stdout }}"
+
+- name: Write nvme1 swap partition entry to /etc/fstab
+  lineinfile:
+    path: '/etc/fstab'
+    line: 'UUID={{ swap2_blkid.stdout }}   none            swap    sw              0       0'
+    state: present
+
+- name: Enable swap partitions
+  command: 'swapon -a'
 
