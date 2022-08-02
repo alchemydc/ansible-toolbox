@@ -1,13 +1,5 @@
 - name: Show debug data
   debug: var=hostvars
-
-- name: Disable password auth for sshd
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regex: '^#PasswordAuthentication yes'
-    line: 'PasswordAuthentication no'
-  notify:
-    - restart sshd
   
 - name: Disable proxmox enterprise repo
   apt_repository:
@@ -48,6 +40,7 @@
     - restart networking
 
 # removed SDN config b/c it's managed by the pvecfx cluster filesystem, so will automagically be pushed to any node that joins a cluster
+# longer term we should template the files in /etc/pve/sdn and add a bool to deploy these ONLY on new clusters
 #- name: Configure SDN
 #  template:
 #    backup: yes
@@ -60,12 +53,12 @@
 #    - restart networking
 
 - name: Configure baseline iptables rules
-  import_tasks: firewall.yml
+  import_tasks: configure_firewall.yml
   tags:
     - firewall
 
 - name: Configure Wireguard
-  import_tasks: wireguard.yml
+  import_tasks: configure_wireguard.yml
   tags:
     - wireguard
 
@@ -85,3 +78,13 @@
     owner: "{{ user_to_create }}"
     group: "{{ user_to_create }}"
     mode: '0740'
+
+- name: Configure swap
+  import_tasks: configure_swap.yml
+  tags:
+    - swap
+
+- name: Configure ZFS
+  import_tasks: configure_zfs.yml
+  tags:
+    - swap

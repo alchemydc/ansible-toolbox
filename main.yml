@@ -4,21 +4,15 @@
   vars_files:
     - '{{ var_file }}'
   roles:
-    - proxmox_hardening
-    #- create_users
-    #- configure_storage
-    #- configure_dnsmasq
-    #- configure_swap
+    - role: all_workloads
+      tags: 'generic_server'
+    - role: proxmox_hypervisor
+    - role: dnsmasq_dhcp_server
   handlers:
       - name: restart sshd
         service:
           name: sshd
           state: restarted
-
-      #- name: restart networking
-      #  service:
-      #    name: networking
-      #    state: restarted
       
       - name: restart networking
         command: '/usr/sbin/ifreload -a'
