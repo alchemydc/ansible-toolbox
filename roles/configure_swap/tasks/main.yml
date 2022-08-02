@@ -9,10 +9,14 @@
     name: parted
     state: present
     update_cache: true
+  tags:
+    - swap
 
 - name: Read device information from first SSD
   parted: "device=/dev/nvme0n1 unit=MiB"
   register: nvme0n1_info
+  tags:
+    - swap
 
 #- name: Debug the device info
   #debug:
@@ -33,10 +37,14 @@
     part_end: "100%"
     part_start: "{{ nvme0n1_info.partitions[2].end + 1}}MiB" 
     state: present
+  tags:
+    - swap
 
 - name: Read device information from second SSD
   parted: "device=/dev/nvme0n1 unit=MiB"
   register: nvme1n1_info
+  tags:
+    - swap
 
 - name: Partition the second SSD
   parted:
@@ -48,6 +56,8 @@
     part_end: "100%"
     part_start: "{{ nvme1n1_info.partitions[2].end + 1}}MiB" 
     state: present
+  tags:
+    - swap
 
 - name: Create swap filesystems on SSD's
   filesystem:
@@ -56,10 +66,14 @@
   loop:
     - "nvme0n1p4"
     - "nvme1n1p4"
+  tags:
+    - swap
 
 - name: Get blkid for first swap partition
   command: blkid -s UUID -o value /dev/nvme0n1p4
   register: swap1_blkid
+  tags:
+    - swap
 
 #- name: Debug the nvme0 swap blkid
 #  debug:
@@ -70,21 +84,31 @@
     path: '/etc/fstab'
     line: 'UUID={{ swap1_blkid.stdout }}   none            swap    sw              0       0'
     state: present
+  tags:
+    - swap
 
 - name: Get blkid for second swap partition
   command: blkid -s UUID -o value /dev/nvme1n1p4
   register: swap2_blkid
+  tags:
+    - swap
 
 #- name: Debug the nvme1 swap blkid
 #  debug:
 #    msg: "nvme1 swap blkid: {{ swap2_blkid.stdout }}"
+#    tags:
+#      - swap
 
 - name: Write nvme1 swap partition entry to /etc/fstab
   lineinfile:
     path: '/etc/fstab'
     line: 'UUID={{ swap2_blkid.stdout }}   none            swap    sw              0       0'
     state: present
+  tags:
+    - swap
 
 - name: Enable swap partitions
   command: 'swapon -a'
+  tags:
+    - swap
 

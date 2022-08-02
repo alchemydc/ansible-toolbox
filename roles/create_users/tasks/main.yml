@@ -8,6 +8,8 @@
     home: /home/{{ user_to_create }}
     groups:
       - sudo
+  tags:
+    - users
 
 - name: Set authorized key for created user
   authorized_key: 
@@ -15,26 +17,55 @@
     state: present
     key: "{{ authorized_key }}"
     manage_dir: yes
+  tags:
+    - users
 
 - name: Setup common aliases for created user
   lineinfile:
     path: /home/{{ user_to_create }}/.profile
     line: alias ll='ls -laF'
     state: present
+  tags:
+    - users
 
 - name: Setup common aliases for root user
   lineinfile:
     path: /root/.profile
     line: alias ll='ls -laF'
     state: present
-
-- name: Copy restart_services.sh helper script to home dir
-  copy:
-    src: restart_pve_services.sh
-    dest: "/home/{{ user_to_create }}/restart_pve_services.sh"
-    owner: "{{ user_to_create }}"
-    group: "{{ user_to_create }}"
-    mode: '0740'
+  tags:
+    - users
 
 - name: Configure vim
   import_tasks: vim.yml
+  tags:
+    - users
+
+- name: Install screen and htop
+  apt:
+    name:
+      - screen
+      - htop
+      - vim
+    state: present
+    update_cache: true
+  tags:
+    - users
+
+- name: Setup screenrc for all users
+  copy:
+    src: 'screenrc'
+    dest: '/etc/screenrc'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  tags:
+    - users
+
+- name: Setup passwordless sudo for members of sudo group
+  lineinfile: 
+    path: /etc/sudoers
+    regexp: '%sudo	ALL=(ALL:ALL) ALL'
+    line: '%sudo	ALL=(ALL:ALL) NOPASSWD:ALL' 
+  tags:
+    - users

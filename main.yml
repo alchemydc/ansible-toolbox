@@ -4,11 +4,11 @@
   vars_files:
     - '{{ var_file }}'
   roles:
-    #- proxmox_hardening
+    - proxmox_hardening
     #- create_users
     #- configure_storage
     #- configure_dnsmasq
-    - configure_swap
+    #- configure_swap
   handlers:
       - name: restart sshd
         service:

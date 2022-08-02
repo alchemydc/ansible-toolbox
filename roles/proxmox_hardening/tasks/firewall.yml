@@ -1,4 +1,10 @@
 ---
+- name: debug templating issue w/ anycast subnets
+  debug:
+    #msg: "anycast_subnets: {{ anycast_subnets }}"
+    msg: "anycast subnet: {{ item }}"
+  loop: "{{ anycast_subnets }}"
+
 - name: Create /etc/iptables.conf from template
   template:
     src: iptables.conf.j2

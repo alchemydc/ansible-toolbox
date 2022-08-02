@@ -31,24 +31,10 @@
     state: present
     update_cache: yes
 
-- name: Setup passwordless sudo for members of sudo group
-  lineinfile: 
-    path: /etc/sudoers
-    regexp: '%sudo	ALL=(ALL:ALL) ALL'
-    line: '%sudo	ALL=(ALL:ALL) NOPASSWD:ALL' 
-
 - name: Update and upgrade the machine
   apt:
     upgrade: dist
     update_cache: true
-
-- name: Setup screenrc for all users
-  copy:
-    src: 'screenrc'
-    dest: '/etc/screenrc'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
 
 - name: Configure networking
   template:
@@ -75,9 +61,13 @@
 
 - name: Configure baseline iptables rules
   import_tasks: firewall.yml
+  tags:
+    - firewall
 
 - name: Configure Wireguard
   import_tasks: wireguard.yml
+  tags:
+    - wireguard
 
 - name: Configure /etc/hosts
   template:
@@ -88,5 +78,10 @@
     group: root
     mode: '644'
 
-#- name: Configure passwordless SSH for root account on cluster members
-#  import_tasks: root_sshkeys.yml
+- name: Copy restart_services.sh helper script to home dir
+  copy:
+    src: restart_pve_services.sh
+    dest: "/home/{{ user_to_create }}/restart_pve_services.sh"
+    owner: "{{ user_to_create }}"
+    group: "{{ user_to_create }}"
+    mode: '0740'

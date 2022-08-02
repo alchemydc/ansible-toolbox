@@ -17,6 +17,8 @@
 #-A INPUT -i vrf_evpnzone -p udp -m udp --dport 67 -j ACCEPT
 #-A INPUT -i fwbr* -p udp -m udp --dport 67 -j ACCEPT
 #-A INPUT -i {{ private_bridge }} -p udp -m udp --dport 53 -j ACCEPT
+# disallow routing from anycast_subnet[1] to anycast_subnet[0]
+-A INPUT -i {{ sdn_bridge }} -s {{ anycast_subnets[1] }} -d {{ anycast_subnets[0] }} -m state --state NEW -j LOGANDDROP
 -A INPUT -j LOGANDDROP
 -A LOGANDDROP -m limit --limit 1/sec -j LOG --log-prefix "IPT_" --log-level 7
 -A LOGANDDROP -j DROP
@@ -36,6 +38,10 @@ COMMIT
 # masq traffic from private subnet guests
 #-A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j MASQUERADE
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
+
 # masq traffic from SDN subnet guests
+{% for anycast_subnet in anycast_subnets %}
 -A POSTROUTING -s {{ anycast_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
+{% endfor%}
+
 COMMIT
