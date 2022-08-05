@@ -1,3 +1,8 @@
+- name: Disable proxmox enterprise repo
+  apt_repository:
+    repo: deb https://enterprise.proxmox.com/debian/pve bullseye pve-enterprise
+    state: absent
+
 - name: Disable password auth for sshd
   lineinfile:
     path: /etc/ssh/sshd_config

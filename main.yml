@@ -4,10 +4,13 @@
   vars_files:
     - '{{ var_file }}'
   roles:
-    - role: all_workloads
-      tags: 'generic_server'
     - role: proxmox_hypervisor
+      tags: 'proxmox'
+    - role: generic_server
+      tags: 'generic_server'
     - role: dnsmasq_dhcp_server
+      tags: 'dnsmasq'
+  
   handlers:
       - name: restart sshd
         service:

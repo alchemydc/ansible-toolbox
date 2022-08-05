@@ -37,8 +37,12 @@ COMMIT
 :INPUT ACCEPT
 :OUTPUT ACCEPT
 :POSTROUTING ACCEPT
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination {{ docker_vm_host }}:80
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination {{ docker_vm_host }}:443
+# permit http/https ingress traffic from anywhere to traefik on the docker_ingress workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination {{ docker_ingress_host }}:80
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination {{ docker_ingress_host }}:443
+# permit ssh on port 1099 from anywhere to the sdk-pokt workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 1099 -j DNAT --to-destination {{ ssh_forward_1099_host }}:22
+
 # SNAT traffic from private subnet guests
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
 # SNAT traffic from SDN subnet guests
