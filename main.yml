@@ -1,21 +1,32 @@
 - name: Main
   hosts: '{{ target }}'
-  #gather_facts: false
-  vars_files:
-    - '{{ var_file }}'
+  gather_facts: false
+  #vars_files:
+  #  - '{{ var_file }}'
+  #  - '{{ encrypted_var_file }}'
   roles:
     - role: proxmox_hypervisor
       tags: 'proxmox'
     - role: generic_server
       tags: 'generic_server'
+      become: true
     - role: dnsmasq_dhcp_server
       tags: 'dnsmasq'
-  
+    - role: docker_server
+      tags: 'docker_server'
+      become: true
+    - role: celo_attestation_server
+      #gather_facts: true
+      tags: 'celo_attestation_server'
+      become: true
+    
+
   handlers:
       - name: restart sshd
         service:
           name: sshd
           state: restarted
+        become: true
       
       - name: restart networking
         command: '/usr/sbin/ifreload -a'

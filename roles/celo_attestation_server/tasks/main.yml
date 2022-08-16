@@ -1,0 +1,56 @@
+- name: Debug celo-attestation
+  debug:
+    msg: "{{ hostvars[inventory_hostname] }}"
+    #msg:  "hello debug attestation"
+    
+    #msg: item
+    #loop:
+    #  - "twilio blacklist: {{ TWILIO_UNSUPPORTED_REGIONS }}"
+    #  - "attestation signer keys: {{ ATTESTATION_SIGNER_KEYS }}"
+
+- name: Create celo service user
+  user: 
+    name: "{{ celo_user }}"
+    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/{{ celo_user }}"
+    groups:
+      - docker
+
+- name: Deploy celo attestation service systemd service file
+  template:
+    src: celo_attestation.service.j2
+    dest: /etc/systemd/system/celo_attestation.service
+    owner: root
+    group: root
+    mode: '0644'
+  tags: debug_attestation
+
+#- name: Install sqlite DB
+#  apt:
+#    name: 
+#      - sqlite3
+#    state: present
+#    update_cache: true
+
+- name: Create {{ celo_data_dir }}
+  file:
+    path: "{{ celo_data_dir }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+
+- name: Create keystore
+  import_tasks: create_keystore.yml
+  tags: "attestation_keystore"
+
+- name: Enable and start celo attestation service
+  become: true
+  systemd:
+    name: celo_attestation.service
+    enabled: yes
+    state: started
+    daemon_reload: yes

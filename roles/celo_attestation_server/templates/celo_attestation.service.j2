@@ -1,0 +1,49 @@
+[Unit]
+Description=Celo Attestation Service v0
+Requires=docker.service
+After=docker.service
+#StartLimitBurst=3
+#StartLimitIntervalSec=10
+
+[Service]
+User={{ celo_user }}
+Restart=always
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name celo-attestation-service \
+  --entrypoint /bin/bash \
+  -v {{ celo_data_dir }}:/root/.celo \
+  -e NODE_ENV=production \
+  -e PORT={{ ATTESTATION_SERVICE_PORT }} \
+  -e DATABASE_URL={{ ATTESTATION_DATABASE_URL }} \
+  -e ACCOUNT_ADDRESS={{ attestation_signer_address }} \
+  -e ATTESTATION_SIGNER_ADDRESS={{ attestation_signer_address }} \
+  -e CELO_VALIDATOR_ADDRESS={{ validator_address }} \
+  -e ATTESTATION_KEY={{ attestation_key }} \
+  -e ATTESTATION_SIGNER_KEYSTORE_DIRPATH={{ ATTESTATION_SIGNER_KEYSTORE_DIRPATH }} \
+  -e ATTESTATION_SIGNER_KEYSTORE_PASSPHRASE={{ attestation_signer_password }} \
+  -e CELO_PROVIDERS={{ CELO_PROVIDERS|join(',') }} \
+  -e SMS_PROVIDERS={{ SMS_PROVIDERS|join(',') }} \
+  -e SMS_PROVIDERS_CN=twiliomessaging \
+  -e SMS_PROVIDERS_VN=messagebird,twilioverify \
+  -e SMS_PROVIDERS_TR=twilioverify \
+  -e NEXMO_KEY={{ NEXMO_KEY }} \
+  -e NEXMO_SECRET={{ NEXMO_SECRET }} \
+  -e NEXMO_BLACKLIST={{ NEXMO_BLACKLIST }} \
+  -e NEXMO_UNSUPPORTED_REGIONS={{ NEXMO_UNSUPPORTED_REGIONS }} \
+  -e TWILIO_ACCOUNT_SID={{ TWILIO_ACCOUNT_SID }} \
+  -e TWILIO_MESSAGING_SERVICE_SID={{ TWILIO_MESSAGING_SERVICE_SID }} \
+  -e TWILIO_VERIFY_SERVICE_SID={{ TWILIO_VERIFY_SERVICE_SID }} \
+  -e TWILIO_AUTH_TOKEN={{ TWILIO_AUTH_TOKEN }} \
+  -e TWILIO_BLACKLIST={{ TWILIO_BLACKLIST }} \
+  -e TWILIO_UNSUPPORTED_REGIONS={{ TWILIO_UNSUPPORTED_REGIONS }} \
+  -e MESSAGEBIRD_API_KEY={{ MESSAGEBIRD_API_KEY }} \
+  -e MESSAGEBIRD_UNSUPPORTED_REGIONS={{ MESSAGEBIRD_UNSUPPORTED_REGIONS }} \
+  {{ ATTESTATION_SERVICE_DOCKER_REPO }}:{{ ATTESTATION_SERVICE_DOCKER_TAG }} -c "\
+  ( \
+      cd /celo-monorepo/packages/attestation-service && \
+      yarn run db:create:dev && \
+      yarn run db:migrate:dev && \
+      yarn start \
+  )"
+ExecStop=/usr/bin/docker stop -t 30 celo-attestation-service

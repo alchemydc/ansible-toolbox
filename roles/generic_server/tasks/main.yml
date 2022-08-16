@@ -16,7 +16,7 @@
     name: "{{ user_to_create }}"
     password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
     state: present
-    shell: /usr/bin/bash
+    shell: "{{ shell }}"
     createhome: yes
     home: /home/{{ user_to_create }}
     groups:
