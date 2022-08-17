@@ -1,12 +1,12 @@
 - name: Main
   hosts: '{{ target }}'
-  gather_facts: false
+  #gather_facts: false
   #vars_files:
   #  - '{{ var_file }}'
   #  - '{{ encrypted_var_file }}'
   roles:
     - role: proxmox_hypervisor
-      tags: 'proxmox'
+      tags: 'proxmox_hypervisor'
     - role: generic_server
       tags: 'generic_server'
       become: true
@@ -16,11 +16,9 @@
       tags: 'docker_server'
       become: true
     - role: celo_attestation_server
-      #gather_facts: true
       tags: 'celo_attestation_server'
       become: true
     
-
   handlers:
       - name: restart sshd
         service:
@@ -51,3 +49,13 @@
         service:
           name: dnsmasq
           state: restarted
+      
+      - name: daemon-reload
+        command: systemctl daemon-reload
+        become: true
+      
+      - name: restart attestation
+        service:
+          name: celo-attestation
+          state: restarted
+        become: true

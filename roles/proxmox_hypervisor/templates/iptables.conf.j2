@@ -24,6 +24,10 @@
 -A INPUT -j LOGANDDROP
 -A LOGANDDROP -m limit --limit 1/sec -j LOG --log-prefix "IPT_" --log-level 7
 -A LOGANDDROP -j DROP
+# permit prometheus connections from {{ anycast_subnets[1] }} to {{ anycast_subnets[0] }}
+-A FORWARD -s {{ anycast_subnets[1] }} -d {{ anycast_subnets[0] }} -p tcp --dport 9100 -m state --state NEW -j ACCEPT
+# permit collecting attestation metrics collection connections from {{ anycast_subnets[1] }} to {{ anycast_subnets[0] }}
+-A FORWARD -s {{ anycast_subnets[1] }} -d {{ anycast_subnets[0] }} -p tcp --dport 8080 -m state --state NEW -j ACCEPT
 # disallow workloads on anycast_subnet[1] from initiating connections to workloads on anycast_subnet[0]
 -A FORWARD -s {{ anycast_subnets[1] }} -d {{ anycast_subnets[0] }} -m state --state NEW -j LOGANDDROP
 COMMIT

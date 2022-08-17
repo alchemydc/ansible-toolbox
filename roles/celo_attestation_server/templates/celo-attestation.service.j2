@@ -1,0 +1,28 @@
+[Unit]
+Description=Celo Attestation Service v0
+Requires=docker.service
+After=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ celo_user }}
+Restart=always
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name celo-attestation-service \
+  --entrypoint /bin/bash \
+  -v {{ celo_data_dir }}:/root/.celo \
+  -p 8080:8080 \
+  --env-file {{ celo_data_dir }}/attestation.config \
+  {{ ATTESTATION_SERVICE_DOCKER_REPO }}:{{ ATTESTATION_SERVICE_DOCKER_TAG }} -c "\
+  ( \
+      cd /celo-monorepo/packages/attestation-service && \
+      yarn run db:create:dev && \
+      yarn run db:migrate:dev && \
+      yarn start \
+  )"
+ExecStop=/usr/bin/docker stop -t 60 celo-attestation-service
+
+[Install]
+WantedBy=default.target

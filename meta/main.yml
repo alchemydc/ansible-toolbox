@@ -1,0 +1,3 @@
+dependencies:
+    - celo_attestation_server: docker_server
+    - docker_server: generic_server

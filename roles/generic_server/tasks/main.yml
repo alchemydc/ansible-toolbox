@@ -41,12 +41,13 @@
     line: alias ll='ls -laF'
     state: present
 
-- name: Install screen and htop
+- name: Install needful packages
   apt:
     name:
       - screen
       - htop
       - vim
+      - acl   # needed to allow ansible to become unpriv'd users and maintain security of temp files
     state: present
     update_cache: true
 

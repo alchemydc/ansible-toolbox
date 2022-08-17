@@ -30,6 +30,13 @@
       state: present
       update_cache: true
   
+  - name: Add admin users to docker group
+    user:
+      name: "{{ item }}"
+      groups: docker
+      append: yes
+    loop: "{{ admin_users }}"
+
   #- name: Install docker-compose
   #  import_tasks: compose.yml
   #  #become: true

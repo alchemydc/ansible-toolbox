@@ -1,12 +1,13 @@
 - name: Debug celo-attestation
   debug:
     msg: "{{ hostvars[inventory_hostname] }}"
-    #msg:  "hello debug attestation"
-    
-    #msg: item
-    #loop:
-    #  - "twilio blacklist: {{ TWILIO_UNSUPPORTED_REGIONS }}"
-    #  - "attestation signer keys: {{ ATTESTATION_SIGNER_KEYS }}"
+
+- name: Install needful packages
+  apt:
+    name: 
+      - prometheus-node-exporter
+    state: present
+    update_cache: true
 
 - name: Create celo service user
   user: 
@@ -21,19 +22,13 @@
 
 - name: Deploy celo attestation service systemd service file
   template:
-    src: celo_attestation.service.j2
-    dest: /etc/systemd/system/celo_attestation.service
+    src: celo-attestation.service.j2
+    dest: /etc/systemd/system/celo-attestation.service
     owner: root
     group: root
     mode: '0644'
   tags: debug_attestation
-
-#- name: Install sqlite DB
-#  apt:
-#    name: 
-#      - sqlite3
-#    state: present
-#    update_cache: true
+  notify: daemon-reload
 
 - name: Create {{ celo_data_dir }}
   file:
@@ -43,6 +38,15 @@
     owner: "{{ celo_user }}"
     group: "{{ celo_user }}"
 
+- name: Deploy celo attestation service config file
+  template:
+    src: celo_attestation.config.j2
+    dest: "{{ celo_data_dir }}/attestation.config"
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: '0640'
+  notify: restart attestation
+
 - name: Create keystore
   import_tasks: create_keystore.yml
   tags: "attestation_keystore"
@@ -50,7 +54,7 @@
 - name: Enable and start celo attestation service
   become: true
   systemd:
-    name: celo_attestation.service
+    name: celo-attestation.service
     enabled: yes
     state: started
     daemon_reload: yes
