@@ -1,6 +1,6 @@
-#- name: Debug celo-attestation
-#  debug:
-#    msg: "{{ hostvars[inventory_hostname] }}"
+- name: Debug celo-attestation
+  debug:
+    msg: "{{ hostvars[inventory_hostname] }}"
 
 - name: Install needful packages
   apt:

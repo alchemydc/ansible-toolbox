@@ -54,6 +54,20 @@ http:
         - "http"
       rule: "Host(`celo-attestation-1.zanshindojo.org`)"
       service: celo-attestation-1
+    tenderduty-https:
+      entryPoints:
+        - "https"
+      rule: "Host(`tenderduty.zanshindojo.org`)"
+      middlewares:
+        - default-headers
+      tls: {}
+      service: tenderduty
+    tenderduty-http:
+      entryPoints:
+        - "http"
+      rule: "Host(`tenderduty.zanshindojo.org`)"
+      service: tenderduty
+      
 #endregion
 
 #region services
@@ -78,6 +92,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://10.10.50.57:8080"  # celo attestation v1
+    tenderduty:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.50.100:80"  # tenderduty
 #endregion
 
   middlewares:
