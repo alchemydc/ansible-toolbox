@@ -4,3 +4,4 @@ vault.yml
 *.encrypted
 *.cleartext
 private/*
+ansible.cfg

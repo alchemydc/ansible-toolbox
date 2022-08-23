@@ -20,6 +20,8 @@
 -A INPUT -p udp -m state --state NEW -m udp --dport 51820 -j ACCEPT
 # permit DHCP requests from guests on the private subnet {{ private_subnet }}
 -A INPUT -i {{ private_bridge }} -p udp -m udp --dport 67 -j ACCEPT
+# permit DNS requests from guests on the private subnet {{ private_subnet }}
+-A INPUT -i {{ private_bridge }} -p udp -m udp --dport 53 -j ACCEPT
 # log and drop everything else
 -A INPUT -j LOGANDDROP
 -A LOGANDDROP -m limit --limit 1/sec -j LOG --log-prefix "IPT_" --log-level 7
