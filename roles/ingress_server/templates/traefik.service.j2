@@ -1,0 +1,27 @@
+[Unit]
+Description=Traefik Ingress
+Documentation=https://doc.traefik.io/traefik/
+Requires=docker.service
+After=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User=traefik
+Restart=always
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name traefik \
+  -v /home/traefik/traefik.yml:/traefik.yml:ro \
+  -v /home/traefik/configs:/configs:ro \
+  -v /etc/localtime:/etc/localtime:ro \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -p 80:80 \
+  -p 443:443 \
+  -p 8080:8080 \
+  traefik:latest
+
+ExecStop=/usr/bin/docker stop -t 30 traefik
+
+[Install]
+WantedBy=default.target

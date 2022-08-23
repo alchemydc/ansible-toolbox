@@ -1,6 +1,6 @@
 - name: Main
   hosts: '{{ target }}'
-  #gather_facts: false
+  gather_facts: false
   #vars_files:
   #  - '{{ var_file }}'
   #  - '{{ encrypted_var_file }}'
@@ -17,6 +17,9 @@
       become: true
     - role: celo_attestation_server
       tags: 'celo_attestation_server'
+      become: true
+    - role: ingress_server
+      tags: 'ingress_server'
       become: true
     
   handlers:
@@ -57,5 +60,11 @@
       - name: restart attestation
         service:
           name: celo-attestation
+          state: restarted
+        become: true
+      
+      - name: restart traefik
+        service:
+          name: traefik
           state: restarted
         become: true
