@@ -67,6 +67,19 @@ http:
         - "http"
       rule: "Host(`tenderduty.zanshindojo.org`)"
       service: tenderduty
+    evmos-rpc-https:
+      entryPoints:
+        - "https"
+      rule: "Host(`evmos-rpc.zanshindojo.org`)"
+      middlewares:
+        - default-headers
+      tls: {}
+      service: evmos-rpc
+    evmos-rpc-http:
+      entryPoints:
+        - "http"
+      rule: "Host(`evmos-rpc.zanshindojo.org`)"
+      service: evmos-rpc
       
 #endregion
 
@@ -77,6 +90,14 @@ http:
         servers:
           - url: "http://10.10.50.110:44657"  #agoric-relayer-0 on sdn subnet
           - url: "http://10.10.50.111:44657"  #agoric-relayer-1 on sdn subnet
+        healthcheck:
+          path: /health
+          #passHostHeader: false
+    evmos-rpc:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.50.70:34657"  #evmos-relayer-0 on sdn subnet
+          - url: "http://10.10.50.71:34657"  #evmos-relayer-1 on sdn subnet
         healthcheck:
           path: /health
           #passHostHeader: false

@@ -47,7 +47,7 @@
     group: traefik
     mode: '0640'
   #notify: restart traefik  # config is re-read dynamically
-  tags: 'ingress_config'
+  tags: 'configure_ingress'
 
 - name: Enable and start traefik ingress service
   become: true
