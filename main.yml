@@ -1,17 +1,19 @@
 - name: Main
   hosts: '{{ target }}'
-  gather_facts: false
+  #gather_facts: false
   #vars_files:
   #  - '{{ var_file }}'
   #  - '{{ encrypted_var_file }}'
   roles:
     - role: proxmox_hypervisor
       tags: 'proxmox_hypervisor'
-    - role: generic_server
-      tags: 'generic_server'
+      become: true
+    - role: base_server
+      tags: 'base_server'
       become: true
     - role: dnsmasq_dhcp_server
       tags: 'dnsmasq'
+      become: true
     - role: docker_server
       tags: 'docker_server'
       become: true

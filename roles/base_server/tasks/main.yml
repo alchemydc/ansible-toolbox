@@ -14,7 +14,8 @@
 - name: Create user 
   user:
     name: "{{ user_to_create }}"
-    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    #password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    password: "{{ hashed_password }}"
     state: present
     shell: "{{ shell }}"
     createhome: yes

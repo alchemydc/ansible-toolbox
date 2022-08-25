@@ -18,6 +18,7 @@ auto {{ public_iface }}
 iface {{ public_iface }} inet manual
   address {{ public_ip }}/{{ public_cidr_mask }}
   gateway {{ public_gateway }}
+  post-up echo 1 > /proc/sys/net/ipv4/ip_forward
 
 auto {{ public_bridge }}
 iface {{ public_bridge }} inet static
