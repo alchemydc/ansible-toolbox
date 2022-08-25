@@ -5,3 +5,5 @@ vault.yml
 *.cleartext
 private/*
 ansible.cfg
+etc_hosts
+*.vault

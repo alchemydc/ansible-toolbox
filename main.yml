@@ -21,6 +21,9 @@
     - role: ingress_server
       tags: 'ingress_server'
       become: true
+    - role: bastion_server
+      tags: 'bastion_server'
+      become: true
     
   handlers:
       - name: restart sshd
