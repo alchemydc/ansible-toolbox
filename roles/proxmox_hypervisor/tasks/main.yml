@@ -87,4 +87,4 @@
 - name: Configure ZFS
   import_tasks: configure_zfs.yml
   tags:
-    - swap
+    - zfs
