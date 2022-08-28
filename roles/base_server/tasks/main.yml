@@ -73,3 +73,7 @@
     owner: root
     group: root
     mode: '600'
+
+- name: set SDN MTU for guest workloads
+  import_tasks: set_mtu.yml
+  tags: 'mtu'

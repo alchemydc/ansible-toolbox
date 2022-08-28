@@ -32,13 +32,13 @@
     update_cache: true
   
 - name: Configure docker daemon
-  copy:
-    src: docker_daemon.json
+  template:
+    src: docker_daemon.json.j2
     dest: /etc/docker/daemon.json
     owner: root
     group: root
     mode: '0644'
-  #notify: restart docker
+  notify: restart docker
   #tags: docker_daemon
 
 - name: Restart docker to enable fuse overlayfs

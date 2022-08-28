@@ -1,0 +1,22 @@
+- name: Set mtu in /etc/network/interfaces
+  lineinfile:
+    path: /etc/network/interfaces
+    regex: 'mtu'
+    line: "\tmtu {{ sdn_mtu }}"
+    state: present
+  #notify: restart networking
+
+#- name: Debug hostvars
+#  debug:
+    #msg: "{{ hostvars }}"
+    #var=hostvars[inventory_hostname]
+    #msg: "device to set mtu: {{ ansible_eth0.device }}"
+            
+- name: Reset mtu to desired value on running system (container)
+  command: "ip link set {{ ansible_eth0.device }} mtu {{ sdn_mtu }}"
+  when: ansible_eth0.device is defined
+
+- name: Reset mtu to desired value on running system (vm)
+  command: "ip link set {{ ansible_ens18.device }} mtu {{ sdn_mtu }}"
+  when: ansible_ens18.device is defined
+
