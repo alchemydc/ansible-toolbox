@@ -20,8 +20,8 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-          - '10.10.50.10:9100'    # monitor.zanshindojo.org
-          - '10.10.60.100:9100'   # pokt node
-          - '10.10.50.70:9100'    # evmos relayer 0
-          - '10.10.50.71:9100'    # evmos relayer 1
+          - 'monitor:9100'    # monitor.zanshindojo.org
+          - 'sdl-pokt:9100'   # pokt node
+          - 'evmos-relayer-0:9100'    # evmos relayer 0
+          - 'evmos-relayer-1:9100'    # evmos relayer 1
 

@@ -46,8 +46,9 @@ services:
      ports:
        - "9090:9090"
      volumes:
-       - {{ monitor_user_dir }}/prometheus/etc:/etc/prometheus/
+       - {{ monitor_user_dir }}/prometheus/etc:/etc/prometheus/:ro
        - {{ monitor_user_dir }}/prometheus/data:/prometheus
+       - /etc/hosts:/etc/hosts:ro
      #command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
      restart: unless-stopped
      networks:
