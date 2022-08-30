@@ -7,6 +7,7 @@
      - lsb-release
      - jq
      - fuse-overlayfs # required for docker on LXC
+     - acl            # required for ansible to become unpriv'd user to run tasks successfully
     state: present
     update_cache: true
 
@@ -39,7 +40,6 @@
     group: root
     mode: '0644'
   notify: restart docker
-  #tags: docker_daemon
 
 - name: Restart docker to enable fuse overlayfs
   service:
@@ -48,26 +48,25 @@
   
 - name: Add admin users to docker group
   user:
-    name: "{{ item }}"
+    name: "{{ item.username }}"
     groups: docker
     append: yes
   loop: "{{ admin_users }}"
 
-#- name: Install docker-compose
-#  import_tasks: compose.yml
-#  #become: true
-#  tags: docker_compose
-#- name: Install packages required for ansible to interact w/ python daemon on host
-#  apt:
-#    name:
-#      - python3
-#      - python3-pip
-#    state: present
-#    update_cache: false
-  
-#- name: Install required python packages
-#  pip:
-#    name:
-#      - docker
-#      - docker-compose
-#    state: present
+- name: Install docker-compose
+  import_tasks: compose.yml
+  tags: docker_compose
+- name: Install packages required for ansible to interact w/ python on host
+  apt:
+    name:
+      - python3
+      - python3-pip
+    state: present
+    update_cache: false
+ 
+- name: Install required python packages for ansible to interact w/ docker on host
+  pip:
+    name:
+      - docker
+      - docker-compose
+    state: present

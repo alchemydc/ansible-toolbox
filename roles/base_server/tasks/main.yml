@@ -1,7 +1,60 @@
+- name: Debug admin_users
+  debug:
+    msg: "admin_users item: {{ item }}"
+  loop: "{{ admin_users }}"
+
+- name: Deploy hosts file
+  copy:
+    src: etc_hosts.vault
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Disable proxmox enterprise repo
   apt_repository:
     repo: deb https://enterprise.proxmox.com/debian/pve bullseye pve-enterprise
     state: absent
+
+- name: Install needful packages
+  apt:
+    name:
+      - screen
+      - htop
+      - vim
+      - jq
+      - sudo
+      - htop
+    state: present
+    update_cache: true
+
+- name: Remove packaged htop that doesn't properly report memory in LXC containers
+  apt:
+    name:
+      - htop
+    state: absent
+  when: ansible_virtualization_type == "lxc"
+
+- name: Deploy updated htop binary which properly reports memory inside LXC containers
+  copy:
+    src: htop
+    dest: /usr/local/bin/htop
+    owner: root
+    group: root
+    mode: '0755'
+  when: ansible_virtualization_type == "lxc"
+
+- name: set SDN MTU for guest workloads
+  import_tasks: set_mtu.yml
+  tags: 'mtu'
+
+- name: Install prometheus-node-exporter
+  apt:
+    name: 
+      - prometheus-node-exporter
+    state: present
+    update_cache: true
+  tags: 'node-exporter'
 
 - name: Disable password auth for sshd
   lineinfile:
@@ -11,46 +64,40 @@
   notify:
     - restart sshd
 
-- name: Create user 
+- name: Create admin users
   user:
-    name: "{{ user_to_create }}"
-    #password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
-    password: "{{ hashed_password }}"
+    name: "{{ item.username }}"
+    password: "{{ item.password }}" # '*': pw is locked/disabled.  key auth only + passwordless sudo
     state: present
-    shell: "{{ shell }}"
+    shell: /bin/bash
     createhome: yes
-    home: /home/{{ user_to_create }}
+    home: /home/{{ item.username }}
     groups:
       - sudo
+      - adm
+  loop: "{{ admin_users }}"
 
-- name: Set authorized key for created user
+- name: Set authorized key for admin users
   authorized_key: 
-    user: "{{ user_to_create }}"
+    user: "{{ item.username }}"
     state: present
-    key: "{{ authorized_key }}"
+    key: "{{ item.sshpublickey }}"
     manage_dir: yes
+  when: item.sshpublickey is defined
+  loop: "{{ admin_users }}"
 
-- name: Setup common aliases for created user
+- name: Setup common aliases for admin users
   lineinfile:
-    path: /home/{{ user_to_create }}/.profile
+    path: /home/{{ item.username }}/.profile
     line: alias ll='ls -laF'
     state: present
+  loop: "{{ admin_users }}"
 
 - name: Setup common aliases for root user
   lineinfile:
     path: /root/.profile
     line: alias ll='ls -laF'
     state: present
-
-- name: Install needful packages
-  apt:
-    name:
-      - screen
-      - htop
-      - vim
-      - acl   # needed to allow ansible to become unpriv'd users and maintain security of temp files
-    state: present
-    update_cache: true
 
 - name: Setup screenrc for all users
   copy:
@@ -66,14 +113,12 @@
     regexp: '%sudo	ALL=(ALL:ALL) ALL'
     line: '%sudo	ALL=(ALL:ALL) NOPASSWD:ALL' 
 
-- name: create /etc/vimrc.local to disable visual copy mode
+- name: create /etc/vimrc.local to disable visual copy mode for all users
   copy:
     src: vimrc.local
     dest: /etc/vim/vimrc.local
     owner: root
     group: root
-    mode: '600'
+    mode: '0600'
 
-- name: set SDN MTU for guest workloads
-  import_tasks: set_mtu.yml
-  tags: 'mtu'
+

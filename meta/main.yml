@@ -1,3 +1,4 @@
 dependencies:
     - celo_attestation_server: docker_server
+    - monitor_server: docker_server
     - docker_server: base_server

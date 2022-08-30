@@ -7,8 +7,14 @@
 :LOGANDDROP - [0:0]
 # permit loopback traffic
 -A INPUT -i lo -j ACCEPT
+# temp permit pings (debugging mtu issues)
+#-A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+# temp permit inbound iperf (debugging mtu issues)
+#-A INPUT -p tcp -m state --state NEW -m tcp --dport 5201 -j ACCEPT
 # permit inbound connections to wireguard interface
 -A INPUT -i wg0 -m state --state NEW -j ACCEPT
+# permit rate limited ICMP echoes
+-A INPUT -p icmp -m icmp --icmp-type 8 -m hashlimit --hashlimit-upto 5/sec --hashlimit-burst 5 --hashlimit-mode srcip --hashlimit-name icmp-echo-drop -j ACCEPT
 # permit established connections
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 # permit SSH from anywhere [consider disabling this once wireguard mgt iface is burned in]

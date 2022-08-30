@@ -23,8 +23,8 @@
     - role: ingress_server
       tags: 'ingress_server'
       become: true
-    - role: bastion_server
-      tags: 'bastion_server'
+    - role: monitor
+      tags: 'monitor_server'
       become: true
     
   handlers:
@@ -36,27 +36,33 @@
       
       - name: restart networking
         command: '/usr/sbin/ifreload -a'
+        become: true
 
       - name: reload iptables
         shell: "/usr/sbin/iptables-restore < /etc/iptables.conf"
+        become: true
       
       - name: reload ip6tables
         shell: "/usr/sbin/ip6tables-restore < /etc/ip6tables.conf"
+        become: true
 
       - name: restart rsyslog
         service:
           name: rsyslog
           state: restarted
+        become: true
       
       - name: restart wireguard
         service:
           name: wg-quick@wg0
           state: restarted
+        become: true
       
       - name: restart dnsmasq
         service:
           name: dnsmasq
           state: restarted
+        become: true
       
       - name: daemon-reload
         command: systemctl daemon-reload

@@ -1,7 +1,0 @@
-- name: Deploy hosts file
-  copy:
-    src: etc_hosts.vault
-    dest: /etc/hosts
-    owner: root
-    group: root
-    mode: '0644'
