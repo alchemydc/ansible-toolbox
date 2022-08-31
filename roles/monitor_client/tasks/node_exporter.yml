@@ -1,0 +1,63 @@
+---
+#- name: Debug hostvars
+#  debug:
+#    #msg: "{{ hostvars }}"
+#    var=hostvars[inventory_hostname]
+#    #msg: "device to set mtu: {{ ansible_eth0.device }}"
+
+- name: Create node_exporter user
+  user:
+    name: "node_exporter"
+    password: "*" # '*': pw is locked/disabled.  key auth only + passwordless sudo
+    state: present
+    shell: "/usr/sbin/nologin"
+    createhome: yes
+
+- name: Create node_exporter directories
+  file:
+    path: '{{ item }}'
+    state: directory
+    mode: '0750'
+    owner: "node_exporter"
+    group: "node_exporter"
+  loop:
+    - "/var/lib/node_exporter"
+    - "/var/lib/node_exporter/textfile_collector"
+
+- name: download node_exporter
+  get_url:
+    url: 'https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz'
+    checksum: 'sha256:{{ node_exporter_checksum }}'
+    dest: '/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz'
+    mode: '0700'
+
+- name: unarchive node_exporter
+  unarchive:
+    src: '/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz'
+    remote_src: yes
+    dest: '/tmp'
+
+- name: copy node_exporter binary
+  copy:
+    src: '/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter'
+    dest: '/usr/local/sbin/'
+    remote_src: true
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: create node_exporter systemd unit
+  copy:
+    src: node_exporter.service
+    dest: /etc/systemd/system/node-exporter.service
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: start node-exporter service
+  systemd:
+    name: node-exporter
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+  changed_when: false

@@ -20,8 +20,7 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-          - 'monitor:9100'    # monitor.zanshindojo.org
-          - 'sdl-pokt:9100'   # pokt node
-          - 'evmos-relayer-0:9100'    # evmos relayer 0
-          - 'evmos-relayer-1:9100'    # evmos relayer 1
+{% for monitored_host in monitored_hosts %}
+          - '{{ monitored_host }}:9100'
+{% endfor %}
 

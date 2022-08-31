@@ -1,0 +1,11 @@
+[Unit]
+Description=Node Exporter
+
+[Service]
+User=node_exporter
+#EnvironmentFile=/etc/sysconfig/node_exporter
+#ExecStart=/usr/local/sbin/node_exporter $OPTIONS
+ExecStart=/usr/local/sbin/node_exporter --collector.textfile.directory=/var/lib/node_exporter/textfile_collector
+
+[Install]
+WantedBy=multi-user.target

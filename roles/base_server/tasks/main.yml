@@ -25,6 +25,7 @@
       - jq
       - sudo
       - htop
+      - prometheus-node-exporter  # not latest but works
     state: present
     update_cache: true
 
@@ -44,17 +45,15 @@
     mode: '0755'
   when: ansible_virtualization_type == "lxc"
 
+- name: Remove packaged node-exporter since we're using the binary instead of the package now
+  apt:
+    name:
+      - prometheus-node-exporter
+    state: absent
+
 - name: set SDN MTU for guest workloads
   import_tasks: set_mtu.yml
   tags: 'mtu'
-
-- name: Install prometheus-node-exporter
-  apt:
-    name: 
-      - prometheus-node-exporter
-    state: present
-    update_cache: true
-  tags: 'node-exporter'
 
 - name: Disable password auth for sshd
   lineinfile:
@@ -120,5 +119,3 @@
     owner: root
     group: root
     mode: '0600'
-
-

@@ -100,6 +100,7 @@ http:
           - url: "http://10.10.50.71:34657"  #evmos-relayer-1 on sdn subnet
         healthcheck:
           path: /health
+          #test: 'SYNCING=$(curl -s "http://10.10.50.70:34657/status" | jq .result.sync_info.catching_up) && if [ $SYNCING == "true" ]; then exit 1;'
           #passHostHeader: false
     sdl-pokt:
       loadBalancer:
@@ -109,10 +110,14 @@ http:
       loadBalancer:
         servers:
           - url: "http://10.10.50.56:8080"  # celo attestation v0
+        healthcheck:
+          path: /healthz
     celo-attestation-1:
       loadBalancer:
         servers:
           - url: "http://10.10.50.57:8080"  # celo attestation v1
+        healthcheck:
+          path: /health
     tenderduty:
       loadBalancer:
         servers:

@@ -2,14 +2,6 @@
   debug:
     msg: "{{ hostvars[inventory_hostname] }}"
 
-- name: Install needful packages
-  apt:
-    name: 
-      - prometheus-node-exporter
-      - acl   # required for ansible to become unpriv'd user to run tasks successfully
-    state: present
-    update_cache: true
-
 - name: Create celo service user
   user: 
     name: "{{ celo_user }}"

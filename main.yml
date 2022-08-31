@@ -23,8 +23,11 @@
     - role: ingress_server
       tags: 'ingress_server'
       become: true
-    - role: monitor
+    - role: monitor_server
       tags: 'monitor_server'
+      become: true
+    - role: monitor_client
+      tags: 'monitor_client'
       become: true
     
   handlers:

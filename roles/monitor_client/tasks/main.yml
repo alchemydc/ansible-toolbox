@@ -1,0 +1,15 @@
+- name: Install prometheus node exporter
+  import_tasks: node_exporter.yml
+  tags: "node_exporter"
+
+#- name: debug promtail
+#  debug:
+#    #msg: "inventory_hostname: {{ inventory_hostname }}"
+#    var: ansible_facts
+#  tags: debug_promtail
+
+- name: Install promtail
+  import_tasks: promtail.yml
+  when: inventory_hostname is defined and (inventory_hostname != 'monitor')   # because monitor pushes logs to itself
+  tags: 'promtail'
+
