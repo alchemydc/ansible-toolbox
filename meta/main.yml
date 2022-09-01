@@ -2,3 +2,6 @@ dependencies:
     - celo_attestation_server: docker_server
     - monitor_server: docker_server
     - docker_server: base_server
+    - monitor_client: base_server
+    - ingress_server: docker_server
+    - ingress_server: base_server

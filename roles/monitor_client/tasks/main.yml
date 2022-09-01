@@ -10,6 +10,6 @@
 
 - name: Install promtail
   import_tasks: promtail.yml
-  when: inventory_hostname is defined and (inventory_hostname != 'monitor')   # because monitor pushes logs to itself
+  #when: inventory_hostname is defined and (inventory_hostname != 'monitor')   # because monitor pushes logs to itself
   tags: 'promtail'
 

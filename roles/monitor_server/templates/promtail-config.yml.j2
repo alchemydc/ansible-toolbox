@@ -10,8 +10,17 @@ clients:
 
 scrape_configs:
 
-# local machine logs
+#  - job_name: local_journal
+#    journal:
+#      max_age: 12h
+#      labels:
+#        job: local_systemd-journal
+#        host: {{ inventory_hostname }}  # note could use ansible_hostname instead
+#    relabel_configs:
+#      - source_labels: ["__journal__systemd_unit"]
+#        target_label: "unit"
 
+# local machine logs
 - job_name: local
   static_configs:
   - targets:

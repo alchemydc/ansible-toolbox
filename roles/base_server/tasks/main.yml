@@ -10,6 +10,7 @@
     owner: root
     group: root
     mode: '0644'
+  tags: 'update_hosts'
 
 - name: Disable proxmox enterprise repo
   apt_repository:
@@ -25,7 +26,6 @@
       - jq
       - sudo
       - htop
-      - prometheus-node-exporter  # not latest but works
     state: present
     update_cache: true
 

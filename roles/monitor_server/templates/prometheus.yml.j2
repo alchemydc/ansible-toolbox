@@ -11,11 +11,20 @@ scrape_configs:
     static_configs:
       - targets:
           - 'localhost:9090'
+
   - job_name: pocket
     metrics_path: /metrics
     static_configs:
       - targets:
-          - '10.10.60.100:8083'                         # prometheus port controlled in pocket config.json
+          - 'sdl-pokt:8083'
+
+  - job_name: celo_attestation
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - 'celo-attestation-v0:8080'
+          - 'celo-attestation-v1:8080'
+
   - job_name: node  # node_exporter
     metrics_path: /metrics
     static_configs:
@@ -23,4 +32,13 @@ scrape_configs:
 {% for monitored_host in monitored_hosts %}
           - '{{ monitored_host }}:9100'
 {% endfor %}
+
+  - job_name: traefik
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        - 'zd1-ingress:8080'
+        - 'zd2-ingress:8080'
+        - 'zd3-ingress:8080'
+        - 'zd4-ingress:8080'
 

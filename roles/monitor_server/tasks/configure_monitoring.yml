@@ -27,7 +27,7 @@
     - "{{ monitor_user_dir }}/docker"
     - "{{ monitor_user_dir }}/loki"
     - "{{ monitor_user_dir }}/grafana"
-    - "{{ monitor_user_dir }}/promtail"
+    #- "{{ monitor_user_dir }}/promtail"
     - "{{ monitor_user_dir }}/prometheus"
     - "{{ monitor_user_dir }}/prometheus/data"
     - "{{ monitor_user_dir }}/prometheus/etc"
@@ -48,13 +48,13 @@
     group: "{{ monitor_user }}"
     mode: 0640
 
-- name: Copy promtail config to monitor promtail dir
-  template:
-    src: promtail-config.yml.j2
-    dest: "{{ monitor_user_dir }}/promtail/promtail-config.yml"
-    owner: "{{ monitor_user }}"
-    group: "{{ monitor_user }}"
-    mode: 0640
+#- name: Copy promtail config to monitor promtail dir
+#  template:
+#    src: promtail-config.yml.j2
+#    dest: "{{ monitor_user_dir }}/promtail/promtail-config.yml"
+#    owner: "{{ monitor_user }}"
+#    group: "{{ monitor_user }}"
+#    mode: 0640
 
 - name: Copy prometheus alerts.yml config to monitor prometheus etc dir
   template:
