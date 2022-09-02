@@ -1,0 +1,21 @@
+- name: pull latest traefik image
+  command: "docker pull traefik:latest"
+  register: docker_pull_result
+  become: true
+
+- name: debug docker pull
+  debug:
+    msg: "pulled new image"
+  when: docker_pull_result.stdout is search('Downloaded newer image for traefik') 
+
+- name: debug docker pull
+  debug:
+    msg: "no new image to pull"
+  when: docker_pull_result.stdout is not search('Downloaded newer image for traefik') 
+
+- name: restart traefik
+  service:
+    name: traefik
+    state: restarted
+  become: true
+  when: docker_pull_result.stdout is search('Downloaded newer image for traefik')
