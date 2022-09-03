@@ -1,0 +1,23 @@
+[Unit]
+Description=Postgres DB
+Requires=docker.service
+After=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ celo_user }}
+Restart=always
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name postgres \
+  --network=attestation \
+  -e POSTGRES_PASSWORD={{ attestation_db_password }} \
+  -e POSTGRES_DB=attestation-service \
+  -v /home/{{ celo_user }}/postgres:/var/lib/postgresql/data \
+  postgres 
+  
+ExecStop=/usr/bin/docker stop postgres
+
+[Install]
+WantedBy=default.target

@@ -1,6 +1,6 @@
-- name: Debug celo-attestation
-  debug:
-    msg: "{{ hostvars[inventory_hostname] }}"
+#- name: Debug celo-attestation
+#  debug:
+#    msg: "{{ hostvars[inventory_hostname] }}"
 
 - name: Create celo service user
   user: 
@@ -20,12 +20,28 @@
     owner: root
     group: root
     mode: '0644'
-  tags: debug_attestation
+  notify: daemon-reload
+
+- name: Deploy postgres service systemd service file
+  template:
+    src: postgres.service.j2
+    dest: /etc/systemd/system/postgres.service
+    owner: root
+    group: root
+    mode: '0644'
   notify: daemon-reload
 
 - name: Create {{ celo_data_dir }}
   file:
     path: "{{ celo_data_dir }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+
+- name: Create postgres data dir
+  file:
+    path: "/home/{{ celo_user }}/postgres"
     state: directory
     mode: '0750'
     owner: "{{ celo_user }}"
@@ -44,8 +60,18 @@
   import_tasks: create_keystore.yml
   tags: "attestation_keystore"
 
+- name: Create docker network for attestation
+  community.docker.docker_network:
+    name: attestation
+
+- name: Enable and start postgres db service
+  systemd:
+    name: postgres.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
 - name: Enable and start celo attestation service
-  become: true
   systemd:
     name: celo-attestation.service
     enabled: yes

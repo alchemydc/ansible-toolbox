@@ -1,7 +1,7 @@
 [Unit]
 Description=Celo Attestation Service v0
-Requires=docker.service
-After=docker.service
+Requires=postgres.service
+After=postgres.service
 StartLimitBurst=3
 StartLimitIntervalSec=300
 
@@ -11,6 +11,7 @@ Restart=always
 ExecStart=/usr/bin/docker run \
   --rm \
   --name celo-attestation-service \
+  --network attestation \
   --entrypoint /bin/bash \
   -v {{ celo_data_dir }}:/root/.celo \
   -p 8080:8080 \
@@ -18,8 +19,9 @@ ExecStart=/usr/bin/docker run \
   {{ ATTESTATION_SERVICE_DOCKER_REPO }}:{{ ATTESTATION_SERVICE_DOCKER_TAG }} -c "\
   ( \
       cd /celo-monorepo/packages/attestation-service && \
-      yarn run db:create:dev && \
-      yarn run db:migrate:dev && \
+      #yarn run db:create:dev && \
+      #yarn run db:migrate:dev && \
+      yarn run db:migrate && \
       yarn start \
   )"
 ExecStop=/usr/bin/docker stop celo-attestation-service
