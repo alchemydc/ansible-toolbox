@@ -41,7 +41,8 @@
 
 - name: Deploy traefik config.yml to configs dir  #  note must be dir for fsnotify to live reload config inside docker container
   template:
-    src: traefik_config.yml.j2
+    #src: traefik_config.yml.j2
+    src: traefik_config.yml.j2.encrypted
     dest: "/home/traefik/configs/config.yml"
     owner: traefik
     group: traefik
