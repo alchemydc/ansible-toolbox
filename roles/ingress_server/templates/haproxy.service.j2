@@ -1,0 +1,24 @@
+[Unit]
+Description=Haproxy Ingress
+Documentation=http://docs.haproxy.org/
+Requires=docker.service
+After=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User=haproxy
+Restart=always
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name haproxy \
+  -v /home/haproxy/configs:/usr/local/etc/haproxy:ro \
+  -v /etc/hosts:/etc/hosts:ro \
+  -p 34657:34657 \
+  -p 8404:8404 \
+  haproxy:lts-alpine
+
+ExecStop=/usr/bin/docker stop -t 30 haproxy
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,55 @@
+- name: Create traefik service user
+  user: 
+    name: "traefik"
+    password: '*'   # pw is locked/disabled.  key auth only
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/traefik"
+    groups:
+      - docker
+
+- name: Deploy traefik service systemd service file
+  template:
+    src: traefik.service.j2
+    dest: /etc/systemd/system/traefik.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: daemon-reload
+
+- name: Deploy traefik.yml
+  template:
+    src: traefik.yml.j2
+    dest: "/home/traefik/traefik.yml"
+    owner: traefik
+    group: traefik
+    mode: '0640'
+  notify: restart traefik
+
+- name: Create traefik configs dir
+  file:
+    path: "/home/traefik/configs"
+    state: directory
+    mode: '0750'
+    owner: traefik
+    group: traefik
+
+- name: Deploy traefik config.yml to configs dir  #  note must be dir for fsnotify to live reload config inside docker container
+  template:
+    #src: traefik_config.yml.j2
+    src: traefik_config.yml.j2.encrypted
+    dest: "/home/traefik/configs/config.yml"
+    owner: traefik
+    group: traefik
+    mode: '0640'
+  #notify: restart traefik  # config is re-read dynamically
+  tags: 'configure_ingress'
+
+- name: Enable and start traefik ingress service
+  become: true
+  systemd:
+    name: traefik.service
+    enabled: yes
+    state: started
+    daemon_reload: yes

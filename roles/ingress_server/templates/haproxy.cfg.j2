@@ -1,0 +1,30 @@
+global
+  #stats socket /var/run/api.sock user haproxy group haproxy mode 660 level admin expose-fd listeners
+  log stdout format raw local0 info
+
+defaults
+  mode http
+  timeout client 10s
+  timeout connect 5s
+  timeout server 10s
+  timeout http-request 10s
+  log global
+
+frontend stats
+  bind *:8404
+  stats enable
+  stats uri /
+  stats refresh 10s
+
+frontend evmos_rpc
+  bind :34657
+  default_backend evmos_rpc
+
+backend evmos_rpc
+  option httpchk
+  http-check send meth GET uri /status
+  http-check expect string '"catching_up": false'
+  server evmos-relayer-0 evmos-relayer-0:34657 check
+  server evmos-relayer-1 evmos-relayer-1:34657 check
+  # server evmos-relayer-1 evmos-relayer-1:34657 check inter 30s    #only check health every 30s
+

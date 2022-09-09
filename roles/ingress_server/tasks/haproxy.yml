@@ -1,0 +1,45 @@
+- name: Create haproxy service user
+  user: 
+    name: "haproxy"
+    password: '*'   # pw is locked/disabled.  key auth only
+    state: present
+    shell: /usr/sbin/nologin
+    createhome: yes
+    home: "/home/haproxy"
+    groups:
+      - docker
+
+- name: Deploy haproxy service systemd service file
+  template:
+    src: haproxy.service.j2
+    dest: /etc/systemd/system/haproxy.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: daemon-reload
+
+- name: Create haproxy configs dir
+  file:
+    path: "/home/haproxy/configs"
+    state: directory
+    mode: '0755'
+    owner: haproxy
+    group: haproxy
+
+- name: Deploy haproxy.cfg
+  template:
+    src: haproxy.cfg.j2
+    dest: "/home/haproxy/configs/haproxy.cfg"
+    owner: haproxy
+    group: haproxy
+    mode: '0644'
+  notify: restart haproxy
+  tags: 'configure_haproxy'
+
+- name: Enable and start haproxy ingress service
+  become: true
+  systemd:
+    name: haproxy.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
