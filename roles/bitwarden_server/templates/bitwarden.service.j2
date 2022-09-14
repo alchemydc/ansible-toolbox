@@ -1,0 +1,32 @@
+## bitwarden systemd unit
+[Unit]
+Description=Bitwarden Service v0
+Requires=docker.service
+After=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User=bitwarden
+Restart=always
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name bitwarden \
+  --network bitwarden \
+  -v /home/bitwarden/bw-data:/data \
+  -e ROCKET_PORT=8080 \
+  -e DOMAIN=https://{{ bitwarden_domain }} \
+  -e SMTP_HOST={{ smarthost_ip }}\
+  -e SMTP_FROM={{ smtp_from }} \
+  -e SMTP_SECURITY=off \
+  -e WEBSOCKET_ENABLED=true \
+  -e SIGNUPS_ALLOWED={{ signups_allowed }} \
+  -e SIGNUPS_VERIFY={{ signups_verify }} \
+  -e IP_HEADER=CF-Connecting-IP \
+  -p 8080:8080 \
+  -p 3012:3012 \
+  vaultwarden/server:latest
+ExecStop=/usr/bin/docker stop bitwarden
+
+[Install]
+WantedBy=default.target

@@ -29,6 +29,9 @@
     - role: monitor_client
       tags: 'monitor_client'
       become: true
+    - role: bitwarden_server
+      tags: 'bitwarden_server'
+      become: true    
     
   handlers:
       - name: restart sshd
@@ -92,5 +95,12 @@
       - name: restart haproxy
         service:
           name: haproxy
+          state: restarted
+        become: true
+
+      - name: restart bitwarden
+        systemd:
+          name: bitwarden
+          daemon_reload: yes
           state: restarted
         become: true
