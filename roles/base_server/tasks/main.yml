@@ -29,21 +29,9 @@
     state: present
     update_cache: true
 
-- name: Remove packaged htop that doesn't properly report memory in LXC containers
-  apt:
-    name:
-      - htop
-    state: absent
-  when: ansible_virtualization_type == "lxc"
-
-- name: Deploy updated htop binary which properly reports memory inside LXC containers
-  copy:
-    src: htop
-    dest: /usr/local/bin/htop
-    owner: root
-    group: root
-    mode: '0755'
-  when: ansible_virtualization_type == "lxc"
+- name: Replace packaged htop with binary that properly supports LXC
+  import_tasks: htop.yml
+  tags: 'htop'
 
 - name: Remove packaged node-exporter since we're using the binary instead of the package now
   apt:

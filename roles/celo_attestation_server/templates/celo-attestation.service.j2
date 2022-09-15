@@ -19,8 +19,6 @@ ExecStart=/usr/bin/docker run \
   {{ ATTESTATION_SERVICE_DOCKER_REPO }}:{{ ATTESTATION_SERVICE_DOCKER_TAG }} -c "\
   ( \
       cd /celo-monorepo/packages/attestation-service && \
-      #yarn run db:create:dev && \
-      #yarn run db:migrate:dev && \
       yarn run db:migrate && \
       yarn start \
   )"

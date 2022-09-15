@@ -19,7 +19,7 @@
     dest: /etc/systemd/system/celo-attestation.service
     owner: root
     group: root
-    mode: '0644'
+    mode: '0755'
   notify: daemon-reload
 
 - name: Deploy postgres service systemd service file
@@ -28,7 +28,7 @@
     dest: /etc/systemd/system/postgres.service
     owner: root
     group: root
-    mode: '0644'
+    mode: '0755'
   notify: daemon-reload
 
 - name: Create {{ celo_data_dir }}
@@ -63,6 +63,7 @@
 - name: Create docker network for attestation
   community.docker.docker_network:
     name: attestation
+    driver_options: { "com.docker.network.driver.mtu": "{{ sdn_mtu }}" }
 
 - name: Enable and start postgres db service
   systemd:
