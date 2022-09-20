@@ -1,0 +1,33 @@
+#!/bin/bash
+set -ex
+
+TEMP_DIR="/home/bitwarden/tmp"
+TIMESTAMP=$(date +%d%m%Y_%H%M)
+BACKUP_FILENAME="/home/bitwarden/local_backups/bitwarden_backup_$TIMESTAMP.tbz"
+
+mkdir -vp /home/bitwarden/local_backups
+
+# find the latest backup in the bucket
+echo "Finding the latest backup in the bucket"
+LATEST_BACKUP=$(rclone lsf remote:{{ bitwarden_backup_bucket }} | tail -n 1)
+
+echo "Stopping bitwarden daemon to restore the backup"
+sudo systemctl stop bitwarden
+sleep 5
+
+echo "Backing up the local bitwarden data directory"
+DATA_DIR="/home/bitwarden/bw-data"
+tar -C /home/bitwarden -jcvf $BACKUP_FILENAME bw-data
+
+echo "Removing any local bitwarden data"
+rm -rfv /home/bitwarden/bw-data/*
+
+echo "Downloading the backup to restore from persistent storage"
+rclone copy remote:{{ bitwarden_backup_bucket }}/$LATEST_BACKUP $TEMP_DIR/
+
+echo "Extracting the backup"
+tar -C /home/bitwarden -jxvf $TEMP_DIR/$LATEST_BACKUP
+
+# Restart the service
+echo "Restarting bitwarden daemon"
+sudo systemctl start bitwarden

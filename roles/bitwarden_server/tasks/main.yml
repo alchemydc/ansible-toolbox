@@ -1,3 +1,9 @@
+- name: Create bitwarden group
+  ansible.builtin.group:
+    name: bitwarden
+    state: present
+    gid: "{{ bitwarden_gid }}"
+
 - name: Create bitwarden service user
   user: 
     name: "bitwarden"
@@ -6,8 +12,11 @@
     shell: /bin/bash
     createhome: yes
     home: "/home/bitwarden"
+    uid: "{{ bitwarden_uid }}"
+    group: "{{ bitwarden_group }}"
     groups:
       - docker
+    append: true
 
 - name: Deploy bitwarden service systemd service file
   template:
@@ -37,3 +46,7 @@
     enabled: yes
     state: started
     daemon_reload: yes
+
+- name: Install and configure backups for bitwarden data
+  import_tasks: bitwarden_backup.yml
+  tags: 'bitwarden_backup'

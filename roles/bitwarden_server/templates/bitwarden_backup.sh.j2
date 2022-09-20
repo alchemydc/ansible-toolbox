@@ -1,0 +1,22 @@
+#!/bin/bash
+set -ex
+TIMESTAMP=$(date +%d%m%Y_%H%M)
+BACKUP_FILENAME="/home/bitwarden/tmp/bitwarden_backup_$TIMESTAMP.tbz"
+
+echo "Stopping bitwarden daemon to backup the database"
+sudo systemctl stop bitwarden
+sleep 5
+
+# Tar up the bitwarden data dir
+echo "Tar up the bitwarden data dir..."
+tar -C /home/bitwarden -jcvf $BACKUP_FILENAME bw-data
+
+echo "Uploading the backup to persistent storage"
+rclone --gcs-bucket-policy-only copy $BACKUP_FILENAME remote:{{ bitwarden_backup_bucket }}
+
+# Restart the service
+echo "Restarting bitwarden daemon"
+sudo systemctl start bitwarden
+
+echo "Removing the local backup file"
+rm -v $BACKUP_FILENAME

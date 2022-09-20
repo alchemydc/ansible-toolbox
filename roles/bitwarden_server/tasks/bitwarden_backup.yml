@@ -1,0 +1,78 @@
+- name: Install rclone
+  become: true
+  apt:
+    name:
+      - rclone
+    state: present
+    update_cache: yes
+
+- name: Ensure that the user's .config folder exists
+  file:
+    path: '/home/bitwarden/.config'
+    state: directory
+    mode: '0750'
+    owner: bitwarden
+    group: bitwarden
+
+- name: Ensure that the user's tmp folder exists
+  file:
+    path: '/home/bitwarden/tmp'
+    state: directory
+    mode: '0750'
+    owner: bitwarden
+    group: bitwarden
+
+- name: Deploy gcloud service account key
+  copy:
+    src: 'gcloud_svc_acct_key.json.encrypted'
+    dest: '/home/bitwarden/.config/gcloud_svc_account_key.json'
+    owner: 'bitwarden'
+    group: 'bitwarden'
+    mode: '0600'
+
+- name: Create rclone config directory
+  file:
+    path: '/home/bitwarden/.config/rclone'
+    state: directory
+    mode: '0750'
+    owner: bitwarden
+    group: bitwarden
+
+- name: Deploy rclone config file
+  template:
+    src: 'rclone.conf.j2'
+    dest: '/home/bitwarden/.config/rclone/rclone.conf'
+    owner: 'bitwarden'
+    group: 'bitwarden'
+    mode: '0600'
+
+- name: Deploy backup script
+  template:
+    src: 'bitwarden_backup.sh.j2'
+    dest: '/home/bitwarden/bitwarden_backup.sh'
+    owner: 'bitwarden'
+    group: 'bitwarden'
+    mode: '0700'
+
+- name: Deploy restore script
+  template:
+    src: 'bitwarden_restore.sh.j2'
+    dest: '/home/bitwarden/bitwarden_restore.sh'
+    owner: 'bitwarden'
+    group: 'bitwarden'
+    mode: '0700'
+
+- name: Update sudoers to permit bitwarden user to start/stop bitwarden service
+  community.general.sudoers:
+    name: allow-bitwarden-start-stop
+    state: present
+    user: bitwarden
+    commands: /bin/systemctl stop bitwarden,/bin/systemctl start bitwarden
+
+- name: Create backup cronjob
+  cron:
+    user: bitwarden
+    name: backup bitwarden database
+    minute: 20
+    hour: 04
+    job: '/bin/bash /home/bitwarden/bitwarden_backup.sh | logger'
