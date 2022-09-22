@@ -17,7 +17,7 @@ ExecStart=/usr/bin/docker run \
   -v /home/bitwarden/bw-data:/data \
   -e ROCKET_PORT=8080 \
   -e DOMAIN=https://{{ bitwarden_domain }} \
-  -e SMTP_HOST={{ smarthost_ip }}\
+  -e SMTP_HOST={{ smarthost_ip }} \
   -e SMTP_FROM={{ smtp_from }} \
   -e SMTP_SECURITY=off \
   -e WEBSOCKET_ENABLED=true \
@@ -31,3 +31,5 @@ ExecStop=/usr/bin/docker stop bitwarden
 
 [Install]
 WantedBy=default.target
+
+# -e ADMIN_TOKEN={{ bitwarden_admin_token }} \    # disabled by default

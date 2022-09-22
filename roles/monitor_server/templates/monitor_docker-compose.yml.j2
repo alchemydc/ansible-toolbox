@@ -33,6 +33,9 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     user: "1100"
+    # domain must be set for grafana to be served properly by the ingress layer
+    environment:
+      - GF_SERVER_DOMAIN="{{ grafana_fqdn }}"
     volumes:
       - {{ monitor_user_dir }}/grafana:/var/lib/grafana
     ports:
