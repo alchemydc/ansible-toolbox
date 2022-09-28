@@ -1,0 +1,22 @@
+[Unit]
+Description=Celo Proxy Service v0
+Requires=docker.service
+After=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ celo_user }}
+Restart=always
+WorkingDirectory={{ celo_data_dir }}
+ExecStart=/usr/bin/docker run --rm \
+--name celo-proxy -p 30303:30303 -p 30303:30303/udp -p 30503:30503 -p 30503:30503/udp \
+-v {{ celo_data_dir }}:/root/.celo --stop-timeout 300 \
+{{ geth_docker_repo }}:{{ geth_docker_tag}} \\
+--verbosity {{ geth_verbosity }} --syncmode full \
+--proxy.proxy --proxy.proxiedvalidatoraddress {{ proxied_validator_address }} --proxy.internalendpoint :30503 \
+--etherbase {{ proxy_account_address }} --unlock {{ proxy_account_address }} --password /root/.celo/.password --allow-insecure-unlock --{{ network }} --celostats={{ stats_uri }}
+ExecStop=/usr/bin/docker stop celo-attestation-service
+
+[Install]
+WantedBy=default.target

@@ -1,3 +1,4 @@
+# haproxy systemd service
 [Unit]
 Description=Haproxy Ingress
 Documentation=http://docs.haproxy.org/
@@ -14,7 +15,7 @@ ExecStart=/usr/bin/docker run \
   --name haproxy \
   -v /home/haproxy/configs:/usr/local/etc/haproxy:ro \
   -v /etc/hosts:/etc/hosts:ro \
-  -p 34657:34657 \
+  -p 44657:44657 \
   -p 8404:8404 \
   haproxy:lts-alpine
 

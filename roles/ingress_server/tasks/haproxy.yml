@@ -16,7 +16,7 @@
     owner: root
     group: root
     mode: '0644'
-  notify: daemon-reload
+  notify: restart haproxy
 
 - name: Create haproxy configs dir
   file:
