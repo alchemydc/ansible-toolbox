@@ -10,17 +10,25 @@
     shell: /bin/bash
     createhome: yes
     home: "/home/{{ celo_user }}"
+    uid: "{{ celo_uid }}"
+    group: "{{ celo_group }}"
     groups:
       - docker
+    append: true
 
-- name: Deploy celo-proxy service systemd service file
+- name: register public ip
+  uri:
+    url: 'https://api.ipify.org?format=json'
+  register: geth_public_ip
+
+- name: Deploy celo-geth service systemd service file
   template:
-    src: celo-proxy.service.j2
-    dest: /etc/systemd/system/celo-proxy.service
+    src: celo-geth.service.j2
+    dest: /etc/systemd/system/celo-geth.service
     owner: root
     group: root
     mode: '0755'
-  notify: daemon-reload
+  notify: restart celo-geth
 
 - name: Create {{ celo_data_dir }}
   file:
@@ -34,14 +42,24 @@
   import_tasks: create_keystore.yml
   tags: "keystore"
 
-- name: Create docker network for celo-proxy
+- name: Create docker network for celo
   community.docker.docker_network:
-    name: celo-proxy
+    name: celo
     driver_options: { "com.docker.network.driver.mtu": "{{ sdn_mtu }}" }
 
-- name: Enable and start celo-proxy service
+- name: Enable and start celo-geth service
   systemd:
-    name: celo-proxy.service
+    name: celo-geth.service
     enabled: yes
     state: started
     daemon_reload: yes
+
+- name: Update profile with geth console alias when on baklava testnet
+  lineinfile:
+    path: /home/{{ celo_user }}/.profile
+    line: alias gattach='docker exec -it celo-geth geth --datadir /root/.celo/baklava attach'
+    state: present
+
+- name: Deploy restore from snapshot script
+  import_tasks: restore_snapshot.yml
+  tags: 'restore_celo_snapshot'

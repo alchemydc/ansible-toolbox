@@ -1,0 +1,14 @@
+- name: Create restore_from_snapshot script
+  template:
+    src: restore_from_snapshot.sh.j2
+    dest: /home/{{ celo_user }}/restore_from_snapshot.sh
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: 0750
+
+- name: Update sudoers to permit {{ celo_user }} to start/stop celo-geth service
+  community.general.sudoers:
+    name: allow-celo-geth-start-stop
+    state: present
+    user: "{{ celo_user }}"
+    commands: /bin/systemctl stop celo-geth,/bin/systemctl start celo-geth,/bin/tar --directory {{ celo_data_dir }}/baklava/celo -xvf -

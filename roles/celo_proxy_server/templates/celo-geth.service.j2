@@ -1,0 +1,34 @@
+[Unit]
+Description=Celo Geth Service
+Requires=docker.service
+After=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ celo_user }}
+Group={{ celo_user }}
+Restart=always
+WorkingDirectory={{ celo_data_dir }}
+ExecStart=/usr/bin/docker run --rm \
+--name celo-geth \
+-p 6060:6060 -p {{ geth_p2p_port }}:{{ geth_p2p_port }} -p {{ geth_p2p_port }}:{{ geth_p2p_port }}/udp -p 30503:30503 -p 30503:30503/udp \
+-v {{ celo_data_dir }}:/root/.celo \
+--stop-timeout 300 \
+{{ geth_docker_repo }}:{{ geth_docker_tag}} \
+--port {{ geth_p2p_port }} \
+--nat extip:{{ geth_public_ip.json.ip }} \
+--verbosity {{ geth_verbosity }} --syncmode full \
+--proxy.proxy --proxy.proxiedvalidatoraddress {{ proxied_validator_address }} --proxy.internalendpoint :30503 \
+--etherbase {{ proxy_account_address }} --unlock {{ proxy_account_address }} \
+--password /root/.celo/proxy_account_password --allow-insecure-unlock --{{ network }} --celostats={{ stats_uri }} \
+--light.serve 0 \
+--metrics --pprof --pprof.addr 0.0.0.0
+ExecStop=/usr/bin/docker stop -t 300 celo-geth
+
+[Install]
+WantedBy=default.target
+
+
+#--user {{ celo_uid }}:{{celo_gid }} \
+# sadly, the celo geth dockerfile doesn't include a user we can leverage

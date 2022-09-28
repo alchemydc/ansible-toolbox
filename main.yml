@@ -20,6 +20,9 @@
     - role: celo_attestation_server
       tags: 'celo_attestation_server'
       become: true
+    - role: celo_proxy_server
+      tags: 'celo_proxy_server'
+      become: true
     - role: ingress_server
       tags: 'ingress_server'
       become: true
@@ -101,6 +104,13 @@
       - name: restart bitwarden
         systemd:
           name: bitwarden
+          daemon_reload: yes
+          state: restarted
+        become: true
+      
+      - name: restart celo-geth
+        systemd:
+          name: celo-geth
           daemon_reload: yes
           state: restarted
         become: true

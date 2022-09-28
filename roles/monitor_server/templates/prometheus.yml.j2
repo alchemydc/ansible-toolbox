@@ -35,6 +35,12 @@ scrape_configs:
           - 'celo-attestation-v0:8080'
           - 'celo-attestation-v1:8080'
 
+  - job_name: celo_validators
+    metrics_path: /debug/metrics/prometheus
+    static_configs:
+      - targets:
+          - 'celo-baklava-proxy:6060'
+
   - job_name: node  # node_exporter
     metrics_path: /metrics
     static_configs:
