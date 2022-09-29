@@ -40,6 +40,7 @@ scrape_configs:
     static_configs:
       - targets:
           - 'celo-baklava-proxy:6060'
+          - 'celo-baklava-validator:6060'
 
   - job_name: node  # node_exporter
     metrics_path: /metrics

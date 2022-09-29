@@ -1,0 +1,65 @@
+- name: Debug celo-validator
+  debug:
+    msg: "{{ hostvars[inventory_hostname] }}"
+
+- name: Create celo service user
+  user:
+    name: "{{ celo_user }}"
+    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/{{ celo_user }}"
+    uid: "{{ celo_uid }}"
+    #group: "{{ celo_group }}"
+    groups:
+      - docker
+    append: true
+
+#- name: register public ip
+#  uri:
+#    url: 'https://api.ipify.org?format=json'
+#  register: geth_public_ip
+
+- name: Deploy celo-geth service systemd service file
+  template:
+    src: celo-geth.service.j2
+    dest: /etc/systemd/system/celo-geth.service
+    owner: root
+    group: root
+    mode: '0755'
+  notify: restart celo-geth
+
+- name: Create {{ celo_data_dir }}
+  file:
+    path: "{{ celo_data_dir }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+
+- name: Create keystore
+  import_tasks: create_keystore.yml
+  tags: "keystore"
+
+- name: Create docker network for celo
+  community.docker.docker_network:
+    name: celo
+    driver_options: { "com.docker.network.driver.mtu": "{{ sdn_mtu }}" }
+
+- name: Enable and start celo-geth service
+  systemd:
+    name: celo-geth.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- name: Update profile with geth console alias when on baklava testnet
+  lineinfile:
+    path: /home/{{ celo_user }}/.profile
+    line: alias gattach='docker exec -it celo-geth geth --datadir /root/.celo/baklava attach'
+    state: present
+
+- name: Deploy restore from snapshot script
+  import_tasks: restore_snapshot.yml
+  tags: 'restore_celo_snapshot'
