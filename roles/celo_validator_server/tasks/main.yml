@@ -30,6 +30,23 @@
     mode: '0755'
   notify: restart celo-geth
 
+- name: Deploy celo-geth service environment file
+  copy:
+    src: environment.env
+    dest: "{{ celo_data_dir }}/environment.env"
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: '0755'
+  notify: restart celo-geth
+
+- name: Deploy celo-geth service helper script
+  template:
+    src: get_public_ip.sh.j2
+    dest: "{{ celo_data_dir }}/get_public_ip.sh"
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: '0755'
+
 - name: Create {{ celo_data_dir }}
   file:
     path: "{{ celo_data_dir }}"
@@ -63,3 +80,7 @@
 - name: Deploy restore from snapshot script
   import_tasks: restore_snapshot.yml
   tags: 'restore_celo_snapshot'
+
+- name: Deploy generate proof of possession script
+  import_tasks: generate_pop.yml
+  tags: 'generate_pop'

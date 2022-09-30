@@ -10,19 +10,21 @@ User={{ celo_user }}
 Group={{ celo_user }}
 Restart=always
 WorkingDirectory={{ celo_data_dir }}
+EnvironmentFile=-{{ celo_data_dir }}/environment.env
+ExecStartPre={{ celo_data_dir}}/get_public_ip.sh
 ExecStart=/usr/bin/docker run --rm \
 --name celo-geth \
 -p 6060:6060 \
+-p {{ geth_p2p_port }}:{{ geth_p2p_port }} -p {{ geth_p2p_port }}:{{ geth_p2p_port }}/udp \
 -p 127.0.0.1:8545:8545 \
 -v {{ celo_data_dir }}:/root/.celo \
 --stop-timeout 300 \
 {{ geth_docker_repo }}:{{ geth_docker_tag}} \
+--port {{ geth_p2p_port }} \
+--nat extip:${PUBLIC_IP} \
 --verbosity {{ geth_verbosity }} \
 --syncmode full \
 --mine \
---proxy.proxyenodeurlpairs="{{ proxy_enodepair }}" \
---nodiscover \
---proxy.proxied \
 --miner.validator={{ validator_signer_address }}  \
 --tx-fee-recipient={{ validator_txfee_recipient }} \
 --unlock {{ validator_signer_address }} \
@@ -36,3 +38,7 @@ ExecStop=/usr/bin/docker stop -t 300 celo-geth
 
 [Install]
 WantedBy=default.target
+
+# --proxy.proxyenodeurlpairs="{{ proxy_enodepair }}" \
+# --nodiscover \
+# --proxy.proxied \
