@@ -3,9 +3,9 @@
   register: zfs_list_result
 
 - name: Create vmdata ZFS dataset
-  command: 'zfs create rpool/vmdata'
+  command: "zfs create {{ zfs_pool }}/vmdata"
   when:
-    - not zfs_list_result.stdout is search("rpool/vmdata")
+    - not zfs_list_result.stdout is search("{{ zfs_pool }}/vmdata")
 
 - name: Rescan ZFS volumes
   command: 'pvesm scan zfs'
@@ -16,7 +16,7 @@
   ignore_errors: true
   
 - name: Create vmdata PVE storage
-  command: 'pvesm add zfspool vmdata -pool rpool/vmdata -sparse'
+  command: "pvesm add zfspool vmdata -pool {{ zfs_pool }}/vmdata -sparse"
   when:
     - pvesm_list_vmdata_result.stderr is search("storage 'vmdata' does not exist")
 

@@ -38,6 +38,7 @@ services:
       - GF_SERVER_DOMAIN="{{ grafana_fqdn }}"
     volumes:
       - {{ monitor_user_dir }}/grafana:/var/lib/grafana
+      #- /etc/hosts:/etc/hosts:ro
     ports:
       - "3000:3000"
     restart: unless-stopped

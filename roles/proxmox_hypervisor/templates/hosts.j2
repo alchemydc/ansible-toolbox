@@ -1,10 +1,11 @@
 127.0.0.1 localhost.localdomain localhost
-{{ public_ip }} {{ ansible_nodename }}-public.{{ domain }} {{ ansible_nodename }}-public
+{{ public_ip }} {{ inventory_hostname }}-public.{{ domain }} {{ inventory_hostname }}-public
 
 10.10.68.1 {{ hostname_prefix }}1.{{ domain }} {{hostname_prefix}}1
 10.10.68.2 {{ hostname_prefix }}2.{{ domain }} {{hostname_prefix}}2
 10.10.68.3 {{ hostname_prefix }}3.{{ domain }} {{hostname_prefix}}3
 10.10.68.4 {{ hostname_prefix }}4.{{ domain }} {{hostname_prefix}}4
+10.10.68.5 {{ hostname_prefix }}5.{{ domain }} {{hostname_prefix}}5
 
 # The following lines are desirable for IPv6 capable hosts
 

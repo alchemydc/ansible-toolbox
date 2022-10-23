@@ -1,7 +1,12 @@
-- name: Debug admin_users
-  debug:
-    msg: "admin_users item: {{ item }}"
-  loop: "{{ admin_users }}"
+#- name: Debug admin_users
+#  debug:
+#    msg: "admin_users item: {{ item }}"
+#  loop: "{{ admin_users }}"
+
+#- name: debug virtualization
+#  debug:
+#    msg: "ansible_virtualization_role: {{ ansible_virtualization_role }},  ansible_virtualization_tech_guest: {{ ansible_virtualization_tech_guest }}, ansible_virtualization_tech_host: {{ ansible_virtualization_tech_host }}"
+#  tags: debug_virt
 
 - name: Deploy hosts file
   copy:
@@ -11,6 +16,7 @@
     group: root
     mode: '0644'
   tags: 'update_hosts'
+  when: ansible_virtualization_role == "guest"
 
 - name: Disable proxmox enterprise repo
   apt_repository:
@@ -32,6 +38,8 @@
 - name: Replace packaged htop with binary that properly supports LXC
   import_tasks: htop.yml
   tags: 'htop'
+  #when: ansible_virtualization_role == "guest" and ansible_virtualization_tech_guest == ['container', 'lxc']
+  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
 - name: Remove packaged node-exporter since we're using the binary instead of the package now
   apt:
@@ -42,6 +50,7 @@
 - name: set SDN MTU for guest workloads
   import_tasks: set_mtu.yml
   tags: 'mtu'
+  when: ansible_virtualization_role == "guest"
 
 - name: Disable password auth for sshd
   lineinfile:

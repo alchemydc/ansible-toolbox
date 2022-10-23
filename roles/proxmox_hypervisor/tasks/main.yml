@@ -39,6 +39,16 @@
   notify:
     - restart networking
 
+- name: Debug hostname
+  debug:
+    msg: "inventory_hostname: {{ inventory_hostname }}"
+  tags: set_hostname
+
+- name: Configure hostname
+  command: "hostnamectl set-hostname {{ inventory_hostname }}"
+  become: true
+  tags: set_hostname
+
 - name: Configure baseline iptables rules
   import_tasks: configure_firewall.yml
   become: true
@@ -63,20 +73,21 @@
 - name: Copy restart_services.sh helper script to home dir
   copy:
     src: restart_pve_services.sh
-    dest: "/home/{{ user_to_create }}/restart_pve_services.sh"
-    owner: "{{ user_to_create }}"
-    group: "{{ user_to_create }}"
+    dest: "/root/restart_pve_services.sh"
+    owner: "root"
+    group: "root"
     mode: '0740'
 
 - name: Configure swap
   import_tasks: configure_swap.yml
   tags:
     - swap
+  when: provider is defined and provider == "hetzner"
 
 - name: Configure ZFS
   import_tasks: configure_zfs.yml
-  tags:
-    - zfs
+  tags: "zfs"
+  #when: provider is defined and provider == "hetzner"
 
 - name: Disable sleep on lid close # yes pmox runs on laptops, good for quorum
   lineinfile:

@@ -3,7 +3,7 @@
     name:
       - htop
     state: absent
-  when: ansible_virtualization_type == "lxc"
+  #when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
 - name: Deploy updated htop binary which properly reports memory inside LXC containers
   copy:
@@ -12,4 +12,4 @@
     owner: root
     group: root
     mode: '0755'
-  when: ansible_virtualization_type == "lxc"
+  #when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
