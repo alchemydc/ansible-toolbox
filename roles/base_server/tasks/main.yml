@@ -31,7 +31,6 @@
       - vim
       - jq
       - sudo
-      - htop
     state: present
     update_cache: true
 
