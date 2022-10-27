@@ -23,8 +23,11 @@
     - role: celo_proxy_server
       tags: 'celo_proxy_server'
       become: true
-    - role: celo_validator_server
-      tags: 'celo_validator_server'
+    - role: celo_validator_docker_server
+      tags: 'celo_validator_docker_server'
+      become: true
+    - role: celo_validator_native_server
+      tags: 'celo_validator_native_server'
       become: true
     - role: ingress_server
       tags: 'ingress_server'

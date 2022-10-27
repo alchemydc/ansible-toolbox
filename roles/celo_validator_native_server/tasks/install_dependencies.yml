@@ -1,0 +1,11 @@
+- name: install apt packages
+  apt:
+    name:
+      - make
+      - build-essential
+      - gcc
+      - git
+      - jq
+      - curl
+    state: present
+    update_cache: yes
