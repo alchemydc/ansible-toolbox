@@ -7,5 +7,6 @@
       - git
       - jq
       - curl
+      - acl   # required for become_user != root
     state: present
     update_cache: yes

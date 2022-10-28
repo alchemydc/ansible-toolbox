@@ -5,6 +5,7 @@
     owner: "{{ celo_user }}"
     group: "{{ celo_user }}"
     mode: 0750
+  become: true
 
 - name: Update sudoers to permit {{ celo_user }} to start/stop celo-geth service
   community.general.sudoers:
@@ -12,3 +13,5 @@
     state: present
     user: "{{ celo_user }}"
     commands: /bin/systemctl stop celo-geth,/bin/systemctl start celo-geth,/bin/tar --directory {{ celo_data_dir }}/baklava/celo -xvf -
+  become: true
+  

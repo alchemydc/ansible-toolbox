@@ -4,6 +4,7 @@
 
 - name: Install dependencies
   import_tasks: install_dependencies.yml
+  become: true
 
 - name: Create celo service user
   user:
@@ -15,12 +16,41 @@
     home: "/home/{{ celo_user }}"
     uid: "{{ celo_uid }}"
     #group: "{{ celo_group }}"
+  become: true
+
+- name: Deploy .profile for {{ celo_user }}
+  template:
+    src: 'profile.j2'
+    dest: '/home/{{ celo_user }}/.profile'
+    owner: '{{ celo_user }}'
+    group: '{{ celo_user }}'
+    mode: '0600'
+  become: true
+
+- name: Create {{ celo_data_dir }}
+  file:
+    path: "{{ celo_data_dir }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+  become: true
 
 - name: Install golang
   import_tasks: install_golang.yml
 
 - name: Build and install celo geth from source
   import_tasks: build_and_install_geth.yml
+
+- name: Deploy celo-geth service environment file
+  copy:
+    src: environment.env
+    dest: "{{ celo_data_dir }}/environment.env"
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: '0755'
+  become: true
+  
 
 - name: Deploy celo-geth service systemd service file
   template:
@@ -30,6 +60,7 @@
     group: root
     mode: '0755'
   notify: restart celo-geth
+  become: true
 
 - name: Deploy celo-geth service helper script
   template:
@@ -38,18 +69,11 @@
     owner: "{{ celo_user }}"
     group: "{{ celo_user }}"
     mode: '0755'
-
-- name: Create {{ celo_data_dir }}
-  file:
-    path: "{{ celo_data_dir }}"
-    state: directory
-    mode: '0750'
-    owner: "{{ celo_user }}"
-    group: "{{ celo_user }}"
+  become: true
 
 - name: Create keystore
   import_tasks: create_keystore.yml
-  tags: "keystore"
+  tags: "native_keystore"
 
 - name: Enable and start celo-geth service
   systemd:
@@ -57,6 +81,7 @@
     enabled: yes
     state: started
     daemon_reload: yes
+  become: true
 
 - name: Deploy restore from snapshot script
   import_tasks: restore_snapshot.yml

@@ -5,6 +5,7 @@
     owner: "{{ celo_user }}"
     group: "{{ celo_user }}"
     mode: '0750'
+  become: true
 
 - name: Generate proof of possession
   command:
