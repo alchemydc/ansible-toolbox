@@ -13,10 +13,12 @@ sleep 3
 
 {% if network == 'baklava' %}
 echo "Pulling baklava chaindata snapshot from $SNAPSHOT_URI"
-curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | sudo tar --directory {{ celo_data_dir }}/baklava/celo -xvf -
+#curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | sudo tar --directory {{ celo_data_dir }}/baklava/celo -xvf -
+curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | tar --directory {{ celo_data_dir }}/baklava/celo -xvf -
 {% else %}
 echo "Pulling chaindata snapshot from $SNAPSHOT_URI"
-curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | sudo tar --directory {{ celo_data_dir }}/celo -xvf -
+#curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | sudo tar --directory {{ celo_data_dir }}/celo -xvf -
+curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | tar --directory {{ celo_data_dir }}/celo -xvf -
 {% endif %}
 
 echo "Restarting celo-geth service"

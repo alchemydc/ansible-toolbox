@@ -5,9 +5,6 @@
 - name: Install dependencies
   import_tasks: install_dependencies.yml
 
-- name: Install golang
-  import_tasks: install_golang.yml
-
 - name: Create celo service user
   user:
     name: "{{ celo_user }}"
@@ -18,9 +15,12 @@
     home: "/home/{{ celo_user }}"
     uid: "{{ celo_uid }}"
     #group: "{{ celo_group }}"
-    groups:
-      - docker
-    append: true
+
+- name: Install golang
+  import_tasks: install_golang.yml
+
+- name: Build and install celo geth from source
+  import_tasks: build_and_install_geth.yml
 
 - name: Deploy celo-geth service systemd service file
   template:

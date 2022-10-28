@@ -1,0 +1,20 @@
+- name: Install from source
+  block:
+    - name: Clone celo-blockchain repo
+      git:
+        repo: '{{ celo_repo }}'
+        dest: '/home/{{ celo_user }}/celo-blockchain'
+        version: '{{ celo_version }}'
+        update: yes
+        force: yes
+        depth: 1
+
+    - name: Build and install celo geth
+      command: '{{ item }}'
+      args:
+        chdir: '/home/{{ celo_user }}/celo-blockchain'
+      with_items:
+        - 'make geth'
+      environment:
+        PATH: '{{ path }}'
+        GOPATH: '/home/{{ celo_user }}/go'

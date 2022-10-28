@@ -13,3 +13,19 @@
     group: root
     mode: '0755'
   become: true
+
+- name: Change go folder permission
+  file:
+    path: '/home/{{ celo_user }}/go'
+    owner: '{{ celo_user }}'
+    group: '{{ celo_user }}'
+    recurse: true
+    mode: '0755'
+
+- name: copy .profile
+  template:
+    src: 'profile.j2'
+    dest: '/home/{{ celo_user }}/.profile'
+    owner: '{{ celo_user }}'
+    group: '{{ celo_user }}'
+    mode: '0600'
