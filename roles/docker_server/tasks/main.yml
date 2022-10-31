@@ -6,7 +6,7 @@
      - gnupg 
      - lsb-release
      - jq
-     - fuse-overlayfs # required for docker on LXC
+     #- fuse-overlayfs # required for docker on LXC
      - acl            # required for ansible to become unpriv'd user to run tasks successfully
     state: present
     update_cache: true
@@ -41,7 +41,7 @@
     mode: '0644'
   notify: restart docker
 
-- name: Restart docker to enable fuse overlayfs
+- name: Restart docker to apply new docker daemon.json
   service:
     name: docker
     state: restarted

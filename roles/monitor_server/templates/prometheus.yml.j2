@@ -25,6 +25,7 @@ scrape_configs:
           - 'agoric-snapshot:44660'
           - 'agoric-relayer-0:44660'
           - 'agoric-relayer-1:44660'
+          - 'agoric-main-0:44660'
           - 'agoric-main-1:44660'
           - 'agoric-emerynet-main-0:44660'
 
@@ -39,8 +40,9 @@ scrape_configs:
     metrics_path: /debug/metrics/prometheus
     static_configs:
       - targets:
-          - 'celo-baklava-proxy:6060'
           - 'celo-baklava-validator:6060'
+          - 'celo-v0:6060'
+          - 'celo-v1:6060'
 
   - job_name: node  # node_exporter
     metrics_path: /metrics
@@ -58,4 +60,3 @@ scrape_configs:
         - 'zd2-ingress:8080'
         - 'zd3-ingress:8080'
         - 'zd4-ingress:8080'
-
