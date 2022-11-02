@@ -8,6 +8,13 @@
 #    msg: "ansible_virtualization_role: {{ ansible_virtualization_role }},  ansible_virtualization_tech_guest: {{ ansible_virtualization_tech_guest }}, ansible_virtualization_tech_host: {{ ansible_virtualization_tech_host }}"
 #  tags: debug_virt
 
+#- name: Show debug data
+#  debug: var=hostvars
+
+#- name: Debug cloud_provider
+#  debug:
+#    msg: "cloud_provider: {{ cloud_provider }}"
+
 - name: Deploy hosts file
   copy:
     src: etc_hosts.vault

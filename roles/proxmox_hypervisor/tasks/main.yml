@@ -1,6 +1,6 @@
-- name: Show debug data
-  debug: var=hostvars
-  
+#- name: Show debug data
+#  debug: var=hostvars
+
 - name: Disable proxmox enterprise repo
   apt_repository:
     repo: deb https://enterprise.proxmox.com/debian/pve bullseye pve-enterprise
@@ -68,7 +68,8 @@
     owner: root
     group: root
     mode: '644'
-  tags: 'hosts'
+  tags:
+    - 'proxmox_hosts'
 
 - name: Copy restart_services.sh helper script to home dir
   copy:
@@ -82,12 +83,10 @@
   import_tasks: configure_swap.yml
   tags:
     - swap
-  when: provider is defined and provider == "hetzner"
-
+  
 - name: Configure ZFS
   import_tasks: configure_zfs.yml
   tags: "zfs"
-  #when: provider is defined and provider == "hetzner"
 
 - name: Disable sleep on lid close # yes pmox runs on laptops, good for quorum
   lineinfile:

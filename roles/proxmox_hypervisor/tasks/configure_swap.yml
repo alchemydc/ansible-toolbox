@@ -9,14 +9,10 @@
     name: parted
     state: present
     update_cache: true
-  tags:
-    - swap
 
 - name: Read device information from first SSD
   parted: "device=/dev/nvme0n1 unit=MiB"
   register: nvme0n1_info
-  tags:
-    - swap
 
 #- name: Debug the device info
   #debug:
@@ -91,5 +87,4 @@
 
 - name: Enable swap partitions
   command: 'swapon -a'
-
 
