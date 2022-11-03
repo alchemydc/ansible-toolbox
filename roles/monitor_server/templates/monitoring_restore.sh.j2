@@ -1,0 +1,42 @@
+#!/bin/bash
+set -ex
+
+TEMP_DIR="{{ monitor_user_dir }}/tmp"
+TIMESTAMP=$(date +%d%m%Y_%H%M)
+#GRAFANA_BACKUP_FILENAME="{{ monitor_user_dir }}/restore/bitwarden_backup_$TIMESTAMP.tbz"
+GRAFANA_DB="{{ monitor_user_dir }}/grafana/grafana.db"
+#PROM_BACKUP="prometheus_backup.tbz"
+LOCAL_BACKUP_DIR={{ monitor_user_dir }}/local_backups
+
+mkdir -vp $LOCAL_BACKUP_DIR
+
+# find the latest backup in the bucket
+echo "Finding the latest backup in the bucket"
+LATEST_BACKUP=$(rclone lsf remote:{{ monitoring_backup_bucket }} | tail -n 1)
+
+echo "Stopping monitoring stack to restore the monitoring data"
+cd {{ monitor_user_dir }}/docker
+docker-compose down
+sleep 3
+
+#echo "Backing up the local grafana.db"
+cp $GRAFANA_DB $LOCAL_BACKUP_DIR/grafana_$TIMESTAMP.db
+
+#echo "Removing any local prometheus data"
+#rm -rfv {{ monitor_user_dir }}/prometheus/data/*
+
+echo "Downloading the grafana.db backup to restore from persistent storage"
+#rclone copy remote:{{ monitoring_backup_bucket }}/$GRAFANA_DB_BACKUP {{ monitor_user_dir }}/grafana/grafana.db
+rclone copy remote:{{ monitoring_backup_bucket }}/$LATEST_BACKUP {{ monitor_user_dir }}/grafana/
+
+#echo "Downloading $PROM_BACKUP to restore from persistent storage"
+#rclone copy remote:{{ monitoring_backup_bucket }}/$PROM_BACKUP {{ monitor_user_dir }}/tmp/$PROM_BACKUP
+
+#echo "Extracting the backup of prometheus data"
+#tar -C {{ monitor_user_dir }}/prometheus -jxvf $TEMP_DIR/$PROM_BACKUP
+
+# Restart the services
+echo "Restarting monitoring stack"
+cd {{ monitor_user_dir }}/docker
+docker-compose up -d
+

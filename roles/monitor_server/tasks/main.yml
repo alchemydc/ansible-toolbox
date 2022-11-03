@@ -2,4 +2,7 @@
   import_tasks: configure_monitoring.yml
   tags: "configure_monitoring"
 
+- name: Configure monitoring backup and restore
+  import_tasks: monitoring_backup_and_restore.yml
+  tags: "monitoring_backup"
 

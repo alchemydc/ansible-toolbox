@@ -1,0 +1,45 @@
+#!/bin/bash
+set -ex
+TIMESTAMP=$(date +%d%m%Y_%H%M)
+##### 
+# decided to not use object versioning in the GCS bucket rather than timestamped filenames for reasons
+#PROM_BACKUP_FILENAME="{{ monitor_user_dir }}/tmp/prometheus_backup_$TIMESTAMP.tbz"
+GRAFANA_BACKUP_FILENAME="{{ monitor_user_dir }}/tmp/grafana_$TIMESTAMP.db"
+#####
+
+
+# uncomment these if you decide to go the object versioning route
+#PROM_BACKUP_FILENAME="{{ monitor_user_dir }}/tmp/prometheus_backup.tbz"
+#GRAFANA_BACKUP_FILENAME="{{ monitor_user_dir }}/tmp/grafana.db"
+
+echo "Stopping monitoring stack to backup the monitoring data"
+cd {{ monitor_user_dir }}/docker
+docker-compose down
+
+sleep 3
+
+# copy the grafana DB
+echo "Copying grafana.db to user's tmp dir"
+cp {{ monitor_user_dir }}/grafana/grafana.db $GRAFANA_BACKUP_FILENAME
+
+# do not backup up the prometheus data because it takes forever, and we don't want the monitoring stack to be down for that long
+# Tar up the prometheus data dir
+#echo "Tarring up the prometheus data dir..."
+#tar -C {{ monitor_user_dir }}/prometheus -jcvf $PROM_BACKUP_FILENAME data
+
+# Restart the service
+echo "Restarting monitoring stack"
+cd {{ monitor_user_dir }}/docker
+docker-compose up -d
+
+echo "Copying the grafana DB to bucket {{ monitoring_backup_bucket }}"
+rclone --gcs-bucket-policy-only copy $GRAFANA_BACKUP_FILENAME remote:{{ monitoring_backup_bucket }}
+echo "Deleting the tmp/grafana.db"
+rm -v $GRAFANA_BACKUP_FILENAME
+
+#echo "Uploading the backup to persistent storage"
+#rclone --gcs-bucket-policy-only copy $PROM_BACKUP_FILENAME remote:{{ monitoring_backup_bucket }}
+
+#echo "Removing the local backup file"
+#rm -v $PROM_BACKUP_FILENAME
+

@@ -1,0 +1,72 @@
+- name: Install rclone
+  become: true
+  apt:
+    name:
+      - rclone
+    state: present
+    update_cache: yes
+
+- name: Ensure that the user's .config folder exists
+  file:
+    path: '{{ monitor_user_dir }}/.config'
+    state: directory
+    mode: '0750'
+    owner: "{{ monitor_user }}"
+    group: "{{ monitor_user }}"
+
+- name: Ensure that the user's tmp folder exists
+  file:
+    path: '{{ monitor_user_dir }}/tmp'
+    state: directory
+    mode: '0750'
+    owner: "{{ monitor_user }}"
+    group: "{{ monitor_user }}"
+
+- name: Deploy gcloud service account key
+  copy:
+    src: 'gcloud_svc_account_key.json.encrypted'
+    dest: '{{ monitor_user_dir }}/.config/gcloud_svc_account_key.json'
+    owner: '{{ monitor_user }}'
+    group: '{{ monitor_user }}'
+    mode: '0600'
+
+- name: Create rclone config directory
+  file:
+    path: '{{ monitor_user_dir }}/.config/rclone'
+    state: directory
+    mode: '0750'
+    owner: "{{ monitor_user }}"
+    group: "{{ monitor_user }}"
+
+- name: Deploy rclone config file
+  template:
+    src: 'rclone.conf.j2'
+    dest: '{{ monitor_user_dir }}/.config/rclone/rclone.conf'
+    owner: '{{ monitor_user }}'
+    group: '{{ monitor_user }}'
+    mode: '0600'
+
+- name: Deploy backup script
+  template:
+    src: 'monitoring_backup.sh.j2'
+    dest: '{{ monitor_user_dir }}/monitoring_backup.sh'
+    owner: '{{ monitor_user }}'
+    group: '{{ monitor_user }}'
+    mode: '0700'
+
+- name: Deploy restore script
+  template:
+    src: 'monitoring_restore.sh.j2'
+    dest: '{{ monitor_user_dir }}/monitoring_restore.sh'
+    owner: '{{ monitor_user }}'
+    group: '{{ monitor_user }}'
+    mode: '0700'
+
+- name: Create backup cronjob
+  cron:
+    user: "{{ monitor_user  }}"
+    name: backup monitoring data
+    minute: 20
+    hour: 00
+    job: '/bin/bash {{ monitor_user_dir }}/monitoring_backup.sh | logger'
+
