@@ -6,10 +6,16 @@
      - gnupg 
      - lsb-release
      - jq
-     #- fuse-overlayfs # required for docker on LXC
      - acl            # required for ansible to become unpriv'd user to run tasks successfully
     state: present
     update_cache: true
+
+- name: Install dependencies for docker on LXC on ZFS
+  apt:
+    name:
+     - fuse-overlayfs # required for docker on LXC.  note: may cause problems w/ underlying ZFS and replication/snapshots
+    state: present
+  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
 - name: add GPG key
   apt_key:
@@ -40,11 +46,6 @@
     group: root
     mode: '0644'
   notify: restart docker
-
-- name: Restart docker to apply new docker daemon.json
-  service:
-    name: docker
-    state: restarted
   
 - name: Add admin users to docker group
   user:
