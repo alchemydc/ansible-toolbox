@@ -69,6 +69,9 @@ COMMIT
 # permit celo v1 p2p on port 50303 from anywhere to the v1-validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 50303 -j DNAT --to-destination {{ celo_v1_validator_host }}:50303
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 50303 -j DNAT --to-destination {{ celo_v1_validator_host }}:50303
+# permit erigon p2p on port 31303 from anywhere to the eth-validator workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
 
 # SNAT traffic from private subnet guests
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}

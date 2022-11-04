@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ex
 
+PATH=$PATH:/usr/local/bin:/usr/bin
+
 TEMP_DIR="{{ monitor_user_dir }}/tmp"
 TIMESTAMP=$(date +%d%m%Y_%H%M)
 #GRAFANA_BACKUP_FILENAME="{{ monitor_user_dir }}/restore/bitwarden_backup_$TIMESTAMP.tbz"

@@ -52,7 +52,7 @@
     dest: /etc/systemd/system/node-exporter.service
     owner: root
     group: root
-    mode: '0755'
+    mode: '0644'
 
 - name: start node-exporter service
   systemd:

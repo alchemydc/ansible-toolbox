@@ -1,5 +1,8 @@
 #!/bin/bash
 set -ex
+
+PATH=$PATH:/usr/local/bin:/usr/bin
+
 TIMESTAMP=$(date +%d%m%Y_%H%M)
 ##### 
 # decided to not use object versioning in the GCS bucket rather than timestamped filenames for reasons

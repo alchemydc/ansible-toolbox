@@ -1,0 +1,54 @@
+- name: Install from source
+  block:
+    - name: Clone erigon-blockchain repo
+      git:
+        repo: '{{ erigon_repo }}'
+        dest: '/home/{{ ethereum_user }}/erigon'
+        version: '{{ erigon_version }}'
+        update: yes
+        force: yes
+        depth: 8
+      become: true
+      become_user: "{{ ethereum_user }}"
+
+    - name: Build and install erigon
+      command: '{{ item }}'
+      args:
+        chdir: '/home/{{ ethereum_user }}/erigon'
+      with_items:
+        - 'make erigon'
+        - 'make rpcdaemon'
+      environment:
+        PATH: '{{ path }}'
+        GOPATH: '/home/{{ ethereum_user }}/go'
+      become: true
+      become_user: "{{ ethereum_user }}"
+
+- name: Install erigon binary
+  block:
+    - name: Create go/bin directory
+      file:
+        path: "/home/{{ ethereum_user }}/go/bin"
+        state: directory
+        owner: "{{ ethereum_user }}"
+        group: "{{ ethereum_user }}"
+        mode: '0755'
+      become: true
+
+    - name: Copy built erigon binary to go/bin
+      copy:
+        src: "/home/{{ ethereum_user }}/erigon/build/bin/erigon"
+        remote_src: yes
+        dest: "/home/{{ ethereum_user }}/go/bin/erigon"
+        owner: "{{ ethereum_user }}"
+        mode: '0755'
+      become: true
+
+    - name: Copy built erigon rpcdaemon binary to go/bin
+      copy:
+        src: "/home/{{ ethereum_user }}/erigon/build/bin/rpcdaemon"
+        remote_src: yes
+        dest: "/home/{{ ethereum_user }}/go/bin/rpcdaemon"
+        owner: "{{ ethereum_user }}"
+        mode: '0755'
+      become: true

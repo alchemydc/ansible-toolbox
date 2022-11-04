@@ -1,0 +1,5 @@
+#!/bin/bash
+set -ex
+
+echo "PUBLIC_IP=$(curl -s 'https://icanhazip.zanshindojo.workers.dev')" > /home/{{ ethereum_user }}/environment.env
+

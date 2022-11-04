@@ -40,7 +40,9 @@
     - role: bitwarden_server
       tags: 'bitwarden_server'
       become: true    
-    
+    - role: ethereum_validator
+      tags: 'ethereum_validator'
+  
   handlers:
       - name: restart sshd
         service:

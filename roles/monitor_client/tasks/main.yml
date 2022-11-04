@@ -1,6 +1,7 @@
 - name: Install prometheus node exporter
   import_tasks: node_exporter.yml
   tags: "node_exporter"
+  become: true
 
 #- name: debug promtail
 #  debug:
@@ -11,5 +12,6 @@
 - name: Install promtail
   import_tasks: promtail.yml
   #when: inventory_hostname is defined and (inventory_hostname != 'monitor')   # because monitor pushes logs to itself
+  become: true
   tags: 'promtail'
 
