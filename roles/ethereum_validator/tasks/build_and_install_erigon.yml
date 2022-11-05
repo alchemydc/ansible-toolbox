@@ -1,3 +1,8 @@
+- name: Install build dependencies
+  import_tasks: install_dependencies.yml
+  become: true
+
+
 - name: Install from source
   block:
     - name: Clone erigon-blockchain repo
@@ -17,7 +22,7 @@
         chdir: '/home/{{ ethereum_user }}/erigon'
       with_items:
         - 'make erigon'
-        - 'make rpcdaemon'
+        #- 'make rpcdaemon'
       environment:
         PATH: '{{ path }}'
         GOPATH: '/home/{{ ethereum_user }}/go'
@@ -44,11 +49,11 @@
         mode: '0755'
       become: true
 
-    - name: Copy built erigon rpcdaemon binary to go/bin
-      copy:
-        src: "/home/{{ ethereum_user }}/erigon/build/bin/rpcdaemon"
-        remote_src: yes
-        dest: "/home/{{ ethereum_user }}/go/bin/rpcdaemon"
-        owner: "{{ ethereum_user }}"
-        mode: '0755'
-      become: true
+#    - name: Copy built erigon rpcdaemon binary to go/bin
+#      copy:
+#        src: "/home/{{ ethereum_user }}/erigon/build/bin/rpcdaemon"
+#        remote_src: yes
+#        dest: "/home/{{ ethereum_user }}/go/bin/rpcdaemon"
+#        owner: "{{ ethereum_user }}"
+#        mode: '0755'
+#      become: true

@@ -1,4 +1,4 @@
-- name: install apt packages
+- name: install apt packages to support build process
   apt:
     name:
       - make
@@ -10,3 +10,6 @@
       - acl   # required for become_user != root
     state: present
     update_cache: yes
+
+- name: Install golang
+  import_tasks: install_golang.yml

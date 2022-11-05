@@ -1,7 +1,3 @@
-- name: Install dependencies
-  import_tasks: install_dependencies.yml
-  become: true
-
 - name: Create ethereum service user
   user:
     name: "{{ ethereum_user }}"
@@ -21,20 +17,26 @@
     mode: '0600'
   become: true
 
-#- name: Create {{ eth_data_dir }}
-#  file:
-#    path: "{{ eth_data_dir }}"
-#    state: directory
-#    mode: '0750'
-#    owner: "{{ ethereum_user }}"
-#    group: "{{ ethereum_user }}"
-#  become: true
-
-- name: Install golang
-  import_tasks: install_golang.yml
+- name: Create /home/{{ ethereum_user }}/bin
+  file:
+    path: "/home/{{ ethereum_user }}/bin"
+    state: directory
+    mode: '0750'
+    owner: "{{ ethereum_user }}"
+    group: "{{ ethereum_user }}"
+  become: true
 
 - name: Build and install erigon from source
   import_tasks: build_and_install_erigon.yml
+  when: erigon_binary is not defined
+
+- name: Install erigon binary
+  import_tasks: install_erigon.yml
+  when: erigon_binary is defined
+
+- name: Install lighthouse binary
+  import_tasks: install_lighthouse.yml
+  when: lighthouse_binary is defined
 
 - name: Deploy erigon service environment file
   copy:
@@ -55,14 +57,14 @@
     mode: '0644'
   become: true
 
-- name: Deploy erigon rpc service systemd service file
-  template:
-    src: erigon_rpcdaemon.service.j2
-    dest: /etc/systemd/system/erigon_rpc.service
-    owner: root
-    group: root
-    mode: '0644'
-  become: true
+#- name: Deploy erigon rpc service systemd service file
+#  template:
+#    src: erigon_rpcdaemon.service.j2
+#    dest: /etc/systemd/system/erigon_rpc.service
+#    owner: root
+#    group: root
+#    mode: '0644'
+#  become: true
 
 - name: Deploy erigon service helper script
   template:
@@ -73,10 +75,6 @@
     mode: '0755'
   become: true
 
-#- name: Create keystore
-#  import_tasks: create_keystore.yml
-#  tags: "native_keystore"
-
 - name: Enable and start erigon service
   systemd:
     name: erigon.service
@@ -84,19 +82,3 @@
     state: started
     daemon_reload: yes
   become: true
-
-- name: Enable and start erigon rpc service
-  systemd:
-    name: erigon_rpc.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  become: true
-
-#- name: Deploy restore from snapshot script
-#  import_tasks: restore_snapshot.yml
-#  tags: 'restore_celo_snapshot'
-
-#- name: Deploy generate proof of possession script
-#  import_tasks: generate_pop.yml
-#  tags: 'generate_pop'
