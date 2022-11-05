@@ -47,7 +47,6 @@
     mode: '0644'
   become: true
   
-
 - name: Deploy erigon service systemd service file
   template:
     src: erigon.service.j2
@@ -66,6 +65,15 @@
 #    mode: '0644'
 #  become: true
 
+- name: Deploy lighthouse service systemd service file
+  template:
+    src: lighthouse.service.j2
+    dest: /etc/systemd/system/lighthouse.service
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
 - name: Deploy erigon service helper script
   template:
     src: get_public_ip.sh.j2
@@ -82,3 +90,12 @@
     state: started
     daemon_reload: yes
   become: true
+
+- name: Enable and start lighthouse service
+  systemd:
+    name: lighthouse.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true
+
