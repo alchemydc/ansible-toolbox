@@ -72,6 +72,10 @@ COMMIT
 # permit erigon p2p on port 31303 from anywhere to the eth-validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
+# permit lighthouse p2p on port 9000 from anywhere to the eth-validator workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination {{ eth_validator_host }}:9000
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 9000 -j DNAT --to-destination {{ eth_validator_host }}:9000
+
 
 # SNAT traffic from private subnet guests
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}

@@ -45,6 +45,12 @@ scrape_configs:
           - 'celo-v1:6060'
           - 'eth-validator:6060'
 
+  - job_name: eth_validators
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - 'eth-validator:5054'
+
   - job_name: node  # node_exporter
     metrics_path: /metrics
     static_configs:
@@ -61,3 +67,5 @@ scrape_configs:
         - 'zd2-ingress:8080'
         - 'zd3-ingress:8080'
         - 'zd4-ingress:8080'
+        - 'zd5-ingress:8080'
+

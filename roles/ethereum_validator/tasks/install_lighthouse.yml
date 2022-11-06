@@ -6,7 +6,6 @@
     dest: '/tmp/lighthouse_binary.tar.gz'
     mode: '0700'
     #force: yes
-  
 
 - name: unarchive binary file
   unarchive:

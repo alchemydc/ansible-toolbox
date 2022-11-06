@@ -1,5 +1,5 @@
 [Unit]
-Description=Lighthouse Service
+Description=Lighthouse Beacon Node Service
 After=network.target network-online.target
 Wants=network-online.target
 StartLimitBurst=3
@@ -26,6 +26,9 @@ ExecStart=/home/{{ ethereum_user }}/bin/lighthouse beacon_node \
 --http \
 --graffiti ZanshinDojo \
 --network mainnet \
+--checkpoint-sync-url https://beaconstate.info/ \
+--staking
+
 
 [Install]
 WantedBy=multi-user.target
@@ -50,3 +53,8 @@ WantedBy=multi-user.target
 #        --enr-udp-port <PORT>
 #            The UDP port of the local ENR. Set this only if you are sure other nodes can connect to your local node on
 #            this port.
+#        --staking                            
+#           Standard option for a staking beacon node. This will enable the HTTP server
+#           on localhost:5052 and import deposit logs from the execution node. This is
+#           equivalent to `--http` on merge-ready networks, or `--http --eth1` pre-
+#           merge

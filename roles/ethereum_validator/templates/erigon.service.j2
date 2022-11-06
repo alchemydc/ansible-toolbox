@@ -23,9 +23,12 @@ ExecStart=/home/{{ ethereum_user }}/bin/erigon \
 --datadir=/home/erigon/mainnet \
 --prune=htc --prune.r.before=11052984 \
 --metrics \
---metrics.addr 0.0.0.0
+--metrics.addr 0.0.0.0 \
+--http.api=admin,eth,erigon,web3,net,debug,trace,txpool
 
 [Install]
 WantedBy=multi-user.target
 
 # --private.api.addr=0.0.0.0:8090 \
+# --http.api=eth,erigon,web3,net,debug,trace,txpool
+# https://github.com/ledgerwatch/erigon/blob/devel/cmd/rpcdaemon/README.md#rpc-implementation-status
