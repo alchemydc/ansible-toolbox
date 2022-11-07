@@ -2,6 +2,8 @@
   import_tasks: install_dependencies.yml
   become: true
 
+- name: Install golang
+  import_tasks: install_golang.yml
 
 - name: Install from source
   block:

@@ -16,7 +16,9 @@ TimeoutStopSec=90
 Restart=on-failure
 RestartSec=10s
 ExecStart=/home/{{ ethereum_user }}/bin/lighthouse validator_client \
---network mainnet \
+--network {{ ethereum_network }} \
+--suggested-fee-recipient="0x062f2c97726dcf22d54d2ba7795899dd2d6e160f" \
+--graffiti ZanshinDojo \
 
 [Install]
 WantedBy=multi-user.target

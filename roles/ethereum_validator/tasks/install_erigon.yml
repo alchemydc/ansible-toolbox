@@ -1,4 +1,13 @@
 ---
+- name: install apt packages to support binary install process
+  apt:
+    name:
+      - acl   # required for become_user != root
+      - curl
+    state: present
+    update_cache: yes
+  become: true
+
 - name: download binary
   get_url:
     url: '{{ erigon_binary }}'

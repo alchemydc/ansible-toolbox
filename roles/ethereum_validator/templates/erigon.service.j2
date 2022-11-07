@@ -20,11 +20,17 @@ ExecStartPre=/home/{{ ethereum_user }}/get_public_ip.sh
 ExecStart=/home/{{ ethereum_user }}/bin/erigon \
 --port {{ erigon_port }} \
 --nat extip:${PUBLIC_IP} \
---datadir=/home/erigon/mainnet \
---prune=htc --prune.r.before=11052984 \
+--datadir=/home/{{ ethereum_user }}/{{ ethereum_network }} \
+--chain={{ ethereum_network }} \
+--prune=htc \
 --metrics \
 --metrics.addr 0.0.0.0 \
---http.api=admin,eth,erigon,web3,net,debug,trace,txpool
+--http.api=admin,eth,erigon,web3,net,debug,trace,txpool \
+{% if ethereum_network == "goerli" %}
+--prune.r.before=4367322 \
+{% else %}
+--prune.r.before=11052984 \
+{% endif %}
 
 [Install]
 WantedBy=multi-user.target
@@ -32,3 +38,5 @@ WantedBy=multi-user.target
 # --private.api.addr=0.0.0.0:8090 \
 # --http.api=eth,erigon,web3,net,debug,trace,txpool
 # https://github.com/ledgerwatch/erigon/blob/devel/cmd/rpcdaemon/README.md#rpc-implementation-status
+# mainnet: --prune.r.before=11052984 \
+# goerli: --prune.r.before=4367322 \

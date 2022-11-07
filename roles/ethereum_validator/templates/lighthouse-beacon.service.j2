@@ -19,16 +19,17 @@ RestartSec=10s
 ExecStartPre=/home/{{ ethereum_user }}/get_public_ip.sh
 ExecStart=/home/{{ ethereum_user }}/bin/lighthouse beacon_node \
 --execution-endpoint="http://localhost:8551" \
---execution-jwt="/home/{{ ethereum_user }}/mainnet/jwt.hex" \
+--execution-jwt="/home/{{ ethereum_user }}/{{ ethereum_network }}/jwt.hex" \
 --metrics --metrics-address="0.0.0.0" \
---suggested-fee-recipient="0x062f2c97726dcf22d54d2ba7795899dd2d6e160f" \
 --disable-upnp \
 --http \
---graffiti ZanshinDojo \
---network mainnet \
---checkpoint-sync-url https://beaconstate.info/ \
---staking
-
+--network {{ ethereum_network }} \
+--staking \
+{% if ethereum_network == "goerli" %}
+--checkpoint-sync-url https://goerli.checkpoint-sync.ethdevops.io
+{% else %}
+--checkpoint-sync-url https://beaconstate.info/
+{% endif %}
 
 [Install]
 WantedBy=multi-user.target
