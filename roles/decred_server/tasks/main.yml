@@ -1,0 +1,190 @@
+---
+- name: Create decred service user
+  user:
+    name: "{{ decred_user }}"
+    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/{{ decred_user }}"
+  become: true
+
+- name: Deploy .profile for {{ decred_user }}
+  template:
+    src: 'profile.j2'
+    dest: '/home/{{ decred_user }}/.profile'
+    owner: '{{ decred_user }}'
+    group: '{{ decred_user }}'
+    mode: '0600'
+  become: true
+
+- name: install apt packages to support binary install process
+  apt:
+    name:
+      - acl   # required for become_user != root
+      - curl
+      - python3-pexpect
+      #- expect
+    state: present
+    update_cache: yes
+  become: true
+
+- name: download binary
+  get_url:
+    url: '{{ dcrinstall_binary }}'
+    checksum: 'sha256:{{ dcrinstall_checksum }}'
+    dest: '/tmp/dcrinstall'
+    mode: '0755'
+    #force: yes
+
+- name: Stop dcrd and dcrwallet
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+  ignore_errors: true
+  loop:
+    - "dcrd.service"
+    - dcrwallet.service
+  become: true
+
+- name: Run dcrinstall headless
+  ansible.builtin.expect:
+    command: /tmp/dcrinstall
+    timeout: 30
+    echo: yes
+    responses:
+      Enter the private passphrase for your new wallet: "{{ decred_wallet_password }}"
+      Confirm passphrase: "{{ decred_wallet_password }}"
+      Do you want to add an additional layer of encryption for public data\? \(n\/no\/y\/yes\) \[no\]: "no"
+      Do you have an existing wallet seed you want to use\? \(n\/no\/y\/yes\) \[no\]: "no"
+      Once you have stored the seed in a safe and secure location, enter "OK" to continue: "ok"
+      # oof what a rabbit hole
+      #Do you have an existing wallet seed you want to use\? \(n\/no\/y\/yes\) \[no\]: "yes"
+      #Enter existing wallet seed \(followed by a blank line\): "{{ decred_wallet_seed }}"
+      #(.*): "\x04"
+      #(<*): ""
+      #(.*): ""
+      #([\s\S]+): ''
+      #([\s\S]+): "\x04"
+      #.*: ''
+      #(?=): ''
+  become: true
+  become_user: "{{ decred_user }}"
+
+- name: Deploy voting wallet.db to the node
+  copy:
+    src: wallet.db.encrypted
+    dest: /home/{{ decred_user }}/.dcrwallet/mainnet/wallet.db
+    owner: "{{ decred_user }}"
+    group: "{{ decred_user }}"
+    mode: '0600'
+  become: true
+
+- name: Configure dcrwallet for voting
+  lineinfile:
+    path: "/home/{{ decred_user }}/.dcrwallet/dcrwallet.conf"
+    regex: '^; enablevoting=0'
+    line: 'enablevoting=1'
+  become: true
+  become_user: "{{ decred_user }}"
+
+- name: Configure dcrwallet password
+  lineinfile:
+    path: "/home/{{ decred_user }}/.dcrwallet/dcrwallet.conf"
+    regex: '^; pass='
+    line: "pass={{ decred_wallet_password }}"
+  become: true
+  become_user: "{{ decred_user }}"
+
+#- name: Run dcrinstall headless
+#  ansible.builtin.shell: |
+#    set timeout 30
+#    spawn /tmp/dcrinstall
+#
+#    expect 'Enter the private passphrase for your new wallet: '
+#    send "{{ decred_default_wallet_password }}\n"
+#    expect 'Confirm passphrase: '
+#    send "{{ decred_default_wallet_password }}\n"
+#    expect 'Do you want to add an additional layer of encryption for public data? (n/no/y/yes) [no]: '
+#    send "no\n"
+#    expect 'Do you have an existing wallet seed you want to use? (n/no/y/yes) [no]: '
+#    send "no\n"
+#    expect 'Once you have stored the seed in a safe and secure location, enter "OK" to continue: '
+#    send "ok\n"
+#    #Do you have an existing wallet seed you want to use\? \(n\/no\/y\/yes\) \[no\]: "yes"
+#    #Enter existing wallet seed \(followed by a blank line\): "{{ decred_wallet_seed }}"
+#  args:
+#    executable: /usr/bin/expect
+#  become: true
+#  become_user: "{{ decred_user }}"
+
+
+#- name: Run dcrinstall with multiple different responses
+#  ansible.builtin.expect:
+#    command: /tmp/dcrinstall
+#    responses:
+#      Question:
+#        - "{{ decred_default_wallet_password }}"
+#        - "{{ decred_default_wallet_password }}"
+#        - no
+#        - no
+#        - ok
+#    timeout: 60
+#    echo: yes
+#  become: true
+#  become_user: "{{ decred_user }}"
+
+
+- name: Deploy dcrd service environment file
+  copy:
+    src: environment.env
+    dest: "/home/{{ decred_user }}/environment.env"
+    owner: "{{ decred_user }}"
+    group: "{{ decred_user }}"
+    mode: '0755'
+  become: true
+  
+- name: Deploy dcrd service systemd service file
+  template:
+    src: dcrd.service.j2
+    dest: /etc/systemd/system/dcrd.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart dcrd
+  become: true
+
+- name: Deploy dcrd service helper script
+  template:
+    src: get_public_ip.sh.j2
+    dest: "/home/{{ decred_user }}/get_public_ip.sh"
+    owner: "{{ decred_user }}"
+    group: "{{ decred_user }}"
+    mode: '0755'
+  become: true
+
+- name: Enable and start dcrd service
+  systemd:
+    name: dcrd.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true
+
+- name: Deploy dcrwallet service systemd service file
+  template:
+    src: dcrwallet.service.j2
+    dest: /etc/systemd/system/dcrwallet.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart dcrwallet
+  become: true
+
+- name: Enable and start dcrwallet service
+  systemd:
+    name: dcrwallet.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true

@@ -1,0 +1,23 @@
+[Unit]
+Description=Decred Daemon
+After=network-online.target
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ decred_user }}
+Group={{ decred_user }}
+WorkingDirectory=/home/{{ decred_user }}
+EnvironmentFile=-/home/{{ decred_user }}/environment.env
+ExecStartPre=/home/{{ decred_user }}/get_public_ip.sh
+ExecStart=/home/{{ decred_user }}/decred/dcrd \
+--externalip=${PUBLIC_IP} \
+--listen="0.0.0.0:{{ decred_port }}" \
+--nodiscoverip \
+--maxpeers=125 \
+--debuglevel=warn \
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

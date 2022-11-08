@@ -1,0 +1,17 @@
+[Unit]
+Description=Decred Wallet
+Requires=dcrd.service
+After=dcrd.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ decred_user }}
+Group={{ decred_user }}
+ExecStart=/home/{{ decred_user }}/decred/dcrwallet \
+--debuglevel=warn \
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
