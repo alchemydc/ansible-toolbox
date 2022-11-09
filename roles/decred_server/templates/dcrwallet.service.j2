@@ -9,7 +9,7 @@ StartLimitIntervalSec=300
 User={{ decred_user }}
 Group={{ decred_user }}
 ExecStart=/home/{{ decred_user }}/decred/dcrwallet \
---debuglevel=warn \
+--debuglevel=info \
 Restart=on-failure
 RestartSec=30
 

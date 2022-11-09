@@ -15,7 +15,7 @@ ExecStart=/home/{{ decred_user }}/decred/dcrd \
 --listen="0.0.0.0:{{ decred_port }}" \
 --nodiscoverip \
 --maxpeers=125 \
---debuglevel=warn \
+--debuglevel=info \
 Restart=on-failure
 RestartSec=30
 

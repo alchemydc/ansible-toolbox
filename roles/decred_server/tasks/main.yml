@@ -44,7 +44,7 @@
   ignore_errors: true
   loop:
     - "dcrd.service"
-    - dcrwallet.service
+    - "dcrwallet.service"
   become: true
 
 - name: Run dcrinstall headless
@@ -71,6 +71,29 @@
   become: true
   become_user: "{{ decred_user }}"
 
+# this approach doesn't work at all, unclear why
+#- name: Run dcrinstall headless
+#  ansible.builtin.shell: |
+#    set timeout 30
+#    spawn /tmp/dcrinstall
+#
+#    expect 'Enter the private passphrase for your new wallet: '
+#    send "{{ decred_default_wallet_password }}\n"
+#    expect 'Confirm passphrase: '
+#    send "{{ decred_default_wallet_password }}\n"
+#    expect 'Do you want to add an additional layer of encryption for public data? (n/no/y/yes) [no]: '
+#    send "no\n"
+#    expect 'Do you have an existing wallet seed you want to use? (n/no/y/yes) [no]: '
+#    send "no\n"
+#    expect 'Once you have stored the seed in a safe and secure location, enter "OK" to continue: '
+#    send "ok\n"
+#    #Do you have an existing wallet seed you want to use\? \(n\/no\/y\/yes\) \[no\]: "yes"
+#    #Enter existing wallet seed \(followed by a blank line\): "{{ decred_wallet_seed }}"
+#  args:
+#    executable: /usr/bin/expect
+#  become: true
+#  become_user: "{{ decred_user }}"
+
 - name: Deploy voting wallet.db to the node
   copy:
     src: wallet.db.encrypted
@@ -95,45 +118,6 @@
     line: "pass={{ decred_wallet_password }}"
   become: true
   become_user: "{{ decred_user }}"
-
-#- name: Run dcrinstall headless
-#  ansible.builtin.shell: |
-#    set timeout 30
-#    spawn /tmp/dcrinstall
-#
-#    expect 'Enter the private passphrase for your new wallet: '
-#    send "{{ decred_default_wallet_password }}\n"
-#    expect 'Confirm passphrase: '
-#    send "{{ decred_default_wallet_password }}\n"
-#    expect 'Do you want to add an additional layer of encryption for public data? (n/no/y/yes) [no]: '
-#    send "no\n"
-#    expect 'Do you have an existing wallet seed you want to use? (n/no/y/yes) [no]: '
-#    send "no\n"
-#    expect 'Once you have stored the seed in a safe and secure location, enter "OK" to continue: '
-#    send "ok\n"
-#    #Do you have an existing wallet seed you want to use\? \(n\/no\/y\/yes\) \[no\]: "yes"
-#    #Enter existing wallet seed \(followed by a blank line\): "{{ decred_wallet_seed }}"
-#  args:
-#    executable: /usr/bin/expect
-#  become: true
-#  become_user: "{{ decred_user }}"
-
-
-#- name: Run dcrinstall with multiple different responses
-#  ansible.builtin.expect:
-#    command: /tmp/dcrinstall
-#    responses:
-#      Question:
-#        - "{{ decred_default_wallet_password }}"
-#        - "{{ decred_default_wallet_password }}"
-#        - no
-#        - no
-#        - ok
-#    timeout: 60
-#    echo: yes
-#  become: true
-#  become_user: "{{ decred_user }}"
-
 
 - name: Deploy dcrd service environment file
   copy:
