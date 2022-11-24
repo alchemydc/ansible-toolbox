@@ -33,10 +33,14 @@
 - name: Install erigon binary
   import_tasks: install_erigon.yml
   when: erigon_binary is defined
+  notify: restart erigon
 
 - name: Install lighthouse binary
   import_tasks: install_lighthouse.yml
   when: lighthouse_binary is defined
+  notify:
+    - restart lighthouse-beacon
+    - restart lighthouse-validator
 
 - name: Deploy erigon service environment file
   copy:
@@ -55,6 +59,7 @@
     group: root
     mode: '0644'
   become: true
+  notify: restart erigon
 
 #- name: Deploy erigon rpc service systemd service file
 #  template:
@@ -73,6 +78,17 @@
     group: root
     mode: '0644'
   become: true
+  notify: restart lighthouse-beacon
+
+- name: Deploy lighthouse-validator service systemd service file
+  template:
+    src: lighthouse-validator.service.j2
+    dest: /etc/systemd/system/lighthouse-validator.service
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: restart lighthouse-validator
 
 - name: Deploy erigon service helper script
   template:
@@ -83,7 +99,7 @@
     mode: '0755'
   become: true
 
-- name: Enable and start erigon service
+- name: Enable and start erigon execution client service 
   systemd:
     name: erigon.service
     enabled: yes
@@ -91,9 +107,17 @@
     daemon_reload: yes
   become: true
 
-- name: Enable and start lighthouse service
+- name: Enable and start lighthouse beacon service
   systemd:
     name: lighthouse-beacon.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true
+
+- name: Enable and start lighthouse validator client service
+  systemd:
+    name: lighthouse-validator.service
     enabled: yes
     state: started
     daemon_reload: yes

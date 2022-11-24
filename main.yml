@@ -137,3 +137,24 @@
           daemon_reload: yes
           state: restarted
         become: true
+
+      - name: restart erigon
+        systemd:
+          name: erigon
+          daemon_reload: yes
+          state: restarted
+        become: true
+
+      - name: restart lighthouse-beacon
+        systemd:
+          name: lighthouse-beacon
+          daemon_reload: yes
+          state: restarted
+        become: true
+
+      - name: restart lighthouse-validator
+        systemd:
+          name: lighthouse-validator
+          daemon_reload: yes
+          state: restarted
+        become: true

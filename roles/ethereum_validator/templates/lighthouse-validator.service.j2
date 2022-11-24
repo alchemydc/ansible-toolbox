@@ -1,7 +1,7 @@
 [Unit]
 Description=Lighthouse Validator Service
-After=network.target network-online.target
-Wants=network-online.target
+After=network.target network-online.target lighthouse-beacon.service
+Requires=lighthouse-beacon.service
 StartLimitBurst=3
 StartLimitIntervalSec=300
 
@@ -17,7 +17,7 @@ Restart=on-failure
 RestartSec=10s
 ExecStart=/home/{{ ethereum_user }}/bin/lighthouse validator_client \
 --network {{ ethereum_network }} \
---suggested-fee-recipient="0x062f2c97726dcf22d54d2ba7795899dd2d6e160f" \
+--suggested-fee-recipient="{{ ethereum_fee_recipient }}" \
 --graffiti ZanshinDojo \
 
 [Install]
