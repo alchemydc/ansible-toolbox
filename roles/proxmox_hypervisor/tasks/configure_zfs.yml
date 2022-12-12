@@ -20,12 +20,8 @@
   when:
     - pvesm_list_vmdata_result.stderr is search("storage 'vmdata' does not exist")
 
-#- name: Accelerate migration across cluster nodes
-#  lineinfile:
-#    path: /etc/pve/datacenter.cfg
-#    line: 'migration: type=insecure'  # insecure is OK because cluster is already connected via wireguard
-#    state: present
-#    create: yes
+- name: Disable atime on zfs volume
+  command: "zfs set atime=off {{ zfs_pool }}"
 
 - name: Accelerate migration across cluster nodes
   shell: 'echo "migration: type=insecure" > /etc/pve/datacenter.cfg'

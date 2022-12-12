@@ -10,6 +10,7 @@
   apt_repository:
     repo: deb [arch=amd64] http://download.proxmox.com/debian/pve bullseye pve-no-subscription
     state: present
+  tags: "enable_proxmox_repo"
     
 - name: Install needed packages
   apt:
@@ -82,7 +83,7 @@
 - name: Configure swap
   import_tasks: configure_swap.yml
   tags:
-    - swap
+    - "swap"
   
 - name: Configure ZFS
   import_tasks: configure_zfs.yml
@@ -94,3 +95,4 @@
     regex: '^#HandleLidSwitch=suspend'
     line: 'HandleLidSwitch=ignore'
     state: present
+  tags: "disable_sleep"

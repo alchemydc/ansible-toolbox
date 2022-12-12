@@ -26,6 +26,9 @@ ExecStart=/home/{{ ethereum_user }}/bin/lighthouse beacon_node \
 --network {{ ethereum_network }} \
 --port {{ lighthouse_port }} \
 --staking \
+{% if ethereum_network == "mainnet" %}
+--monitoring-endpoint https://beaconcha.in/api/v1/client/metrics?apikey={{ monitoring_api_key }}&machine={{ monitoring_machine_name }} \
+{% endif %}
 {% if ethereum_network == "goerli" %}
 --checkpoint-sync-url https://goerli.checkpoint-sync.ethdevops.io
 {% else %}

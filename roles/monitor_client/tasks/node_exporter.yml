@@ -27,7 +27,8 @@
 - name: download node_exporter
   get_url:
     url: 'https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz'
-    checksum: 'sha256:{{ node_exporter_checksum }}'
+    #checksum: 'sha256:{{ node_exporter_checksum }}'
+    force: true
     dest: '/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz'
     mode: '0700'
 
