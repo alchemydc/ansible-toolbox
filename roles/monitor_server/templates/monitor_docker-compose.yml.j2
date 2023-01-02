@@ -54,6 +54,7 @@ services:
        - {{ monitor_user_dir }}/prometheus/data:/prometheus
        - /etc/hosts:/etc/hosts:ro
      #command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
+     command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time=1y
      restart: unless-stopped
      networks:
        - monitoring
