@@ -1,0 +1,29 @@
+---
+- name: download namada binaries
+  get_url:
+    url: '{{ namada_binary }}'
+    dest: '/tmp/namada_binary.tar.gz'
+    checksum: '{{ namada_checksum }}'
+    mode: '0700'
+    force: yes
+
+- name: unarchive binary files
+  unarchive:
+    src: '/tmp/namada_binary.tar.gz'
+    dest: '/tmp/'
+    mode: '0755'
+    remote_src: true
+
+- name: Copy binaries
+  block:
+  - name: do the search
+    find: paths="/tmp/{{ namada_extract_path }}" patterns="namada*"
+    register: namada_binaries_to_copy
+  - name: copy the files
+    copy:
+      remote_src: true
+      src: "{{ item.path }}"
+      dest: "/home/{{ svc_user }}/go/bin/"
+      mode: '0755'
+    with_items: "{{ namada_binaries_to_copy.files }}"
+    become: true

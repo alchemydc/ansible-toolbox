@@ -1,0 +1,97 @@
+- name: Debug namada-validator
+  debug:
+    msg: "{{ hostvars[inventory_hostname] }}"
+
+- name: Install dependencies
+  import_tasks: install_dependencies.yml
+  become: true
+
+- name: Create service user
+  user:
+    name: "{{ svc_user }}"
+    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/{{ svc_user }}"
+    #uid: "{{ svc_uid }}"
+  become: true
+
+- name: Deploy .profile for {{ svc_user }}
+  template:
+    src: 'profile.j2'
+    dest: '/home/{{ svc_user }}/.profile'
+    owner: '{{ svc_user }}'
+    group: '{{ svc_user }}'
+    mode: '0600'
+  become: true
+
+- name: Create {{ svc_data_dir }}
+  file:
+    path: "{{ svc_data_dir }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+  become: true
+
+- name: Install golang
+  import_tasks: install_golang.yml
+
+- name: Install tendermint binary
+  import_tasks: install_tendermint.yml
+
+- name: Install namada binary
+  import_tasks: install_namada.yml
+
+#- name: Build and install namada from source
+#  import_tasks: build_and_install_namada.yml
+
+#- name: Deploy namada service environment file
+#  copy:
+#    src: environment.env
+#    dest: "{{ svc_data_dir }}/environment.env"
+#    owner: "{{ svc_user }}"
+#    group: "{{ svc_user }}"
+#    mode: '0755'
+#  become: true
+#  
+#
+#- name: Deploy namada service systemd service file
+#  template:
+#    src: namada.service.j2
+#    dest: /etc/systemd/system/namada.service
+#    owner: root
+#    group: root
+#    mode: '0755'
+#  notify: restart namada
+#  become: true
+#
+#- name: Deploy namada service helper script
+#  template:
+#    src: get_public_ip.sh.j2
+#    dest: "{{ svc_data_dir }}/get_public_ip.sh"
+#    owner: "{{ svc_user }}"
+#    group: "{{ svc_user }}"
+#    mode: '0755'
+#  become: true
+
+#- name: Create keystore
+#  import_tasks: create_keystore.yml
+#  tags: "native_keystore"
+
+#- name: Enable and start namada service
+#  systemd:
+#    name: namada.service
+#    enabled: yes
+#    state: started
+#    daemon_reload: yes
+#  become: true
+
+#- name: Deploy restore from snapshot script
+#  import_tasks: restore_snapshot.yml
+#  tags: 'restore_celo_snapshot'
+
+#- name: Deploy generate proof of possession script
+#  import_tasks: generate_pop.yml
+#  tags: 'generate_pop'

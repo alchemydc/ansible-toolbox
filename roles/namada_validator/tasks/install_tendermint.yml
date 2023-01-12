@@ -1,0 +1,23 @@
+---
+- name: download tendermint binary
+  get_url:
+    url: '{{ tendermint_binary }}'
+    dest: '/tmp/tendermint_binary.tar.gz'
+    checksum: '{{ tendermint_checksum }}'
+    mode: '0700'
+    force: yes
+
+- name: unarchive binary file
+  unarchive:
+    src: '/tmp/tendermint_binary.tar.gz'
+    dest: '/tmp/'
+    mode: '0755'
+    remote_src: true
+
+- name: Copy binary
+  copy:
+    remote_src: true
+    src: '/tmp/{{ tendermint_daemon }}'
+    dest: '/home/{{ svc_user }}/go/bin/{{ tendermint_daemon }}'
+    mode: '0755'
+  become: true

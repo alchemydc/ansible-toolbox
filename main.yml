@@ -44,6 +44,8 @@
       tags: 'ethereum_validator'
     - role: decred_server
       tags: 'decred_server'
+    - role: namada_validator
+      tags: 'namada_validator'
   
   handlers:
       - name: restart sshd
