@@ -1,0 +1,6 @@
+#!/bin/bash
+set -ex
+
+export CHAIN_ID="{{ chain_id }}"
+namada client utils join-network \
+--chain-id $CHAIN_ID

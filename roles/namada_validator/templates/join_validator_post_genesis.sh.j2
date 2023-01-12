@@ -1,0 +1,16 @@
+#!/bin/bash
+set -ex
+
+export VALIDATOR_ALIAS="{{ validator_alias }}"
+export OPERATOR_ALIAS="{{ operator_alias }}"
+
+echo "Generating new account"
+namada wallet address gen --alias $OPERATOR_ALIAS
+
+echo "Registering validator"
+namada client init-validator \
+  --alias $VALIDATOR_ALIAS \
+  --source $OPERATOR_ALIAS \
+  --commission-rate 0.1 \
+  --max-commission-rate-change 0.5
+  

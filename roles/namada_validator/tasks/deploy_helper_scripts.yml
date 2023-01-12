@@ -1,0 +1,15 @@
+---
+    - name: deploy helper scripts
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: '0750'
+        owner: "{{ svc_user }}"
+      loop:
+        - { src: 'join_genesis_validator.sh.j2', dest: "/home/{{ svc_user }}/join_genesis_validator.sh" }
+        - { src: 'join_fullnode.sh.j2', dest: "/home/{{ svc_user }}/join_fullnode.sh" }
+        - { src: 'start_fullnode.sh.j2', dest: "/home/{{ svc_user }}/start_fullnode.sh" }
+        - { src: 'join_validator_post_genesis.sh.j2', dest: "/home/{{ svc_user }}/join_validator_post_genesis.sh" }
+        - { src: 'tap_faucet.sh.j2', dest: "/home/{{ svc_user }}/tap_faucet.sh" }
+      become: true
+    

@@ -1,0 +1,7 @@
+#!/bin/bash
+set -ex
+
+export CHAIN_ID="{{ chain_id }}"
+export ALIAS="{{ validator_alias }}"
+namada client utils join-network \
+--chain-id $CHAIN_ID --genesis-validator $ALIAS

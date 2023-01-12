@@ -44,6 +44,9 @@
 - name: Install namada binary
   import_tasks: install_namada.yml
 
+- name: Deploy helper scripts
+  import_tasks: deploy_helper_scripts.yml
+
 #- name: Build and install namada from source
 #  import_tasks: build_and_install_namada.yml
 

@@ -1,0 +1,11 @@
+#!/bin/bash
+set -ex
+
+export VALIDATOR_ALIAS="{{ validator_alias }}"
+
+namadac transfer \
+    --token NAM \
+    --amount 1000 \
+    --source faucet \
+    --target $VALIDATOR_ALIAS \
+    --signer $VALIDATOR_ALIAS

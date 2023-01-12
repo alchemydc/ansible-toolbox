@@ -20,6 +20,10 @@ export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
 export GO111MODULE=on
 export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+export TM_HASH=v0.1.4-abciplus
 
 alias ll='ls -laF'
-export TM_HASH=v0.1.4-abciplus
+alias status='curl -s http://localhost:{{ custom_port_prefix }}657/status | jq .'
+alias wstatus='watch -n 1 "curl -s http://localhost:{{ custom_port_prefix }}657/status | jq ."'
+alias peers='curl -s http://localhost:{{ custom_port_prefix }}657/net_info | jq .result.n_peers'
+alias wpeers='watch -n 1 "curl -s http://localhost:{{ custom_port_prefix }}657/net_info | jq .result.n_peers"'
