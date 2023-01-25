@@ -160,3 +160,10 @@
           daemon_reload: yes
           state: restarted
         become: true
+
+      - name: restart namada
+        systemd:
+          name: namada
+          daemon_reload: yes
+          state: restarted
+        become: true

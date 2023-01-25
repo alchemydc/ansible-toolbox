@@ -47,29 +47,16 @@
 - name: Deploy helper scripts
   import_tasks: deploy_helper_scripts.yml
 
-#- name: Build and install namada from source
-#  import_tasks: build_and_install_namada.yml
+- name: Deploy namada service systemd service file
+  template:
+    src: namada.service.j2
+    dest: /etc/systemd/system/namada.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart namada
+  become: true
 
-#- name: Deploy namada service environment file
-#  copy:
-#    src: environment.env
-#    dest: "{{ svc_data_dir }}/environment.env"
-#    owner: "{{ svc_user }}"
-#    group: "{{ svc_user }}"
-#    mode: '0755'
-#  become: true
-#  
-#
-#- name: Deploy namada service systemd service file
-#  template:
-#    src: namada.service.j2
-#    dest: /etc/systemd/system/namada.service
-#    owner: root
-#    group: root
-#    mode: '0755'
-#  notify: restart namada
-#  become: true
-#
 #- name: Deploy namada service helper script
 #  template:
 #    src: get_public_ip.sh.j2

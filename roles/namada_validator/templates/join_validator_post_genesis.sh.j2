@@ -13,4 +13,8 @@ namada client init-validator \
   --source $OPERATOR_ALIAS \
   --commission-rate 0.1 \
   --max-commission-rate-change 0.5
-  
+
+echo "bonding validator"  
+namada client bond \
+  --validator $VALIDATOR_ALIAS \
+  --amount 1000

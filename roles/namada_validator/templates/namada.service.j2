@@ -1,0 +1,17 @@
+[Unit]
+Description=namada
+After=network-online.target
+[Service]
+User={{ svc_user }}
+WorkingDirectory=/home/{{ svc_user }}/.namada
+Environment=NAMADA_LOG=debug
+Environment=NAMADA_TM_STDOUT=true
+ExecStart=/home/{{ svc_user }}/go/bin/namada --base-dir=/home/{{ svc_user }}/.namada node ledger run --time {{ start_time }}
+#StandardOutput=syslog
+#StandardError=syslog
+Restart=always
+RestartSec=10
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
