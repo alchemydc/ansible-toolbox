@@ -82,6 +82,8 @@ COMMIT
 
 # SNAT traffic from private subnet guests
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
+# SNAT traffic from private admin hosts
+-A POSTROUTING -s {{ admin_net }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
 # SNAT traffic from SDN subnet guests
 {% for anycast_subnet in anycast_subnets %}
 -A POSTROUTING -s {{ anycast_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
