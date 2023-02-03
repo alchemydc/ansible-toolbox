@@ -14,16 +14,22 @@ ExecStart=/usr/bin/docker run \
   --name ghost-{{ item.hostname }} \
   --network ghost \
   --user {{ ghost_uid }}:{{ ghost_gid }} \
-  -v /home/ghost/{{ item.hostname }}:/data \
   -e NODE_ENV=production \
   -e url="http://{{ item.hostname }}" \
+  -e mail__transport=SMTP \
+  -e mail__options__service="smarthost" \
+  -e mail__options__host="{{ smarthost_ip }}" \
+  -e mail__options__port=25 \
   -e database__client=sqlite3 \
   -e database__connection__filename="content/data/ghost.db" \
   -e database__useNullAsDefault=true \
   -e database__debug=false \
   -p {{ item.port }}:2368 \
+  -v /home/ghost/{{ item.hostname }}:/var/lib/ghost/content \
   ghost:5-alpine
 ExecStop=/usr/bin/docker stop ghost-{{ item.hostname }}
 
 [Install]
 WantedBy=default.target
+
+

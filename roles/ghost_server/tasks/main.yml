@@ -29,7 +29,7 @@
     dest: "/etc/systemd/system/ghost-{{ item.hostname }}.service"
     owner: root
     group: root
-    mode: '0755'
+    mode: '0644'
   loop: "{{ ghost_sites }}"
 
 - name: Create ghost data directories
