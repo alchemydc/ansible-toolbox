@@ -37,7 +37,16 @@
       - containerd.io
     state: present
     update_cache: true
-  
+
+# as of Docker version 23.0.0, build e92dd87 /etc/docker is no longer created by installing the debian package
+- name: Ensure /etc/docker exists
+  file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Configure docker daemon
   template:
     src: docker_daemon.json.j2

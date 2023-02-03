@@ -46,6 +46,9 @@
       tags: 'decred_server'
     - role: namada_validator
       tags: 'namada_validator'
+    - role: 'ghost_server'
+      tags: ghost_server
+      become: true
   
   handlers:
       - name: restart sshd

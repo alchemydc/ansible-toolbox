@@ -1,0 +1,59 @@
+- name: Debug ghost_sites
+  debug:
+    msg: "sites item: {{ item }}"
+  loop: "{{ ghost_sites }}"
+
+- name: Create ghost group
+  ansible.builtin.group:
+    name: ghost
+    state: present
+    gid: "{{ ghost_gid }}"
+
+- name: Create ghost service user
+  user: 
+    name: "ghost"
+    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/ghost"
+    uid: "{{ ghost_uid }}"
+    group: "{{ ghost_group }}"
+    groups:
+      - docker
+    append: true
+
+- name: Deploy ghost service systemd service files
+  template:
+    src: ghost.service.j2
+    dest: "/etc/systemd/system/ghost-{{ item.hostname }}.service"
+    owner: root
+    group: root
+    mode: '0755'
+  loop: "{{ ghost_sites }}"
+
+- name: Create ghost data directories
+  file:
+    path: "/home/ghost/{{ item.hostname }}"
+    state: directory
+    mode: '0750'
+    owner: "ghost"
+    group: "ghost"
+  loop: "{{ ghost_sites }}"
+
+- name: Create docker network for ghost
+  community.docker.docker_network:
+    name: ghost
+    driver_options: { "com.docker.network.driver.mtu": "{{ sdn_mtu }}" }
+
+- name: Enable and start ghost service
+  systemd:
+    name: ghost-{{ item.hostname }}.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  loop: "{{ ghost_sites }}"
+
+#- name: Install and configure backups for ghost data
+#  import_tasks: ghost_backup.yml
+#  tags: 'ghost_backup'
