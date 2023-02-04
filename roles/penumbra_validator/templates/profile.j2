@@ -1,0 +1,27 @@
+# if running bash
+if [ -n "$BASH_VERSION" ]; then
+    # include .bashrc if it exists
+    if [ -f "$HOME/.bashrc" ]; then
+	. "$HOME/.bashrc"
+    fi
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
+. "$HOME/.cargo/env"
+
+#export TM_HASH=v0.1.4-abciplus
+
+alias ll='ls -laF'
+alias status='curl -s http://localhost:{{ custom_port_prefix }}657/status | jq .'
+alias wstatus='watch -n 1 "curl -s http://localhost:{{ custom_port_prefix }}657/status | jq ."'
+alias peers='curl -s http://localhost:{{ custom_port_prefix }}657/net_info | jq .result.n_peers'
+alias wpeers='watch -n 1 "curl -s http://localhost:{{ custom_port_prefix }}657/net_info | jq .result.n_peers"'

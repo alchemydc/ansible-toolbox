@@ -1,0 +1,14 @@
+[Unit]
+Description=penumbra tendermint service
+After=network-online.target
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/home/{{ svc_user }}/bin/{{ tendermint_daemon }} start --home /home/{{ svc_user }}/.penumbra/testnet_data/node0/tendermint
+
+[Install]
+WantedBy=multi-user.target

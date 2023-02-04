@@ -1,0 +1,17 @@
+- name: install apt packages
+  apt:
+    name:
+      - build-essential
+      - libssl-dev
+      - clang
+      - git
+      - jq
+      - curl
+      - acl   # required for become_user != root
+      - pkg-config
+    state: present
+    update_cache: yes
+
+- name: Install git-lfs
+  import_tasks: install_git-lfs.yml
+  become: true

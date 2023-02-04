@@ -1,0 +1,36 @@
+- name: Clone repo
+  git:
+    repo: '{{ repo }}'
+    dest: '/home/{{ svc_user }}/{{ svc_user }}'
+    version: '{{ git_tag }}'
+    update: yes
+    force: yes
+    depth: 1
+
+- name: Build daemons
+  command: '{{ item }}'
+  args:
+    chdir: '/home/{{ svc_user }}/{{ svc_user }}'
+  with_items:
+    - 'cargo build --release --bin pcli'
+    - 'cargo build --release --bin pd'
+  environment:
+    PATH: "/home/{{ svc_user }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+
+- name: Copy built pcli to bin
+  copy:
+    src: "/home/{{ svc_user }}/{{ svc_user }}/target/release/pcli"
+    dest: "/home/{{ svc_user }}/bin/pcli"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: "0755"
+    remote_src: true
+
+- name: Copy built pd to bin
+  copy:
+    src: "/home/{{ svc_user }}/{{ svc_user }}/target/release/pd"
+    dest: "/home/{{ svc_user }}/bin/pd"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: "0755"
+    remote_src: true

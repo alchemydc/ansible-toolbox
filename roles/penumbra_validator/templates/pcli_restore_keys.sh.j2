@@ -1,0 +1,7 @@
+#!/bin/bash
+set -ex
+
+# 
+read -sp "Enter the seed phrase for the private key to import: " SEED_PHRASE
+pcli keys import phrase "$SEED_PHRASE"
+

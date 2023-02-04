@@ -1,0 +1,96 @@
+- name: Debug penumbra-validator
+  debug:
+    msg: "{{ hostvars[inventory_hostname] }}"
+
+- name: Install dependencies
+  import_tasks: install_dependencies.yml
+  become: true
+
+- name: Create service user
+  user:
+    name: "{{ svc_user }}"
+    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/{{ svc_user }}"
+  become: true
+
+- name: Deploy .profile for {{ svc_user }}
+  template:
+    src: 'profile.j2'
+    dest: '/home/{{ svc_user }}/.profile'
+    owner: '{{ svc_user }}'
+    group: '{{ svc_user }}'
+    mode: '0600'
+  become: true
+
+- name: Install rust
+  import_tasks: install_rust.yml
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Install tendermint binary
+  import_tasks: install_tendermint.yml
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: build pcli binary
+  import_tasks: build_pcli.yml
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Deploy helper scripts
+  import_tasks: deploy_helper_scripts.yml
+  tags: helpers
+
+- name: Configure node genesis, chain-id, identity, etc
+  import_tasks: configure_node.yml
+  become: true
+  become_user: "{{ svc_user }}"
+  ignore_errors: true
+
+- name: Deploy penumbra-pd service systemd service file
+  template:
+    src: penumbra-pd.service.j2
+    dest: /etc/systemd/system/penumbra-pd.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart penumbra-pd
+  become: true
+
+- name: Deploy penumbra-tendermint service systemd service file
+  template:
+    src: penumbra-tendermint.service.j2
+    dest: /etc/systemd/system/penumbra-tendermint.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart penumbra-tendermint
+  become: true
+
+#- name: Deploy penumbra service helper script
+#  template:
+#    src: get_public_ip.sh.j2
+#    dest: "{{ svc_data_dir }}/get_public_ip.sh"
+#    owner: "{{ svc_user }}"
+#    group: "{{ svc_user }}"
+#    mode: '0755'
+#  become: true
+
+- name: Enable and start penumbra-pd service
+  systemd:
+    name: penumbra-pd.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true
+
+- name: Enable and start penumbra-tendermint service
+  systemd:
+    name: penumbra-tendermint.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true

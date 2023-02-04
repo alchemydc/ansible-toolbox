@@ -1,0 +1,30 @@
+- name: Install dependencies
+  apt:
+    name: 
+     - gnupg 
+     - apt-transport-https
+     - debian-archive-keyring
+     - lsb-release
+    state: present
+    update_cache: true
+
+- name: get distro
+  command: "lsb_release -s -c"
+  register: distro
+
+- name: add Packagecloud GPG key
+  apt_key:
+    url: https://packagecloud.io/github/git-lfs/gpgkey
+    state: present
+
+- name: Add Packagecloud repo
+  apt_repository: 
+    repo: deb https://packagecloud.io/github/git-lfs/debian/ {{ distro.stdout }} main
+    state: present
+
+- name: Install git-lfs
+  apt:
+    name: 
+     - git-lfs
+    state: present
+    update_cache: true

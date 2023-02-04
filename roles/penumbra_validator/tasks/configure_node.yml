@@ -1,0 +1,2 @@
+- name: Configure node
+  shell: "/home/{{ svc_user }}/bin/pd testnet join --moniker {{ moniker }}"

@@ -1,0 +1,9 @@
+#!/bin/bash
+set -ex
+
+EXTERNAL_IP=$(curl -s https://icanhazip.zanshindojo.workers.dev)
+MONIKER={{ moniker }}
+
+#pd testnet join --external-address $EXTERNAL_IP --moniker $MONIKER
+pd testnet join --moniker $MONIKER
+

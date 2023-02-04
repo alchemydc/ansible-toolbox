@@ -44,11 +44,13 @@
       tags: 'ethereum_validator'
     - role: decred_server
       tags: 'decred_server'
-    - role: namada_validator
+    - role: 'namada_validator'
       tags: 'namada_validator'
     - role: 'ghost_server'
       tags: ghost_server
       become: true
+    - role: 'penumbra_validator'
+      tags: penumbra_validator
   
   handlers:
       - name: restart sshd
@@ -167,6 +169,20 @@
       - name: restart namada
         systemd:
           name: namada
+          daemon_reload: yes
+          state: restarted
+        become: true
+      
+      - name: restart penumbra-pd
+        systemd:
+          name: penumbra-pd
+          daemon_reload: yes
+          state: restarted
+        become: true
+
+      - name: restart penumbra-tendermint
+        systemd:
+          name: penumbra-tendermint
           daemon_reload: yes
           state: restarted
         become: true

@@ -1,0 +1,31 @@
+---
+- name: download tendermint binary
+  get_url:
+    url: '{{ tendermint_binary }}'
+    dest: '/tmp/tendermint_binary.tar.gz'
+    checksum: '{{ tendermint_checksum }}'
+    mode: '0700'
+    force: yes
+
+- name: unarchive binary file
+  unarchive:
+    src: '/tmp/tendermint_binary.tar.gz'
+    dest: '/tmp/'
+    mode: '0755'
+    remote_src: true
+
+- name: Create user bin dir
+  file:
+    path: "/home/{{ svc_user }}/bin"
+    state: directory
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: "0750"
+
+- name: Copy binary
+  copy:
+    remote_src: true
+    src: '/tmp/{{ tendermint_daemon }}'
+    dest: '/home/{{ svc_user }}/bin/{{ tendermint_daemon }}'
+    mode: '0755'
+  become: true

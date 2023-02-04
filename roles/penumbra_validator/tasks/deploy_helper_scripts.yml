@@ -1,0 +1,30 @@
+---
+    - name: create helper directory
+      file:
+        path: "/home/{{ svc_user }}/helpers"
+        state: directory
+        owner: "{{ svc_user }}"
+        group: "{{ svc_user }}"
+        mode: "0750"
+      become: true
+      become_user: "{{ svc_user }}"
+  
+    - name: deploy helper scripts
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: '0750'
+        owner: "{{ svc_user }}"
+      loop:
+        - { src: 'pcli_generate_keys.sh.j2', dest: "/home/{{ svc_user }}/helpers/pcli_generate_keys.sh.sh" }
+        - { src: 'pcli_restore_keys.sh.j2', dest: "/home/{{ svc_user }}/helpers/pcli_restore_keys.sh.sh" }
+        - { src: 'pcli_view_first_address.sh.j2', dest: "/home/{{ svc_user }}/helpers/pcli_view_first_address.sh" }
+        - { src: 'pcli_view_balance.sh.j2', dest: "/home/{{ svc_user }}/helpers/pcli_view_balance.sh" }
+        - { src: 'pd_generate_fullnode_config.sh.j2', dest: "/home/{{ svc_user }}/helpers/pd_generate_fullnode_config.sh" }
+        - { src: 'pd_unsafe_reset_all.sh.j2', dest: "/home/{{ svc_user }}/helpers/pd_unsafe_reset_all.sh" }
+        #- { src: 'join_fullnode.sh.j2', dest: "/home/{{ svc_user }}/join_fullnode.sh" }
+        #- { src: 'start_fullnode.sh.j2', dest: "/home/{{ svc_user }}/start_fullnode.sh" }
+        #- { src: 'join_validator_post_genesis.sh.j2', dest: "/home/{{ svc_user }}/join_validator_post_genesis.sh" }
+        #- { src: 'tap_faucet.sh.j2', dest: "/home/{{ svc_user }}/tap_faucet.sh" }
+      become: true
+      become_user: "{{ svc_user }}"

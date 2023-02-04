@@ -1,0 +1,21 @@
+[Unit]
+Description=penumbra pd service
+After=network-online.target
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+#WorkingDirectory=/home/{{ svc_user }}/.penumbra
+#Environment=RUST_LOG="warn,pd=debug,penumbra=debug"
+Environment=RUST_LOG="warn,pd={{ log_level }},penumbra={{ log_level }}"
+#Environment=NAMADA_TM_STDOUT=true
+Restart=on-failure
+RestartSec=10s
+ExecStart=/home/{{ svc_user }}/bin/pd start --home /home/{{ svc_user }}/.penumbra/testnet_data/node0/pd
+#Restart=always
+#RestartSec=10
+#LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+#!/bin/bash
+set -ex
+
+# view first address
+pcli view address 0
+
+# sync with the network
+pcli view sync
+
+# show the balance
+pcli view balance
+
+# show staked balance
+pcli view staked
