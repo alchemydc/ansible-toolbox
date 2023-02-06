@@ -1,0 +1,46 @@
+## wireguard systemd unit
+[Unit]
+Description=wireguard service
+Requires=docker.service
+After=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+    --rm \
+    --name="wireguard" \
+    --volume /home/{{ svc_user }}/wireguard/config:/config \
+    --volume /lib/modules:/lib/modules \
+    --publish 9091:9091 \
+    --publish 7878:7878 \
+    --publish 8989:8989 \
+    --publish 9696:9696 \
+    --publish 8888:8080 \
+    --publish 8889:8889 \
+    --publish 8112:8112 \
+    --env PUID={{ svc_uid }} \
+    --env PGID={{ svc_uid }} \
+    --env VIRTUAL_HOST=transmission \
+    --env VIRTUAL_PORT=9091 \
+    --cap-add=NET_ADMIN \
+    --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
+    linuxserver/wireguard
+
+ExecStop=/usr/bin/docker stop wireguard
+
+[Install]
+WantedBy=default.target
+
+
+
+## ports
+# * tcp/7878: radarr
+# * tcp/8989: sonarr
+# * tcp/9696: prowlarr
+# * tcp/8888: SABnzbd
+# * tcp/8889: qbittorrent
+# * tcp/8112: deluge

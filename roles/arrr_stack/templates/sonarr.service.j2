@@ -1,0 +1,27 @@
+## sonarr systemd unit
+[Unit]
+Description=sonarr service
+Requires=wireguard.service
+After=wireguard.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name sonarr \
+  --network=container:wireguard \
+  -e PUID={{ svc_uid }} \
+  -e PGID={{ svc_uid }} \
+  -e UMASK=002 \
+  -e TZ="Etc/UTC" \
+  -v /home/{{ svc_user }}/sonarr/config:/config \
+  -v /home/{{ svc_user }}/space:/space \
+  cr.hotio.dev/hotio/sonarr
+ExecStop=/usr/bin/docker stop sonarr
+
+[Install]
+WantedBy=default.target

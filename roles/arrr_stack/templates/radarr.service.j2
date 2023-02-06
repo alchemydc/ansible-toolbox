@@ -1,0 +1,40 @@
+## radarr systemd unit
+[Unit]
+Description=radarr service
+Requires=wireguard.service
+After=wireguard.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name radarr \
+  --network=container:wireguard \
+  -e PUID={{ svc_uid }} \
+  -e PGID={{ svc_uid }} \
+  -e UMASK=002 \
+  -e TZ="Etc/UTC" \
+  -v /home/{{ svc_user }}/radarr/config:/config \
+  -v /home/{{ svc_user }}/space:/space \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.radarr.entrypoints=http" \
+  --label "traefik.http.routers.radarr.rule=Host(`radarr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.radarr.service=radarr" \
+  --label "traefik.http.routers.radarr-secure.entrypoints=https" \
+  --label "traefik.http.routers.radarr-secure.rule=Host(`radarr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.radarr-secure.tls=true" \
+  --label "traefik.http.routers.radarr-secure.service=radarr" \
+  --label "traefik.http.services.radarr.loadbalancer.server.port=7878" \
+  cr.hotio.dev/hotio/radarr
+ExecStop=/usr/bin/docker stop radarr
+
+[Install]
+WantedBy=default.target
+
+
+# --label "traefik.docker.network=proxy" \
+# --label "traefik.docker.network=container:wireguard" \

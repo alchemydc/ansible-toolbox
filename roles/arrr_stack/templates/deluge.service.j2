@@ -1,0 +1,28 @@
+## deluge systemd unit
+[Unit]
+Description=deluge service
+Requires=wireguard.service
+After=wireguard.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name deluge \
+  --network=container:wireguard \
+  -e PUID={{ svc_uid }} \
+  -e PGID={{ svc_uid }} \
+  -e UMASK=002 \
+  -e TZ="Etc/UTC" \
+  -v /home/{{ svc_user }}/space/DO_NOT_USE:/downloads \
+  -v /home/{{ svc_user }}/space/downloads:/space/downloads \
+  -v /home/{{ svc_user }}/deluge/config:/config \
+  lscr.io/linuxserver/deluge:latest
+ExecStop=/usr/bin/docker stop deluge
+
+[Install]
+WantedBy=default.target

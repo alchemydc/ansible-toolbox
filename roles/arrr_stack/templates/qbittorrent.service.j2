@@ -1,0 +1,28 @@
+## qbittorrent systemd unit
+[Unit]
+Description=qbittorrent service
+Requires=wireguard.service
+After=wireguard.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name qbittorrent \
+  --network=container:wireguard \
+  -e PUID={{ svc_uid }} \
+  -e PGID={{ svc_uid }} \
+  -e UMASK=002 \
+  -e WEBUI_PORTS=8889 \
+  -e TZ="Etc/UTC" \
+  -v /home/{{ svc_user }}/space/downloads:/space/downloads \
+  -v /home/{{ svc_user }}/qbittorrent/config:/config \
+  cr.hotio.dev/hotio/qbittorrent
+ExecStop=/usr/bin/docker stop qbittorrent
+
+[Install]
+WantedBy=default.target

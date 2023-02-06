@@ -1,0 +1,11 @@
+[Interface]
+PrivateKey = {{ wireguard_private_key }}
+Address = 10.2.0.2/32
+DNS = 10.2.0.1
+# postup null routes traffic not passing through wireguard
+PostUp = DROUTE=$(ip route | grep default | awk '{print $3}'); HOMENET={{ homenet }}; DOCKERNET={{ dockernet }}; ip route add $HOMENET via $DROUTE;iptables -I OUTPUT -d $HOMENET -j ACCEPT;  iptables -I OUTPUT -d $DOCKERNET -j ACCEPT; iptables -A OUTPUT ! -o %i -m mark ! --mark $(wg show %i fwmark) -m addrtype ! --dst-type LOCAL -j REJECT
+
+[Peer]
+PublicKey = {{ wireguard_public_key }}
+AllowedIPs = 0.0.0.0/0
+Endpoint = {{ wireguard_endpoint }}
