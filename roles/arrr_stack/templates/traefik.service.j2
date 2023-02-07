@@ -13,7 +13,8 @@ Restart=always
 ExecStart=/usr/bin/docker run \
   --rm \
   --name traefik \
-  --network="host" \
+  --hostname traefik \
+  --network="proxy" \
   --env-file=/home/traefik/.traefik.env \
   -v /home/traefik/traefik.yml:/traefik.yml:ro \
   -v /etc/localtime:/etc/localtime:ro \
@@ -40,3 +41,6 @@ ExecStop=/usr/bin/docker stop -t 30 traefik
 
 [Install]
 WantedBy=default.target
+
+
+# --network="host" \

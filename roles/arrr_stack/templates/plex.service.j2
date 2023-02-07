@@ -13,6 +13,8 @@ RestartSec=10s
 ExecStart=/usr/bin/docker run \
   --rm \
   --name plex \
+  --hostname plex \
+  --network="proxy" \
   -p 32400:32400/tcp \
   -e PUID={{ svc_uid }} \
   -e PGID={{ svc_uid }} \
