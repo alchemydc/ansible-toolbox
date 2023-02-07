@@ -19,6 +19,15 @@ ExecStart=/usr/bin/docker run \
   -e UMASK=002 \
   -e TZ="Etc/UTC" \
   -v /home/{{ svc_user }}/prowlarr/config:/config \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.prowlarr.entrypoints=http" \
+  --label "traefik.http.routers.prowlarr.rule=Host(`prowlarr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.prowlarr.service=prowlarr" \
+  --label "traefik.http.routers.prowlarr-secure.entrypoints=https" \
+  --label "traefik.http.routers.prowlarr-secure.rule=Host(`prowlarr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.prowlarr-secure.tls=true" \
+  --label "traefik.http.routers.prowlarr-secure.service=prowlarr" \
+  --label "traefik.http.services.prowlarr.loadbalancer.server.port=9696" \
   cr.hotio.dev/hotio/prowlarr
 ExecStop=/usr/bin/docker stop prowlarr
 

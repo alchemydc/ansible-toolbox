@@ -21,6 +21,15 @@ ExecStart=/usr/bin/docker run \
   -v /home/{{ svc_user }}/space/DO_NOT_USE:/downloads \
   -v /home/{{ svc_user }}/space/downloads:/space/downloads \
   -v /home/{{ svc_user }}/deluge/config:/config \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.deluge.entrypoints=http" \
+  --label "traefik.http.routers.deluge.rule=Host(`deluge.{{ service_domain }}`)" \
+  --label "traefik.http.routers.deluge.service=deluge" \
+  --label "traefik.http.routers.deluge-secure.entrypoints=https" \
+  --label "traefik.http.routers.deluge-secure.rule=Host(`deluge.{{ service_domain }}`)" \
+  --label "traefik.http.routers.deluge-secure.tls=true" \
+  --label "traefik.http.routers.deluge-secure.service=deluge" \
+  --label "traefik.http.services.deluge.loadbalancer.server.port=8112" \
   lscr.io/linuxserver/deluge:latest
 ExecStop=/usr/bin/docker stop deluge
 

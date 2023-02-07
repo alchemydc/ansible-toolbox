@@ -14,14 +14,6 @@ ExecStart=/usr/bin/docker run \
   --rm \
   --name plex \
   -p 32400:32400/tcp \
-  -p 3005:3005/tcp \
-  -p 8324:8324/tcp \
-  -p 32469:32469/tcp \
-  -p 1900:1900/udp \
-  -p 32410:32410/udp \
-  -p 32412:32412/udp \
-  -p 32413:32413/udp \
-  -p 32414:32414/udp \
   -e PUID={{ svc_uid }} \
   -e PGID={{ svc_uid }} \
   -e UMASK=002 \
@@ -34,9 +26,26 @@ ExecStart=/usr/bin/docker run \
   -v /home/{{ svc_user }}/space/media:/space/media \
   -v /home/{{ svc_user }}/space/transcode:/transcode \
   -v /home/{{ svc_user }}/plex/config:/config \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.plex.entrypoints=http" \
+  --label "traefik.http.routers.plex.rule=Host(`plex.{{ service_domain }}`)" \
+  --label "traefik.http.routers.plex.service=plex" \
+  --label "traefik.http.routers.plex-secure.entrypoints=https" \
+  --label "traefik.http.routers.plex-secure.rule=Host(`plex.{{ service_domain }}`)" \
+  --label "traefik.http.routers.plex-secure.tls=true" \
+  --label "traefik.http.routers.plex-secure.service=plex" \
+  --label "traefik.http.services.plex.loadbalancer.server.port=32400" \
   cr.hotio.dev/hotio/plex
 ExecStop=/usr/bin/docker stop plex
 
 [Install]
 WantedBy=default.target
 
+# -p 3005:3005/tcp \
+# -p 8324:8324/tcp \
+# -p 32469:32469/tcp \
+# -p 1900:1900/udp \
+# -p 32410:32410/udp \
+# -p 32412:32412/udp \
+# -p 32413:32413/udp \
+# -p 32414:32414/udp \
