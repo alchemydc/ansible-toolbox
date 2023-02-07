@@ -24,3 +24,13 @@ providers:
   #  watch: true
 #metrics:
 #  prometheus: {}
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: {{ cert_resolver_email }}
+      storage: acme.json
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"

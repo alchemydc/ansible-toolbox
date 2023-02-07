@@ -9,6 +9,22 @@
     groups:
       - docker
 
+- name: Create Traefik data directory
+  file:
+    path: "/home/traefik/data"
+    state: directory
+    owner: "traefik"
+    group: "traefik"
+    mode: "0750"
+
+- name: Touch Traefik acme.json
+  file:
+    path: "/home/traefik/data/acme.json"
+    state: touch
+    owner: "traefik"
+    group: "traefik"
+    mode: "0600"
+
 - name: Deploy traefik service systemd service file
   template:
     src: traefik.service.j2
@@ -18,6 +34,17 @@
     mode: '0644'
   notify:
     - daemon-reload
+    - restart traefik
+
+- name: Deploy traefik env file
+  template:
+    src: traefik.env.j2
+    dest: /home/traefik/.traefik.env
+    owner: traefik
+    group: traefik
+    mode: '0600'
+  become: true
+  notify:
     - restart traefik
 
 - name: Deploy traefik.yml

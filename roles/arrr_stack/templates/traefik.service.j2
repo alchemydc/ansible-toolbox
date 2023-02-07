@@ -14,17 +14,29 @@ ExecStart=/usr/bin/docker run \
   --rm \
   --name traefik \
   --network="host" \
+  --env-file=/home/traefik/.traefik.env \
   -v /home/traefik/traefik.yml:/traefik.yml:ro \
   -v /etc/localtime:/etc/localtime:ro \
+  -v /home/traefik/data/acme.json:/acme.json \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
   -p 80:80 \
   -p 443:443 \
   -p 8080:8080 \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.traefik.entrypoints=http" \
+  --label "traefik.http.routers.traefik.rule=Host(`traefik-dashboard.{{ service_domain }}`)" \
+  --label "traefik.http.routers.traefik.service=api@internal" \
+  --label "traefik.http.routers.traefik-secure.entrypoints=https" \
+  --label "traefik.http.routers.traefik-secure.rule=Host(`traefik-dashboard.{{ service_domain }}`)" \
+  --label "traefik.http.routers.traefik-secure.tls=true" \
+  --label "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare" \
+  --label "traefik.http.routers.traefik-secure.tls.domains[0].main={{ service_domain }}" \
+  --label "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.{{ service_domain }}" \
+  --label "traefik.http.routers.traefik-secure.service=api@internal" \
+  --label "traefik.http.services.workaround.loadbalancer.server.port=8080" \
   traefik:latest
 
 ExecStop=/usr/bin/docker stop -t 30 traefik
 
 [Install]
 WantedBy=default.target
-
-# --network="proxy" \
