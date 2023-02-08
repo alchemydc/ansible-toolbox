@@ -1,2 +1,21 @@
 - name: Configure node
   shell: "/home/{{ svc_user }}/bin/pd testnet join --moniker {{ moniker }}"
+
+- name: Import keys
+  shell: "/home/{{ svc_user }}/bin/pcli keys import phrase '{{ seed_phrase }}'"
+
+- name: Deploy validator consensus key
+  copy:
+    src: priv_validator_key.json.encrypted
+    dest: "/home/{{ svc_user }}/.penumbra/testnet_data/node0/tendermint/config/priv_validator_key.json"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: '0600'
+
+- name: Deploy validator.toml
+  template:
+    src: validator.toml.j2.encrypted
+    dest: "/home/{{ svc_user }}/helpers/validator.toml"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: '0600'

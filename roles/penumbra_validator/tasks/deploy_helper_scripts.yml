@@ -21,6 +21,8 @@
         - { src: 'pcli_view_first_address.sh.j2', dest: "/home/{{ svc_user }}/helpers/pcli_view_first_address.sh" }
         - { src: 'pcli_view_balance.sh.j2', dest: "/home/{{ svc_user }}/helpers/pcli_view_balance.sh" }
         - { src: 'pd_generate_fullnode_config.sh.j2', dest: "/home/{{ svc_user }}/helpers/pd_generate_fullnode_config.sh" }
+        - { src: 'pd_generate_validator_config.sh.j2', dest: "/home/{{ svc_user }}/helpers/pd_generate_validator_config.sh" }
+        - { src: 'pcli_register_validator.sh.j2', dest: "/home/{{ svc_user }}/helpers/pcli_register_validator.sh" }
         - { src: 'pd_unsafe_reset_all.sh.j2', dest: "/home/{{ svc_user }}/helpers/pd_unsafe_reset_all.sh" }
         #- { src: 'join_fullnode.sh.j2', dest: "/home/{{ svc_user }}/join_fullnode.sh" }
         #- { src: 'start_fullnode.sh.j2', dest: "/home/{{ svc_user }}/start_fullnode.sh" }

@@ -1,0 +1,7 @@
+#!/bin/bash
+set -ex
+
+EXTERNAL_IP=$(curl -s https://icanhazip.zanshindojo.workers.dev)
+MONIKER={{ moniker }}
+
+pcli validator template-definition template --file validator.toml

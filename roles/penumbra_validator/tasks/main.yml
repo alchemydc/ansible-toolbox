@@ -35,8 +35,8 @@
   become: true
   become_user: "{{ svc_user }}"
 
-- name: build pcli binary
-  import_tasks: build_pcli.yml
+- name: build penumbra binaries
+  import_tasks: build_penumbra.yml
   become: true
   become_user: "{{ svc_user }}"
 
@@ -44,12 +44,11 @@
   import_tasks: deploy_helper_scripts.yml
   tags: helpers
 
-- name: Configure node genesis, chain-id, identity, etc
+- name: Configure node genesis, chain-id, identity, consensus keys, etc
   import_tasks: configure_node.yml
   become: true
   become_user: "{{ svc_user }}"
   ignore_errors: true
-
 - name: Deploy penumbra-pd service systemd service file
   template:
     src: penumbra-pd.service.j2
@@ -86,7 +85,6 @@
     state: started
     daemon_reload: yes
   become: true
-
 - name: Enable and start penumbra-tendermint service
   systemd:
     name: penumbra-tendermint.service

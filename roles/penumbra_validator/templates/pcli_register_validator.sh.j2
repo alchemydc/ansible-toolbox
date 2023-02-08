@@ -1,0 +1,30 @@
+#!/bin/bash
+set -ex
+
+#EXTERNAL_IP=$(curl -s https://icanhazip.zanshindojo.workers.dev)
+MONIKER={{ moniker }}
+
+echo "uploading validator definition"
+pcli validator definition upload --file ~/helpers/validator.toml
+
+echo "verifying that validator definition is known to the chain"
+pcli query validator list -i | grep -i $MONIKER
+
+# find validator identity
+echo "Finding validator identity"
+VALIDATOR_IDENTITY=$(pcli validator identity)
+
+echo "delegating to our validator"
+pcli tx delegate 1penumbra --to $VALIDATOR_IDENTITY
+
+#echo "Sleeping 10 seconds to allow the chain to process the transaction"
+#sleep 10
+
+#echo "Checking validator status, should be bonded now"
+#pcli query validator list | grep -B 2 -i $MONIKER
+
+echo "Check explorer at https://penumbra.zpoken.io/ to see if your validator is bonded"
+echo "Note that voting power isn't recalculated until the start of the next epoch (epochs are 719 blocks)"
+
+#Voting power will be calculated on the next epoch transition after your delegation takes place. Assuming that your delegation was #enough to place your validator in the top N validators by voting power, it should appear in the validator list as Active after the #next epoch transition. The epoch duration and the active validator limit are chain parameters, and will vary by deployment. You #can find the values in use for the current chain in its genesis.json file.
+
