@@ -66,22 +66,11 @@
 #    mode: '0755'
 #  become: true
 
-#- name: Create keystore
-#  import_tasks: create_keystore.yml
-#  tags: "native_keystore"
+- name: Enable and start namada service
+  systemd:
+    name: namada.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true
 
-#- name: Enable and start namada service
-#  systemd:
-#    name: namada.service
-#    enabled: yes
-#    state: started
-#    daemon_reload: yes
-#  become: true
-
-#- name: Deploy restore from snapshot script
-#  import_tasks: restore_snapshot.yml
-#  tags: 'restore_celo_snapshot'
-
-#- name: Deploy generate proof of possession script
-#  import_tasks: generate_pop.yml
-#  tags: 'generate_pop'

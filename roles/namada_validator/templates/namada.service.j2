@@ -4,14 +4,17 @@ After=network-online.target
 [Service]
 User={{ svc_user }}
 WorkingDirectory=/home/{{ svc_user }}/.namada
-Environment=NAMADA_LOG=debug
+#Environment=NAMADA_LOG=debug
+Environment=NAMADA_LOG=info
 Environment=NAMADA_TM_STDOUT=true
-ExecStart=/home/{{ svc_user }}/go/bin/namada --base-dir=/home/{{ svc_user }}/.namada node ledger run --time {{ start_time }}
-#StandardOutput=syslog
-#StandardError=syslog
-Restart=always
+Environment=PATH=/home/{{ svc_user }}/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/home/{{ svc_user }}/go/bin/namada --base-dir=/home/{{ svc_user }}/.namada node ledger run
+Restart=on-failure
 RestartSec=10
 LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target
+
+# if we need to synchronize the start time
+# --time {{ start_time }}
