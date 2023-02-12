@@ -40,10 +40,13 @@
     - "/home/{{ svc_user }}/space/media"
     - "/home/{{ svc_user }}/space/media/movies"
     - "/home/{{ svc_user }}/space/media/tv"
+    - "/home/{{ svc_user }}/space/media/books"
     - "/home/{{ svc_user }}/plex"
     - "/home/{{ svc_user }}/plex/config"
     - "/home/{{ svc_user }}/radarr"
     - "/home/{{ svc_user }}/radarr/config"
+    - "/home/{{ svc_user }}/readarr"
+    - "/home/{{ svc_user }}/readarr/config"
     - "/home/{{ svc_user }}/sonarr"
     - "/home/{{ svc_user }}/sonarr/config"
     - "/home/{{ svc_user }}/prowlarr"
@@ -75,190 +78,29 @@
     driver_options: { "com.docker.network.driver.mtu": "{{ sdn_mtu }}" }
   become: true
 
-- name: Deploy wireguard config file
-  template:
-    src: wg0.conf.j2.encrypted
-    dest: "/home/{{ svc_user }}/wireguard/config/wg0.conf"
-    owner: "{{ svc_user }}"
-    group: "{{ svc_user }}"
-    mode: "0600"
-  become: true
-  become_user: "{{ svc_user }}"
+- name: Deploy wireguard
+  import_tasks: wireguard.yml
 
-- name: Deploy wireguard service systemd service file
-  template:
-    src: wireguard.service.j2
-    dest: "/etc/systemd/system/wireguard.service"
-    owner: root
-    group: root
-    mode: '0644'
-  #notify: restart wireguard
-  # note: notify fails, FAILED! => {"changed": false, "msg": "Could not find the requested service wg-quick@wg0: host"}
-  # has to do with some weirdness between systemd and docker. fix later :)
-  become: true
+- name: Deploy radarr
+  import_tasks: radarr.yml
 
-- name: Enable and start wireguard service
-  systemd:
-    name: wireguard.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  become: true
+- name: Deploy readarr
+  import_tasks: readarr.yml
 
-- name: Deploy radarr service systemd service file
-  template:
-    src: radarr.service.j2
-    dest: "/etc/systemd/system/radarr.service"
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart radarr
-  become: true
+- name: Deploy sonarr
+  import_tasks: sonarr.yml
 
-- name: Enable and start radarr service
-  systemd:
-    name: radarr.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  become: true
+- name: Deploy prowlarr
+  import_tasks: prowlarr.yml
 
-- name: Deploy sonarr service systemd service file
-  template:
-    src: sonarr.service.j2
-    dest: "/etc/systemd/system/sonarr.service"
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart sonarr
-  become: true
+- name: Deploy sabnzbd
+  import_tasks: sabnzbd.yml
 
-- name: Enable and start sonarr service
-  systemd:
-    name: sonarr.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  become: true
+- name: Deploy qbittorrent
+  import_tasks: qbittorrent.yml
 
-- name: Deploy prowlarr service systemd service file
-  template:
-    src: prowlarr.service.j2
-    dest: "/etc/systemd/system/prowlarr.service"
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart prowlarr
-  become: true
+- name: Deploy deluge
+  import_tasks: deluge.yml
 
-- name: Enable and start prowlarr service
-  systemd:
-    name: prowlarr.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  become: true
-
-- name: Deploy sabnzbd service systemd service file
-  template:
-    src: sabnzbd.service.j2
-    dest: "/etc/systemd/system/sabnzbd.service"
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart sabnzbd
-  become: true
-
-- name: Enable and start sabnzbd service
-  systemd:
-    name: sabnzbd.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  become: true
-
-- name: Deploy qbittorrent configuration
-  template:
-    src: qbittorrent.conf.j2
-    dest: "/home/{{ svc_user }}/qbittorrent/config/config/qBittorrent.conf"
-    owner: "{{ svc_user }}"
-    group: "{{ svc_user }}"
-    mode: "0640"
-  become: true
-  become_user: "{{ svc_user }}"
-
-- name: Deploy qbittorrent service systemd service file
-  template:
-    src: qbittorrent.service.j2
-    dest: "/etc/systemd/system/qbittorrent.service"
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart qbittorrent
-  become: true
-
-- name: Enable and start qbittorrent service
-  systemd:
-    name: qbittorrent.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  become: true
-
-- name: Deploy deluge configuration
-  template:
-    src: deluge_core.conf.j2
-    dest: "/home/{{ svc_user }}/deluge/config/core.conf"
-    owner: "{{ svc_user }}"
-    group: "{{ svc_user }}"
-    mode: "0640"
-  become: true
-  become_user: "{{ svc_user }}"
-  notify: restart deluge
-
-- name: Deploy deluge auth configuration  # maybe, else will be in web.conf
-  template:
-    src: deluge_auth.j2
-    dest: "/home/{{ svc_user }}/deluge/config/auth"
-    owner: "{{ svc_user }}"
-    group: "{{ svc_user }}"
-    mode: "0640"
-  become: true
-  become_user: "{{ svc_user }}"
-  notify: restart deluge
-
-- name: Deploy deluge service systemd service file
-  template:
-    src: deluge.service.j2
-    dest: "/etc/systemd/system/deluge.service"
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart deluge
-  become: true
-
-- name: Enable and start deluge service
-  systemd:
-    name: deluge.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  become: true
-
-- name: Deploy plex service systemd service file
-  template:
-    src: plex.service.j2
-    dest: "/etc/systemd/system/plex.service"
-    owner: root
-    group: root
-    mode: '0644'
-  notify: restart plex
-  become: true
-
-- name: Enable and start plex service
-  systemd:
-    name: plex.service
-    enabled: yes
-    state: started
-    daemon_reload: yes
-  become: true
+- name: Deploy plex
+  import_tasks: plex.yml

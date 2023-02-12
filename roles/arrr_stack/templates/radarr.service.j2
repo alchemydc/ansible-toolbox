@@ -20,6 +20,7 @@ ExecStart=/usr/bin/docker run \
   -e TZ="Etc/UTC" \
   -v /home/{{ svc_user }}/radarr/config:/config \
   -v /home/{{ svc_user }}/space:/space \
+  -v /mnt/zrust/media:/mnt/zrust/media \
   --label "traefik.enable=true" \
   --label "traefik.http.routers.radarr.entrypoints=http" \
   --label "traefik.http.routers.radarr.rule=Host(`radarr.{{ service_domain }}`)" \

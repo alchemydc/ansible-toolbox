@@ -1,0 +1,17 @@
+- name: Deploy sabnzbd service systemd service file
+  template:
+    src: sabnzbd.service.j2
+    dest: "/etc/systemd/system/sabnzbd.service"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart sabnzbd
+  become: true
+
+- name: Enable and start sabnzbd service
+  systemd:
+    name: sabnzbd.service
+    enabled: yes
+    state: stopped  # temp disabled
+    daemon_reload: yes
+  become: true

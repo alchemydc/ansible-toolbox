@@ -4,3 +4,29 @@
       - postfix
     update_cache: true
 
+- name: Deploy postfix config
+  template:
+    src: 'main.cf.j2'
+    dest: '/etc/postfix/main.cf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+  notify: "restart postfix"
+
+- name: Deploy postfix sasl_password
+  template:
+    src: 'sasl_passwd.j2'
+    dest: '/etc/postfix/sasl_passwd'
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+  become: true
+  notify: "restart postfix"
+
+- name: Rebuild sasl_passwd.db
+  command:
+    cmd: '/usr/sbin/postmap sasl_passwd'
+  become: true
+  notify: "restart postfix"
+

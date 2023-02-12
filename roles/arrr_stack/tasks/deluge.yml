@@ -1,0 +1,39 @@
+- name: Deploy deluge configuration
+  template:
+    src: deluge_core.conf.j2
+    dest: "/home/{{ svc_user }}/deluge/config/core.conf"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: "0640"
+  become: true
+  become_user: "{{ svc_user }}"
+  notify: restart deluge
+
+- name: Deploy deluge auth configuration  # maybe, else will be in web.conf
+  template:
+    src: deluge_auth.j2
+    dest: "/home/{{ svc_user }}/deluge/config/auth"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: "0640"
+  become: true
+  become_user: "{{ svc_user }}"
+  notify: restart deluge
+
+- name: Deploy deluge service systemd service file
+  template:
+    src: deluge.service.j2
+    dest: "/etc/systemd/system/deluge.service"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart deluge
+  become: true
+
+- name: Enable and start deluge service
+  systemd:
+    name: deluge.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true

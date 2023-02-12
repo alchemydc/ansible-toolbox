@@ -1,0 +1,38 @@
+## readarr systemd unit
+[Unit]
+Description=readarr service
+Requires=wireguard.service
+After=wireguard.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name readarr \
+  --network=container:wireguard \
+  -e PUID={{ svc_uid }} \
+  -e PGID={{ svc_uid }} \
+  -e UMASK=002 \
+  -e TZ="Etc/UTC" \
+  -v /home/{{ svc_user }}/readarr/config:/config \
+  -v /home/{{ svc_user }}/space:/space \
+  -v /mnt/zrust/media:/mnt/zrust/media \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.readarr.entrypoints=http" \
+  --label "traefik.http.routers.readarr.rule=Host(`readarr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.readarr.service=readarr" \
+  --label "traefik.http.routers.readarr-secure.entrypoints=https" \
+  --label "traefik.http.routers.readarr-secure.rule=Host(`readarr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.readarr-secure.tls=true" \
+  --label "traefik.http.routers.readarr-secure.service=readarr" \
+  --label "traefik.http.services.readarr.loadbalancer.server.port=8787" \
+  cr.hotio.dev/hotio/readarr
+ExecStop=/usr/bin/docker stop readarr
+
+[Install]
+WantedBy=default.target
+

@@ -25,7 +25,7 @@ ExecStart=/usr/bin/docker run \
   -e ALLOWED_NETWORKS="" \
   -e ADVERTISE_IP="{{ plex_advertise_ip }}" \
   -h {{ ansible_hostname }} \
-  -v /home/{{ svc_user }}/space/media:/space/media \
+  -v /mnt/zrust/media:/mnt/zrust/media \
   -v /home/{{ svc_user }}/space/transcode:/transcode \
   -v /home/{{ svc_user }}/plex/config:/config \
   --label "traefik.enable=true" \
