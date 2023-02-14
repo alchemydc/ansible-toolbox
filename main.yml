@@ -203,6 +203,20 @@
           state: restarted
         become: true
 
+      - name: restart calibre
+        systemd:
+          name: calibre
+          daemon_reload: yes
+          state: restarted
+        become: true
+
+      - name: restart calibre-web
+        systemd:
+          name: calibre-web
+          daemon_reload: yes
+          state: restarted
+        become: true
+
       - name: restart sonarr
         systemd:
           name: sonarr

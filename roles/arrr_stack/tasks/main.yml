@@ -36,6 +36,7 @@
     - "/home/{{ svc_user }}/space/DO_NOT_USE"
     - "/home/{{ svc_user }}/space/downloads"
     - "/home/{{ svc_user }}/space/downloads/temp" # should be SSD
+    - "/home/{{ svc_user }}/space/downloads/books"
     - "/home/{{ svc_user }}/space/transcode"      # should be SSD
     - "/home/{{ svc_user }}/space/media"
     - "/home/{{ svc_user }}/space/media/movies"
@@ -47,6 +48,10 @@
     - "/home/{{ svc_user }}/radarr/config"
     - "/home/{{ svc_user }}/readarr"
     - "/home/{{ svc_user }}/readarr/config"
+    - "/home/{{ svc_user }}/calibre"
+    - "/home/{{ svc_user }}/calibre/config"
+    - "/home/{{ svc_user }}/calibre-web"
+    - "/home/{{ svc_user }}/calibre-web/config"
     - "/home/{{ svc_user }}/sonarr"
     - "/home/{{ svc_user }}/sonarr/config"
     - "/home/{{ svc_user }}/prowlarr"
@@ -86,6 +91,12 @@
 
 - name: Deploy readarr
   import_tasks: readarr.yml
+
+- name: Deploy calibre
+  import_tasks: calibre.yml
+
+- name: Deploy calibre-web
+  import_tasks: calibre-web.yml
 
 - name: Deploy sonarr
   import_tasks: sonarr.yml

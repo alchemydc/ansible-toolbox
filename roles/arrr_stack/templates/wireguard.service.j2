@@ -24,6 +24,9 @@ ExecStart=/usr/bin/docker run \
     --publish 8889:8889 \
     --publish 8112:8112 \
     --publish 8787:8787 \
+    --publish 8180:8080 \
+    --publish 8181:8081 \
+    --publish 8183:8083 \
     --env PUID={{ svc_uid }} \
     --env PGID={{ svc_uid }} \
     --cap-add=NET_ADMIN \
@@ -45,3 +48,7 @@ WantedBy=default.target
 # * tcp/8889: qbittorrent
 # * tcp/8112: deluge
 # * tcp/8787: readarr
+# * tcp/8180: calibre
+# * tcp/8181: calibre-content-server-api
+# * tcp/8183: calibre-web-ui
+
