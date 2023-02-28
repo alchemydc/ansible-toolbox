@@ -1,3 +1,6 @@
+- name: Delete existing data and keys
+  shell: "/home/{{ svc_user }}/bin/pd testnet unsafe-reset-all"
+
 - name: Configure node
   shell: "/home/{{ svc_user }}/bin/pd testnet join --moniker {{ moniker }}"
 

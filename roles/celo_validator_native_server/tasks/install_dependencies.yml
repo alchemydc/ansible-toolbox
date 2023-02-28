@@ -8,5 +8,6 @@
       - jq
       - curl
       - acl   # required for become_user != root
+      - lz4
     state: present
     update_cache: yes

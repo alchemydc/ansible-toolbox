@@ -1,0 +1,2 @@
+- name: Register validator and delegate to it
+  shell: "/home/{{ svc_user }}/helpers/pcli_register_validator.sh"
