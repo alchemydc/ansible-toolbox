@@ -2,6 +2,7 @@
   apt:
     name:
       - postfix
+      - libsasl2-modules
     update_cache: true
 
 - name: Deploy postfix config
@@ -26,7 +27,7 @@
 
 - name: Rebuild sasl_passwd.db
   command:
-    cmd: '/usr/sbin/postmap sasl_passwd'
+    cmd: '/usr/sbin/postmap /etc/postfix/sasl_passwd'
   become: true
   notify: "restart postfix"
 

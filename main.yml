@@ -53,6 +53,9 @@
       tags: penumbra_validator
     - role: arrr_stack
       tags: arrr_stack
+    - role: postfix_smarthost
+      tags: postfix_smarthost
+      become: true
   
   handlers:
       - name: restart sshd
