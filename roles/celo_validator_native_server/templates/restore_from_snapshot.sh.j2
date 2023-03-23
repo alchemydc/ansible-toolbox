@@ -6,6 +6,8 @@ DAY=$(date +%d)
 YESTERDAY=$(($DAY -1))
 TIMESTAMP="$(date +%Y-%m)-$YESTERDAY"
 #SNAPSHOT_URI=https://storage.googleapis.com/celo-chain-backup/{{ network }}/chaindata-$TIMESTAMP.tar.gz
+# alt snapshot location
+#ALT_SNAPSHOT_URI="https://celo.snapshot.directory"
 SNAPSHOT_URI=https://storage.googleapis.com/celo-chain-backup/{{ network }}/chaindata-$TIMESTAMP.tar.lz4
 
 echo "Stopping celo daemon to restore chaindata"

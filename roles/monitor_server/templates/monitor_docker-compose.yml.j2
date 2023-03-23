@@ -36,6 +36,10 @@ services:
     # domain must be set for grafana to be served properly by the ingress layer
     environment:
       - GF_SERVER_DOMAIN="{{ grafana_fqdn }}"
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST={{ smtp_host }}:{{ smtp_port }}
+      - GF_SMTP_FROM_ADDRESS={{ smtp_from }}
+
     volumes:
       - {{ monitor_user_dir }}/grafana:/var/lib/grafana
       #- /etc/hosts:/etc/hosts:ro

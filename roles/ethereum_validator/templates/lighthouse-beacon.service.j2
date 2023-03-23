@@ -30,7 +30,9 @@ ExecStart=/home/{{ ethereum_user }}/bin/lighthouse beacon_node \
 --monitoring-endpoint https://beaconcha.in/api/v1/client/metrics?apikey={{ monitoring_api_key }}&machine={{ monitoring_machine_name }} \
 {% endif %}
 {% if ethereum_network == "goerli" %}
---checkpoint-sync-url https://goerli.checkpoint-sync.ethdevops.io
+# no longer working as of 2023-03-22
+#--checkpoint-sync-url https://goerli.checkpoint-sync.ethdevops.io
+--checkpoint-sync-url https://goerli.beaconstate.ethstaker.cc/
 {% else %}
 --checkpoint-sync-url https://beaconstate.info/
 {% endif %}
