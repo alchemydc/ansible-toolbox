@@ -31,6 +31,7 @@
     force: true
     dest: '/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz'
     mode: '0700'
+  notify: restart node-exporter
 
 - name: unarchive node_exporter
   unarchive:

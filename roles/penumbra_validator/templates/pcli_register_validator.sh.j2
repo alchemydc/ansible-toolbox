@@ -12,8 +12,8 @@ pcli validator definition upload --file ~/helpers/validator.toml
 #echo "verifying that validator definition is known to the chain"
 #pcli query validator list -i | grep -i $MONIKER
 
-echo "Sleeping 3 seconds to allow the chain to process the transaction"
-sleep 3;
+echo "Sleeping 120 seconds to allow the chain to process the transaction"
+sleep 120;
 
 # find validator identity
 echo "Finding validator identity"

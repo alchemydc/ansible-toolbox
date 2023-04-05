@@ -34,6 +34,10 @@ services:
     container_name: grafana
     user: "1100"
     # domain must be set for grafana to be served properly by the ingress layer
+    # note that GF_ROOT_URL should only be needed when serving from a subpath via a reverse proxy
+    # but was added here to try to workaround an issue where we are seeing
+    # "If you're seeing this Grafana has failed to load its application files"
+    # - GF_ROOT_URL="https://{{ grafana_fqdn }}:443/"
     environment:
       - GF_SERVER_DOMAIN="{{ grafana_fqdn }}"
       - GF_SMTP_ENABLED=true

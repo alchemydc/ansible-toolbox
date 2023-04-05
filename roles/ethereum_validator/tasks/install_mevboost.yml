@@ -1,0 +1,24 @@
+---
+- name: download binary
+  get_url:
+    url: '{{ mevboost_binary }}'
+    checksum: 'sha256:{{ mevboost_checksum }}'
+    dest: '/tmp/mevboost_binary.tar.gz'
+    mode: '0700'
+    #force: yes
+
+- name: unarchive binary file
+  unarchive:
+    src: '/tmp/mevboost_binary.tar.gz'
+    dest: '/tmp/'
+    mode: '0755'
+    remote_src: true
+
+- name: Copy binary
+  copy:
+    remote_src: true
+    src: '/tmp/mev-boost'
+    dest: '/home/{{ ethereum_user }}/bin/mev-boost'
+    mode: '0755'
+  become: true
+  become_user: "{{ ethereum_user }}"

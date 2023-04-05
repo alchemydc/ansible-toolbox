@@ -26,6 +26,7 @@ ExecStart=/home/{{ ethereum_user }}/bin/lighthouse beacon_node \
 --network {{ ethereum_network }} \
 --port {{ lighthouse_port }} \
 --staking \
+--builder http://localhost:18550 \
 {% if ethereum_network == "mainnet" %}
 --monitoring-endpoint https://beaconcha.in/api/v1/client/metrics?apikey={{ monitoring_api_key }}&machine={{ monitoring_machine_name }} \
 {% endif %}

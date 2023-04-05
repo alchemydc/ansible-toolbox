@@ -42,6 +42,11 @@
     - restart lighthouse-beacon
     - restart lighthouse-validator
 
+- name: Install mevboost binary
+  import_tasks: install_mevboost.yml
+  when: mevboost_binary is defined
+  notify: restart mevboost
+
 - name: Deploy erigon service environment file
   copy:
     src: environment.env
@@ -69,6 +74,16 @@
 #    group: root
 #    mode: '0644'
 #  become: true
+
+- name: Deploy mevboost service systemd service file
+  template:
+    src: mevboost.service.j2
+    dest: /etc/systemd/system/mevboost.service
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: restart mevboost
 
 - name: Deploy lighthouse-beacon service systemd service file
   template:
@@ -102,6 +117,14 @@
 - name: Enable and start erigon execution client service 
   systemd:
     name: erigon.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true
+
+- name: Enable and start mevboost service 
+  systemd:
+    name: mevboost.service
     enabled: yes
     state: started
     daemon_reload: yes

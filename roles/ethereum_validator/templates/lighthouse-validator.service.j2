@@ -20,6 +20,7 @@ ExecStart=/home/{{ ethereum_user }}/bin/lighthouse validator_client \
 --suggested-fee-recipient="{{ ethereum_fee_recipient }}" \
 --graffiti ZanshinDojo \
 --metrics --metrics-address="0.0.0.0" \
+--builder-proposals \
 {% if ethereum_network == "mainnet" %}
 --monitoring-endpoint https://beaconcha.in/api/v1/client/metrics?apikey={{ monitoring_api_key }}&machine={{ monitoring_machine_name }} \
 {% endif %}

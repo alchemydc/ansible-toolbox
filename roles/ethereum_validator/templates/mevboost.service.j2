@@ -1,0 +1,26 @@
+[Unit]
+Description=mevboost Service
+After=network.target network-online.target
+Wants=network-online.target
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ ethereum_user }}
+Group={{ ethereum_user }}
+WorkingDirectory=/home/{{ ethereum_user}}
+Type=simple
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=10s
+ExecStart=/home/{{ ethereum_user }}/bin/mev-boost \
+        -relay-check \
+{% for relay in relays %}
+        -relay {{ relay }} \
+{% endfor%}
+{% if ethereum_network == "goerli" %}
+        -goerli \
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target

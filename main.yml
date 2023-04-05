@@ -171,6 +171,13 @@
           state: restarted
         become: true
 
+      - name: restart mevboost
+        systemd:
+          name: mevboost
+          daemon_reload: yes
+          state: restarted
+        become: true
+
       - name: restart namada
         systemd:
           name: namada
@@ -275,3 +282,11 @@
           daemon_reload: yes
           state: restarted
         become: true
+
+      - name: restart node-exporter
+        systemd:
+          name: node-exporter.service
+          daemon_reload: yes
+          state: restarted
+        become: true
+

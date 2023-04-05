@@ -93,7 +93,7 @@
     daemon_reload: yes
   become: true
 
-- name: Register validator
-  import_tasks: register_validator.yml
-  become: true
-  become_user: "{{ svc_user }}"
+#- name: Register validator
+#  import_tasks: register_validator.yml
+#  become: true
+#  become_user: "{{ svc_user }}"
