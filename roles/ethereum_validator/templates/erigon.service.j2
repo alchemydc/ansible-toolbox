@@ -36,8 +36,3 @@ ExecStart=/home/{{ ethereum_user }}/bin/erigon \
 [Install]
 WantedBy=multi-user.target
 
-# --private.api.addr=0.0.0.0:8090 \
-# --http.api=eth,erigon,web3,net,debug,trace,txpool
-# https://github.com/ledgerwatch/erigon/blob/devel/cmd/rpcdaemon/README.md#rpc-implementation-status
-# mainnet: --prune.r.before=11052984 \
-# goerli: --prune.r.before=4367322 \

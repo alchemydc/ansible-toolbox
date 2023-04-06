@@ -1,6 +1,0 @@
----
-- name: Update traefik
-  hosts: '{{ target }}'
-  gather_facts: false
-  roles:
-    - support_update_traefik

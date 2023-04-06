@@ -70,12 +70,12 @@ COMMIT
 # permit erigon p2p on port 31303 from anywhere to the eth-validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
-# permit lighthouse p2p on port 9000 from anywhere to the eth-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination {{ eth_validator_host }}:9000
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 9000 -j DNAT --to-destination {{ eth_validator_host }}:9000
 # permit erigon p2p on port 32303 from anywhere to the eth-mainnet-validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 32303 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:32303
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 32303 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:32303
+# permit lighthouse p2p on port 9000 from anywhere to the eth-validator workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination {{ eth_validator_host }}:9000
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 9000 -j DNAT --to-destination {{ eth_validator_host }}:9000
 # permit lighthouse p2p on port 9999 from anywhere to the eth-mainnet-validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 9999 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:9999
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 9999 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:9999
