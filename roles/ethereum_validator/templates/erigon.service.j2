@@ -23,7 +23,6 @@ ExecStart=/home/{{ ethereum_user }}/bin/erigon \
 --datadir=/home/{{ ethereum_user }}/{{ ethereum_network }} \
 --chain={{ ethereum_network }} \
 --prune=htc \
---externalcl \
 --metrics \
 --metrics.addr 0.0.0.0 \
 --http.api=admin,eth,erigon,web3,net,debug,trace,txpool \
@@ -36,3 +35,5 @@ ExecStart=/home/{{ ethereum_user }}/bin/erigon \
 [Install]
 WantedBy=multi-user.target
 
+# disabled flags
+# --externalcl \

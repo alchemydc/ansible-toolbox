@@ -104,11 +104,11 @@
 - name: Deploy prowlarr
   import_tasks: prowlarr.yml
 
-- name: Deploy sabnzbd
-  import_tasks: sabnzbd.yml
+#- name: Deploy sabnzbd
+#  import_tasks: sabnzbd.yml
 
-- name: Deploy qbittorrent
-  import_tasks: qbittorrent.yml
+#- name: Deploy qbittorrent
+#  import_tasks: qbittorrent.yml
 
 - name: Deploy deluge
   import_tasks: deluge.yml
