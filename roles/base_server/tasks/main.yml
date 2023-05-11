@@ -45,10 +45,11 @@
       - sudo
     state: present
 
-- name: Replace packaged htop with binary that properly supports LXC
-  import_tasks: htop.yml
-  tags: 'htop'
-  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
+# doesn't seem to be required anymore as latest htop properly reports RAM within containers
+#- name: Replace packaged htop with binary that properly supports LXC
+#  import_tasks: htop.yml
+#  tags: 'htop'
+#  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
 - name: Remove packaged node-exporter since we're using the binary instead of the package now
   apt:

@@ -10,12 +10,15 @@
     state: present
     update_cache: true
 
-- name: Install dependencies for docker on LXC on ZFS
-  apt:
-    name:
-     - fuse-overlayfs # required for docker on LXC.  note: may cause problems w/ underlying ZFS and replication/snapshots
-    state: present
-  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
+# trying docker and ZFS *without* fuse-overlayfs for now, which is reported to work on 6.x kernels
+# https://forum.proxmox.com/threads/unprivileged-lxc-container-eventually-locks-up-pve-host-processes.108362/#post-506058
+# https://forum.proxmox.com/threads/lxc-zfs-docker-overlay2-driver.122621/
+#- name: Install dependencies for docker on LXC on ZFS
+#  apt:
+#    name:
+#     - fuse-overlayfs # required for docker on LXC.  note: may cause problems w/ underlying ZFS and replication/snapshots
+#    state: present
+#  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
 - name: add GPG key
   apt_key:

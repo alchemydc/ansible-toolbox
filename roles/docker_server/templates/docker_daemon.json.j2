@@ -1,7 +1,3 @@
 {
-{% if ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc" %}
-    "storage-driver": "fuse-overlayfs",
-{% endif %}
     "mtu": {{ sdn_mtu }}
 }
-

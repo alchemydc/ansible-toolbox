@@ -1,8 +1,9 @@
-- name: Install rclone
+- name: Install dependencies
   become: true
   apt:
     name:
       - rclone
+      - gpg
     state: present
     update_cache: yes
 
@@ -75,4 +76,4 @@
     name: backup bitwarden database
     minute: 20
     hour: 04
-    job: '/bin/bash /home/bitwarden/bitwarden_backup.sh | logger'
+    job: '/bin/bash /home/bitwarden/bitwarden_backup.sh'

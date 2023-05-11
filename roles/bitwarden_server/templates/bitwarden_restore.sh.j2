@@ -9,7 +9,7 @@ mkdir -vp /home/bitwarden/local_backups
 
 # find the latest backup in the bucket
 echo "Finding the latest backup in the bucket"
-LATEST_BACKUP=$(rclone lsf remote:{{ bitwarden_backup_bucket }} | tail -n 1)
+LATEST_BACKUP=$(rclone lsf --format 'tsp' remote:{{ bitwarden_backup_bucket }} | sort -nr | head -n 1 | cut -d ';' -f 3)
 
 echo "Stopping bitwarden daemon to restore the backup"
 sudo systemctl stop bitwarden
@@ -25,8 +25,11 @@ rm -rfv /home/bitwarden/bw-data/*
 echo "Downloading the backup to restore from persistent storage"
 rclone copy remote:{{ bitwarden_backup_bucket }}/$LATEST_BACKUP $TEMP_DIR/
 
+echo "Decrypting the backup"
+gpg --passphrase {{ vault_bitwarden_backup_passphrase }} --batch --yes -d $TEMP_DIR/$LATEST_BACKUP > $TEMP_DIR/$LATEST_BACKUP.tbz
+
 echo "Extracting the backup"
-tar -C /home/bitwarden -jxvf $TEMP_DIR/$LATEST_BACKUP
+tar -C /home/bitwarden -jxvf $TEMP_DIR/$LATEST_BACKUP.tbz
 
 # Restart the service
 echo "Restarting bitwarden daemon"

@@ -18,6 +18,15 @@
       - docker
     append: true
 
+- name: Deploy .profile for bitwarden user
+  template:
+    src: 'profile.j2'
+    dest: '/home/bitwarden/.profile'
+    owner: 'bitwarden'
+    group: 'bitwarden'
+    mode: '0600'
+  become: true
+
 - name: Deploy bitwarden service systemd service file
   template:
     src: bitwarden.service.j2
