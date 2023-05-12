@@ -1,0 +1,6 @@
+---
+- name: Update and prune monitor docker images
+  hosts: '{{ target }}'
+  gather_facts: false
+  roles:
+    - support_update_monitor
