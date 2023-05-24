@@ -59,14 +59,20 @@ COMMIT
 # permit pokt p2p on port 55656 from anywhere to the sdk-pokt workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 55656 -j DNAT --to-destination {{ pokt_host }}:55656
 # permit celo baklava p2p on port 33333 from anywhere to the baklava-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 33333 -j DNAT --to-destination {{ celo_baklava_validator_host }}:33333
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 33333 -j DNAT --to-destination {{ celo_baklava_validator_host }}:33333
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_baklava_validator_port }} -j DNAT --to-destination {{ celo_baklava_validator_host }}:{{ celo_baklava_validator_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_baklava_validator_port }} -j DNAT --to-destination {{ celo_baklava_validator_host }}:{{ celo_baklava_validator_port }}
+# permit celo v0-alpha p2p on port 51303 from anywhere to the v0-alpha validator workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v0_alpha_validator_port }} -j DNAT --to-destination {{ celo_v0_alpha_validator_host }}:{{ celo_v0_alpha_validator_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v0_alpha_validator_port }}  -j DNAT --to-destination {{ celo_v0_alpha_validator_host }}:{{ celo_v0_alpha_validator_port }}
 # permit celo v0 p2p on port 40303 from anywhere to the v0-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 40303 -j DNAT --to-destination {{ celo_v0_validator_host }}:40303
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 40303 -j DNAT --to-destination {{ celo_v0_validator_host }}:40303
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v0_validator_port }} -j DNAT --to-destination {{ celo_v0_validator_host }}:{{ celo_v0_validator_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v0_validator_port }} -j DNAT --to-destination {{ celo_v0_validator_host }}:{{ celo_v0_validator_port }}
 # permit celo v1 p2p on port 50303 from anywhere to the v1-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 50303 -j DNAT --to-destination {{ celo_v1_validator_host }}:50303
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 50303 -j DNAT --to-destination {{ celo_v1_validator_host }}:50303
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v1_validator_port }} -j DNAT --to-destination {{ celo_v1_validator_host }}:{{ celo_v1_validator_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v1_validator_port }} -j DNAT --to-destination {{ celo_v1_validator_host }}:{{ celo_v1_validator_port }}
+# permit celo v0-alpha p2p on port 51303 from anywhere to the v0-alpha validator workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v1_bravo_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v1_bravo_validator_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v1_bravo_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v1_bravo_validator_port }}
 # permit erigon p2p on port 31303 from anywhere to the eth-validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
@@ -79,6 +85,8 @@ COMMIT
 # permit lighthouse p2p on port 9999 from anywhere to the eth-mainnet-validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 9999 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:9999
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 9999 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:9999
+# permit agoric emerynet p2p to the agoric_emerynet_validator_host on agoric_emerynet_validator_port
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ agoric_emerynet_validator_port }} -j DNAT --to-destination {{ agoric_emerynet_validator_host }}:{{ agoric_emerynet_validator_port }}
 
 # SNAT traffic from private subnet guests
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}

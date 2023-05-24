@@ -54,7 +54,7 @@
   import_tasks: configure_firewall.yml
   become: true
   tags:
-    - firewall
+    - proxmox_firewall
 
 - name: Configure Wireguard
   import_tasks: configure_wireguard.yml

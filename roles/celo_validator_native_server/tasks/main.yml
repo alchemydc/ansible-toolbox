@@ -58,7 +58,7 @@
     dest: /etc/systemd/system/celo-geth.service
     owner: root
     group: root
-    mode: '0755'
+    mode: '0644'
   notify: restart celo-geth
   become: true
 

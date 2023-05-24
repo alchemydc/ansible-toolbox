@@ -16,6 +16,8 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
+export BASE_DIR=$HOME/.local/share/namada
+
 export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
 export GO111MODULE=on

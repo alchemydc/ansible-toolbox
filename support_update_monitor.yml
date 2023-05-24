@@ -4,3 +4,5 @@
   gather_facts: false
   roles:
     - support_update_monitor
+  become: true
+  become_user: "monitor"

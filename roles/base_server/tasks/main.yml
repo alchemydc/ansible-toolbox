@@ -43,6 +43,7 @@
       - vim
       - jq
       - sudo
+      - unattended-upgrades
     state: present
 
 # doesn't seem to be required anymore as latest htop properly reports RAM within containers

@@ -3,12 +3,13 @@ Description=namada
 After=network-online.target
 [Service]
 User={{ svc_user }}
-WorkingDirectory=/home/{{ svc_user }}/.namada
+#WorkingDirectory=/home/{{ svc_user }}/.namada
+WorkingDirectory=/home/{{ svc_user }}/.local/share/namada
 #Environment=NAMADA_LOG=debug
 Environment=NAMADA_LOG=info
 Environment=NAMADA_TM_STDOUT=true
 Environment=PATH=/home/{{ svc_user }}/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ExecStart=/home/{{ svc_user }}/go/bin/namada --base-dir=/home/{{ svc_user }}/.namada node ledger run
+ExecStart=/home/{{ svc_user }}/go/bin/namada --base-dir=/home/{{ svc_user }}/.local/share/namada node ledger run
 Restart=on-failure
 RestartSec=10
 LimitNOFILE=65535
