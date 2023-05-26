@@ -28,16 +28,55 @@
 
 - name: Build and install erigon from source
   import_tasks: build_and_install_erigon.yml
-  when: erigon_binary is not defined
+  when: erigon_binary is not defined and erigon_repo is defined
+
+- name: create parent download directory for binary archives
+  file:
+    path: '/home/{{ ethereum_user }}/downloads'
+    state: directory
+    mode: '0755'
+    owner: "{{ ethereum_user }}"
+    group: "{{ ethereum_user }}"
+  become: true
+  become_user: " {{ ethereum_user }}"
+  when: erigon_binary is defined and lighthouse_binary is defined and mevboost_binary is defined
+
+- name: create temp directories for binary archives
+  file:
+    path: '/home/{{ ethereum_user }}/downloads/{{ item }}'
+    state: directory
+    mode: '0755'
+    owner: "{{ ethereum_user }}"
+    group: "{{ ethereum_user }}"
+  become: true
+  become_user: "{{ ethereum_user }}"
+  loop:
+    - "erigon"
+    - "lighthouse"
+    - "mevboost"
+  when: erigon_binary is defined and lighthouse_binary is defined and mevboost_binary is defined
+
+- name: install apt packages to support binary install process
+  apt:
+    name:
+      - acl   # required for become_user != root
+      - curl
+    state: present
+    update_cache: yes
+  become: true
 
 - name: Install erigon binary
   import_tasks: install_erigon.yml
   when: erigon_binary is defined
+  become: true
+  become_user: "{{ ethereum_user }}"
   notify: restart erigon
 
 - name: Install lighthouse binary
   import_tasks: install_lighthouse.yml
   when: lighthouse_binary is defined
+  become: true
+  become_user: "{{ ethereum_user }}"
   notify:
     - restart lighthouse-beacon
     - restart lighthouse-validator
@@ -45,6 +84,8 @@
 - name: Install mevboost binary
   import_tasks: install_mevboost.yml
   when: mevboost_binary is defined
+  become: true
+  become_user: "{{ ethereum_user }}"
   notify: restart mevboost
 
 - name: Deploy erigon service environment file
@@ -65,15 +106,6 @@
     mode: '0644'
   become: true
   notify: restart erigon
-
-#- name: Deploy erigon rpc service systemd service file
-#  template:
-#    src: erigon_rpcdaemon.service.j2
-#    dest: /etc/systemd/system/erigon_rpc.service
-#    owner: root
-#    group: root
-#    mode: '0644'
-#  become: true
 
 - name: Deploy mevboost service systemd service file
   template:

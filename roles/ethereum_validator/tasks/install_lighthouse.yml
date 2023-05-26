@@ -1,24 +1,22 @@
 ---
-- name: download binary
+- name: download lighthouse binary
   get_url:
     url: '{{ lighthouse_binary }}'
     checksum: 'sha256:{{ lighthouse_checksum }}'
-    dest: '/tmp/lighthouse_binary.tar.gz'
-    mode: '0700'
-    #force: yes
+    dest: '/home/{{ ethereum_user }}/downloads/lighthouse_binary.tar.gz'
+    mode: '0644'
 
-- name: unarchive binary file
+- name: unarchive lighthouse binary file
   unarchive:
-    src: '/tmp/lighthouse_binary.tar.gz'
-    dest: '/tmp/'
+    src: '/home/{{ ethereum_user }}/downloads/lighthouse_binary.tar.gz'
+    dest: '/home/{{ ethereum_user }}/downloads/lighthouse/'
     mode: '0755'
     remote_src: true
 
-- name: Copy binary
+- name: Copy lighthouse binary
   copy:
     remote_src: true
-    src: '/tmp/lighthouse'
+    src: '/home/{{ ethereum_user }}/downloads/lighthouse/lighthouse'
     dest: '/home/{{ ethereum_user }}/bin/lighthouse'
     mode: '0755'
-  become: true
-  become_user: "{{ ethereum_user }}"
+

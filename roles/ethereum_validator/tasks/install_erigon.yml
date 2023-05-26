@@ -1,34 +1,22 @@
 ---
-- name: install apt packages to support binary install process
-  apt:
-    name:
-      - acl   # required for become_user != root
-      - curl
-    state: present
-    update_cache: yes
-  become: true
 
-- name: download binary
+- name: download erigon binary
   get_url:
     url: '{{ erigon_binary }}'
     checksum: 'sha256:{{ erigon_checksum }}'
-    dest: '/tmp/erigon_binary.tar.gz'
-    mode: '0700'
-    #force: yes
+    dest: '/home/{{ ethereum_user }}/downloads/erigon_binary.tar.gz'
+    mode: '0644'
   
-
-- name: unarchive binary file
+- name: unarchive erigon binary file
   unarchive:
-    src: '/tmp/erigon_binary.tar.gz'
-    dest: '/tmp/'
+    src: '/home/{{ ethereum_user }}/downloads/erigon_binary.tar.gz'
+    dest: '/home/{{ ethereum_user }}/downloads/erigon/'
     mode: '0755'
     remote_src: true
 
-- name: Copy binary
+- name: Copy erigon binary
   copy:
     remote_src: true
-    src: '/tmp/erigon'
+    src: '/home/{{ ethereum_user }}/downloads/erigon/erigon'
     dest: '/home/{{ ethereum_user }}/bin/erigon'
     mode: '0755'
-  become: true
-  become_user: "{{ ethereum_user }}"
