@@ -1,0 +1,41 @@
+- name: pull latest docker images for arrr stack
+  command: "docker pull {{ item }}"
+  loop:
+    - lscr.io/linuxserver/calibre-web
+    - cr.hotio.dev/hotio/prowlarr
+    - linuxserver/wireguard
+    - lscr.io/linuxserver/calibre
+    - traefik
+    - lscr.io/linuxserver/deluge
+    - cr.hotio.dev/hotio/plex
+    - cr.hotio.dev/hotio/radarr
+    - cr.hotio.dev/hotio/readarr
+  register: docker_pull_result
+
+- name: determine whether a restart is required of the docker stack
+  set_fact:
+    docker_restart_required: true
+  when: item.stdout is search('Downloaded newer image')
+  loop: "{{ docker_pull_result.results }}"
+
+- name: Restart systemd services
+  # restart them all, even if only one needs it
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - calibre-web
+    - prowlarr
+    - wireguard
+    - calibre
+    - traefik
+    - deluge
+    - plex
+    - radarr
+    - readarr
+  when: docker_restart_required is defined
+  become: true
+
+- name: Prune unused docker images
+  command: "docker image prune -a --force"
+  when: docker_restart_required is defined
