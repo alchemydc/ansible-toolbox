@@ -23,6 +23,9 @@ ExecStart=/home/{{ ethereum_user }}/bin/lighthouse beacon_node \
 --metrics --metrics-address="0.0.0.0" \
 --disable-upnp \
 --http \
+{% if public_rpc %}
+--http-address 0.0.0.0 \
+{% endif %}
 --network {{ ethereum_network }} \
 --port {{ lighthouse_port }} \
 --staking \

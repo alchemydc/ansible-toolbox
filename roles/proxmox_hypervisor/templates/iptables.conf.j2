@@ -54,10 +54,13 @@ COMMIT
 # permit http/https ingress traffic from anywhere to traefik on the docker_ingress workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination {{ docker_ingress_host }}:80
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination {{ docker_ingress_host }}:443
+
 # permit ssh on port 1099 from anywhere to the sdk-pokt workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 1099 -j DNAT --to-destination {{ pokt_host }}:22
+
 # permit pokt p2p on port 55656 from anywhere to the sdk-pokt workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 55656 -j DNAT --to-destination {{ pokt_host }}:55656
+
 # permit celo baklava p2p on port 33333 from anywhere to the baklava-validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_baklava_validator_port }} -j DNAT --to-destination {{ celo_baklava_validator_host }}:{{ celo_baklava_validator_port }}
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_baklava_validator_port }} -j DNAT --to-destination {{ celo_baklava_validator_host }}:{{ celo_baklava_validator_port }}
@@ -73,21 +76,41 @@ COMMIT
 # permit celo v0-alpha p2p on port 51303 from anywhere to the v0-alpha validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v1_bravo_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v1_bravo_validator_port }}
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v1_bravo_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v1_bravo_validator_port }}
-# permit erigon p2p on port 31303 from anywhere to the eth-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 31303 -j DNAT --to-destination {{ eth_validator_host }}:31303
-# permit erigon p2p on port 32303 from anywhere to the eth-mainnet-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 32303 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:32303
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 32303 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:32303
-# permit lighthouse p2p on port 9000 from anywhere to the eth-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 9000 -j DNAT --to-destination {{ eth_validator_host }}:9000
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 9000 -j DNAT --to-destination {{ eth_validator_host }}:9000
-# permit lighthouse p2p on port 9999 from anywhere to the eth-mainnet-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 9999 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:9999
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 9999 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:9999
+
+# agoric port forwards
 # permit agoric emerynet p2p to the agoric_emerynet_validator_host on agoric_emerynet_validator_port
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ agoric_emerynet_validator_port }} -j DNAT --to-destination {{ agoric_emerynet_validator_host }}:{{ agoric_emerynet_validator_port }}
 
+# ethereum port forwards
+# mainnet validator
+# permit CL p2p on port 9999 from anywhere to the eth-mainnet-validator workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 9999 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:9999
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 9999 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:9999
+
+# permit EL p2p traffic to the eth-mainnet-validator workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 32303 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:32303
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport 32303 -j DNAT --to-destination {{ eth_mainnet_validator_host }}:32303
+
+
+# rocketpool testnet port forwards
+# permit p2p traffic to the rocketpool testnet workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ rp_testnet_p2p_port }} -j DNAT --to-destination {{ rp_testnet_host }}:{{ rp_testnet_p2p_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ rp_testnet_p2p_port }} -j DNAT --to-destination {{ rp_testnet_host }}:{{ rp_testnet_p2p_port }}
+# permit CL p2p traffic to the rocketpool testnet workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ rp_testnet_cl_p2p_port }} -j DNAT --to-destination {{ rp_testnet_host }}:{{ rp_testnet_cl_p2p_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ rp_testnet_cl_p2p_port }} -j DNAT --to-destination {{ rp_testnet_host }}:{{ rp_testnet_cl_p2p_port }}
+
+
+# rocketpool mainnet port forwards
+# permit EL p2p traffic to the rocketpool mainnet workload 
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ rp_mainnet_p2p_port }} -j DNAT --to-destination {{ rp_mainnet_host }}:{{ rp_mainnet_p2p_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ rp_mainnet_p2p_port }} -j DNAT --to-destination {{ rp_mainnet_host }}:{{ rp_mainnet_p2p_port }}
+# permit CL p2p traffic to the rocketpool testnet workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ rp_mainnet_cl_p2p_port }} -j DNAT --to-destination {{ rp_mainnet_host }}:{{ rp_mainnet_cl_p2p_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ rp_mainnet_cl_p2p_port }} -j DNAT --to-destination {{ rp_mainnet_host }}:{{ rp_mainnet_cl_p2p_port }}
+
+
+# SNAT's for outbound traffic
 # SNAT traffic from private subnet guests
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
 # SNAT traffic from private admin hosts

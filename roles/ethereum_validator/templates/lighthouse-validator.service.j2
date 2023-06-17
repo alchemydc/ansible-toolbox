@@ -1,7 +1,7 @@
 [Unit]
 Description=Lighthouse Validator Service
-After=network.target network-online.target lighthouse-beacon.service
-Requires=lighthouse-beacon.service
+#After=network.target network-online.target lighthouse-beacon.service
+#Requires=lighthouse-beacon.service
 StartLimitBurst=3
 StartLimitIntervalSec=300
 
@@ -23,6 +23,9 @@ ExecStart=/home/{{ ethereum_user }}/bin/lighthouse validator_client \
 --builder-proposals \
 {% if ethereum_network == "mainnet" %}
 --monitoring-endpoint https://beaconcha.in/api/v1/client/metrics?apikey={{ monitoring_api_key }}&machine={{ monitoring_machine_name }} \
+{% endif %}
+{% if ethereum_network == "goerli" %}
+--beacon-nodes http://{{ rp_testnet_host }}:5052 \
 {% endif %}
 
 [Install]

@@ -26,6 +26,12 @@ ExecStart=/home/{{ ethereum_user }}/bin/erigon \
 --metrics \
 --metrics.addr 0.0.0.0 \
 --http.api=admin,eth,erigon,web3,net,debug,trace,txpool \
+{% if public_rpc %}
+--http.addr 0.0.0.0 \
+{% endif %}
+{% if public_ws %}
+--ws \
+{% endif %}
 {% if ethereum_network == "goerli" %}
 --prune.r.before=4367322 \
 {% else %}

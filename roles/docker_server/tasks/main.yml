@@ -77,9 +77,10 @@
     state: present
     update_cache: false
  
-- name: Install required python packages for ansible to interact w/ docker on host
-  pip:
-    name:
-      - docker
-      - docker-compose
-    state: present
+# not working on debian12 yet
+#- name: Install required python packages for ansible to interact w/ docker on host
+#  pip:
+#    name:
+#      - docker
+#      - docker-compose
+#    state: present
