@@ -1,0 +1,26 @@
+#!/bin/bash
+set -ex
+
+. ~/.profile
+
+export NO_COLOR=no_color
+
+######
+# use this script on a validator to generate a proof of possession, needed for key rotation
+#CELO_IMAGE={{ geth_docker_repo }}:{{ geth_docker_tag }}
+SIGNER_TO_AUTHORIZE={{ validator_signer_address }}
+VALIDATOR_ACCOUNT_ADDRESS={{ validator_account_address }}
+
+# With $SIGNER_TO_AUTHORIZE as the new validator signer:
+# On the new validator node which contains the new $SIGNER_TO_AUTHORIZE key
+
+echo "Stopping geth to generate proof of possession" | logger
+sudo systemctl stop celo-geth
+
+#docker run -v {{ celo_data_dir }}:/root/.celo --rm -it $CELO_IMAGE account proof-of-possession $SIGNER_TO_AUTHORIZE $VALIDATOR_ACCOUNT_ADDRESS --password /root/.celo/validator_signer_password 
+geth account proof-of-possession $SIGNER_TO_AUTHORIZE $VALIDATOR_ACCOUNT_ADDRESS --password {{ celo_data_dir }}/validator_signer_password 
+#docker run -v {{ celo_data_dir }}:/root/.celo --rm -it $CELO_IMAGE account proof-of-possession $SIGNER_TO_AUTHORIZE $VALIDATOR_ACCOUNT_ADDRESS --password /root/.celo/validator_signer_password --bls
+geth account proof-of-possession $SIGNER_TO_AUTHORIZE $VALIDATOR_ACCOUNT_ADDRESS --password {{ celo_data_dir }}/validator_signer_password --bls
+
+echo "Restarting geth " | logger
+sudo systemctl start celo-geth

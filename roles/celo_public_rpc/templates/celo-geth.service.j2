@@ -1,0 +1,34 @@
+[Unit]
+Description=Celo Geth Service
+After=network.target
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ celo_user }}
+Group={{ celo_user }}
+WorkingDirectory={{ celo_data_dir }}
+EnvironmentFile=-{{ celo_data_dir }}/environment.env
+Type=simple
+KillMode=process
+KillSignal=SIGINT
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=10s
+ExecStartPre={{ celo_data_dir }}/get_public_ip.sh
+ExecStart=/home/{{ celo_user }}/go/bin/geth \
+--port {{ geth_p2p_port }} \
+--verbosity {{ geth_verbosity }} \
+--syncmode lightest \
+--light.serve 0 \
+--metrics --pprof --pprof.addr 0.0.0.0 \
+--maxpeers {{ geth_maxpeers }} \
+--{{ network }} \
+--http \
+--http.addr 0.0.0.0 \
+--http.port 8545 \
+--http.api "eth,net,web3" \
+--http.vhosts "{% for fqdn in cors_fqdns %}{{ fqdn }}, {% endfor %}" \
+
+[Install]
+WantedBy=default.target

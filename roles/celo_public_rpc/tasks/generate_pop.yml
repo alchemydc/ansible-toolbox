@@ -1,0 +1,21 @@
+- name: Deploy proof of possession generation script
+  template:
+    src: generate_pop.sh.j2
+    dest: "/home/{{ celo_user }}/generate_pop.sh"
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: '0750'
+  become: true
+
+- name: Generate proof of possession
+  command:
+    chdir: /home/{{ celo_user }}
+    cmd: /bin/sh ./generate_pop.sh
+  register: proof_of_possession
+  become: yes
+  become_user: "{{ celo_user }}"
+  
+- name: Output proof of possession
+  debug:
+    var: proof_of_possession.stdout
+
