@@ -29,7 +29,8 @@
   apt_repository:
     filename: docker 
     #repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bullseye stable
-    repo: deb [arch=amd64] https://download.docker.com/linux/debian bullseye stable
+    #repo: deb [arch=amd64] https://download.docker.com/linux/debian bullseye stable
+    repo: deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable 
     state: present
     
 - name: Install docker engine
@@ -69,18 +70,21 @@
 - name: Install docker-compose
   import_tasks: compose.yml
   tags: docker_compose
+
 - name: Install packages required for ansible to interact w/ python on host
   apt:
     name:
-      - python3
-      - python3-pip
+      #- python3    # now installed by default in debian 12
+      #- python3-pip
+      - python3-docker
     state: present
     update_cache: false
  
-# not working on debian12 yet
+# not needed on debian 12
 #- name: Install required python packages for ansible to interact w/ docker on host
 #  pip:
 #    name:
 #      - docker
 #      - docker-compose
 #    state: present
+

@@ -28,6 +28,8 @@
       become: true
     - role: celo_validator_native_server
       tags: 'celo_validator_native_server'
+    - role: celo_public_rpc
+      tags: 'celo_public_rpc'
     - role: ingress_server
       tags: 'ingress_server'
       become: true
