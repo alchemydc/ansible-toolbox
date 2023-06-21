@@ -20,18 +20,25 @@
 #    state: present
 #  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
-- name: add GPG key
-  apt_key:
+# deprecated as of debian 12
+#- name: add GPG key
+#  apt_key:
+#    url: https://download.docker.com/linux/debian/gpg
+#    state: present
+
+- name: Add docker signing key to apt keyring securely
+  get_url: 
     url: https://download.docker.com/linux/debian/gpg
-    state: present
+    dest: /etc/apt/keyrings/docker.asc  # note that this a key in ASCII, not binary (.gpg) format. see https://docs.docker.com/engine/install/debian/#install-using-the-repository
+    mode: '0644'
+    force: true 
 
 - name: Add docker repository to apt
   apt_repository:
-    filename: docker 
-    #repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bullseye stable
-    #repo: deb [arch=amd64] https://download.docker.com/linux/debian bullseye stable
-    repo: deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable 
+    filename: docker
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
     state: present
+    update_cache: true
     
 - name: Install docker engine
   apt:
