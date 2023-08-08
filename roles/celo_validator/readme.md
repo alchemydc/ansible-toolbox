@@ -52,7 +52,7 @@ celocli account:authorize --from $CELO_VALIDATOR_ADDRESS --role validator --sign
 Make sure that the new validator signer is fully synced before authorizing it.  It will take over signing duties at the epoch boundary.
 
 ## Monitoring
-Out of scope for this readme, but the [../../../monitor_client](monitor_client) role can be used to configure prometheus and loki to get telemetry for your celo validator.  See the [Celo Monitoring Guide](https://docs.celo.org/validator/monitoring) for more info.
+Out of scope for this readme, but the [monitor_client](../../../monitor_client) role can be used to configure prometheus and loki to get telemetry for your celo validator.  See the [Celo Monitoring Guide](https://docs.celo.org/validator/monitoring) for more info.
 
 ## Troubleshooting
 * Did you define the required variables?
