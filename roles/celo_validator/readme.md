@@ -60,7 +60,7 @@ This role will build the Celo fork of Geth from source, and configure a Celo ful
 ## Monitoring
 See logs: `sudo journalctl -xef -u celo_geth.service`
 
-Monitoring is out of scope for this readme, but the [monitor_client](../../../monitor_client) role can be used to configure prometheus and loki to get telemetry for your celo validator.  See the [Celo Monitoring Guide](https://docs.celo.org/validator/monitoring) for more info.
+Monitoring is out of scope for this readme, but the [monitor_client](../monitor_client) role can be used to configure prometheus and loki to get telemetry for your celo validator.  See the [Celo Monitoring Guide](https://docs.celo.org/validator/monitoring) for more info.
 
 ## Troubleshooting
 * Did you define the required variables?
