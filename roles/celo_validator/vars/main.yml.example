@@ -1,0 +1,61 @@
+# The variables are defined to support the Celo Validator node deployment.
+
+# the validator_account_addresses are the addresses of the validator top level accounts.
+# you may have just one, or you may have multiple.
+validator_account_addresses:
+  - '0x4De8b145Aa3C289390C49C6B8cB68abfF0BaE573'    # first account address [index == 0]
+  - '0xc0F9721F4272215FfB0AEED2F49D2CBbE3d239Ae'    # second account address [index == 1]
+  - '0x45C3A4396ae326eA3d73649BA6063C7295ade7Ef'    # third account address [index == 2]
+
+# the validator_signer_addresses are the addresses of the validator signer accounts.
+# you may have just one, or you may have multiple.
+validator_signer_addresses:
+  - '0x61E9d507A1dB1513fbE57cEC930aa23215ce9761'  # first signer address [index == 0]
+  - '0x32d0C4B38375291FAD407A23A4EfF19Bb1C18C51'  # second signer address [index == 1]
+  - '0xF08fC7f08A852Da88157a2bAfff145C63016e805'  # third signer address [index == 2]
+  
+# the private keys and passwords associated with the validator_signer_addresses are sensitive, and thus should be stored in an Ansible Vault rather than in the clear here
+# more info on ansible-vault here: https://docs.ansible.com/ansible/latest/cli/ansible-vault.html
+validator_signer_keys: "{{ vault_validator_signer_keys }}"
+
+# the passwords are used to decrypt the private keys on the validator host at runtime
+validator_signer_passwords: "{{ vault_validator_signer_passwords }}"
+
+# the validator_txfee_recipient is the address of the account that will receive the transaction fees
+# by default these fees will be paid to the validator signer, but this is suboptimal since these signers are rotated regularly
+# it is better to have a dedicated account for this purpose
+# note that if this is set, tools like Vido will never show your validator signers proposing blocks
+# this isn't necessarily sensitive, but we put it in the vault for privacy reasons
+validator_txfee_recipient: "{{ vault_validator_txfee_recipient }}"
+
+# set the verbosity of the geth daemon
+# Logging verbosity: 0=silent, 1=error, 2=warn, 3=info, 4=debug, 5=detail (default: 3)
+geth_verbosity: 2
+
+# OS user that will run the celo validator node.
+# user will be created if it does not exist
+celo_user: "celo"
+celo_uid: 1338
+celo_gid: 1338
+celo_group: 'celo'
+path: "/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin:/usr/local/go/bin:/home/{{ celo_user }}/go/bin"
+
+# data directory to use for the celo validator node
+celo_data_dir: "/home/{{ celo_user }}/.celo"
+
+# git repo from which to clone the celo-blockchain source code
+celo_repo: "https://github.com/celo-org/celo-blockchain"
+# git tag to use for the celo-blockchain source code
+celo_version: "v1.8.0-beta.1"
+
+# port that geth will use for p2p communication
+# if there is an upstream firewall, this port will need to be opened for both inbound tcp and udp
+geth_p2p_port: 30303
+
+# network to run the celo validator node on
+# examples: "mainnet", "baklava", "alfajores"
+network: "baklava"
+
+# uri for reporting stats to the stats server
+# todo: template the startup script to include this for the appropriate network
+stats_uri: 'your-moniker@stats-server.celo.org' 

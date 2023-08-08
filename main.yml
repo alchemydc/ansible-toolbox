@@ -26,8 +26,8 @@
     - role: celo_validator_docker_server
       tags: 'celo_validator_docker_server'
       become: true
-    - role: celo_validator_native_server
-      tags: 'celo_validator_native_server'
+    - role: celo_validator
+      tags: 'celo_validator'
     - role: celo_public_rpc
       tags: 'celo_public_rpc'
     - role: ingress_server
