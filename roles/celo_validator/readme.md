@@ -5,7 +5,7 @@ This role will build the Celo fork of Geth from source, and configure a Celo ful
 1. Copy the example variable definition
 `cp vars/main.yml.example vars/main.yml`
 
-2. Edit [vars/main.yml](vars/main.yml) to taste.
+ 2. Edit [vars/main.yml](vars/main.yml.example) to taste.
 
 Note that the role needs private keys (for the validator signers) and passwords (used to decrypt the private keys on the filesystem). These are best stored in ansible-vault.  More info on ansible-vault [here](https://docs.ansible.com/ansible/latest/cli/ansible-vault.html)
 
@@ -40,7 +40,14 @@ Celo's [key management architecture](https://docs.celo.org/validator/key-managem
 A helper script exists on the deployed validator in `/home/celo/generate_pop.sh` which will generate the proof of possession for you.  Note that Geth will be stopped momentarily to generate the PoP, so don't run this on an active mainnet signer unless you know what you're doing.
 
 8. Authorize the new signer
-`celocli account:authorize --from $CELO_VALIDATOR_ADDRESS --role validator --signature 0x$CELO_VALIDATOR_SIGNER_SIGNATURE --signer 0x$CELO_VALIDATOR_SIGNER_ADDRESS`.
+Get the $SIGNER_PROOF_OF_POSSESSION and the $BLS_PUBLIC_KEY and the $BLS_PROOF_OF_POSSESSION as outputs from the generate_pop.sh script.
+Note that your address, signer and ledger index will need to match your environment.
+Todo: make this easier
+```
+celocli account:authorize --from $CELO_VALIDATOR_ADDRESS --role validator --signature $SIGNER_PROOF_OF_POSSESSION \
+--signer $CELO_VALIDATOR_SIGNER_ADDRESS --blsKey $BLS_PUBLIC_KEY --blsPop $BLS_PROOF_OF_POSSESSION \
+--useLedger --ledgerCustomAddresses="[0]"
+```
 
 Make sure that the new validator signer is fully synced before authorizing it.  It will take over signing duties at the epoch boundary.
 
