@@ -68,7 +68,7 @@ Monitoring is out of scope for this readme, but the [monitor_client](../../../mo
 * Is your DNS or /etc/hosts properly configured?
 
 ## Security
-Firewalling is *NOT* presently in-scope for this role.  You *DO* want your geth p2p port exposed publicly (tcp/udp 30303 by default), but you do *NOT* want your RPC port publicly exposed, particularly on a validator host.  The RPC isn't exposed by this role. If you need RPC services (public or otherwise), take a look at the [Celo Public RPC role](../celo_public_rpc).
-Your validator signer keys are stored encrypted on the filesystem, but so is the passphrase used to decrypt the key.
-As noted above, this role does not yet implement the sentry architecture which depends on "proxies" to communicate with our peers. This exposes your validator to denial of service attacks and generally speaking increases the vulnerability surface of the deployment.
+* Firewalling is *NOT* presently in-scope for this role.  You *DO* want your geth p2p port exposed publicly (tcp/udp 30303 by default), but you do *NOT* want your RPC port publicly exposed, particularly on a validator host.  The RPC isn't exposed by this role. If you need RPC services (public or otherwise), take a look at the [Celo Public RPC role](../celo_public_rpc).
+* Your validator signer keys are stored encrypted on the filesystem, but so is the passphrase used to decrypt the key.
+* As noted above, this role does not yet implement the sentry architecture which depends on "proxies" to communicate with our peers. This exposes your validator to denial of service attacks and generally speaking increases the vulnerability surface of the deployment.
 The proxy/sentry architecture support may be added to this role at some point.
