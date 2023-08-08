@@ -47,8 +47,11 @@ This role will build the Celo fork of Geth from source, and configure a Celo ful
 8. Authorize the new signer
 
     Get the $SIGNER_PROOF_OF_POSSESSION and the $BLS_PUBLIC_KEY and the $BLS_PROOF_OF_POSSESSION as outputs from the generate_pop.sh script.
+
     Note that your address, signer and ledger index will need to match your environment.
+
     Todo: make this easier
+    
     ```
     celocli account:authorize --from $CELO_VALIDATOR_ADDRESS --role validator --signature $SIGNER_PROOF_OF_POSSESSION \
     --signer $CELO_VALIDATOR_SIGNER_ADDRESS --blsKey $BLS_PUBLIC_KEY --blsPop $BLS_PROOF_OF_POSSESSION \
