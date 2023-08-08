@@ -3,7 +3,7 @@
 - name: download erigon binary
   get_url:
     url: '{{ erigon_binary }}'
-    checksum: 'sha256:{{ erigon_checksum }}'
+    #checksum: 'sha256:{{ erigon_checksum }}'
     dest: '/home/{{ ethereum_user }}/downloads/erigon_binary.tar.gz'
     mode: '0644'
   

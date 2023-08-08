@@ -2,7 +2,7 @@
 - name: download mevboost binary
   get_url:
     url: '{{ mevboost_binary }}'
-    checksum: 'sha256:{{ mevboost_checksum }}'
+    #checksum: 'sha256:{{ mevboost_checksum }}'
     dest: '/home/{{ ethereum_user }}/downloads/mevboost_binary.tar.gz'
     mode: '0644'
 

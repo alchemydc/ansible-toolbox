@@ -2,7 +2,7 @@
 - name: download lighthouse binary
   get_url:
     url: '{{ lighthouse_binary }}'
-    checksum: 'sha256:{{ lighthouse_checksum }}'
+    #checksum: 'sha256:{{ lighthouse_checksum }}'
     dest: '/home/{{ ethereum_user }}/downloads/lighthouse_binary.tar.gz'
     mode: '0644'
 

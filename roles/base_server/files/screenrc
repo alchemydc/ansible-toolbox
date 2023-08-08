@@ -1,3 +1,4 @@
+# bind F keys to screen windows
 bindkey -k k1 select 0  #  F1 = screen 0
 bindkey -k k2 select 1  #  F2 = screen 1
 bindkey -k k3 select 2  #  F3 = screen 2
@@ -10,3 +11,6 @@ bindkey -k k9 select 8  #  F9 = screen 8
 bindkey -k k10 select 9 #  F10 = screen 9
 bindkey -k F1 prev      # F11 = prev
 bindkey -k F2 next      # F12 = next
+# ensure shells spawn in screen source .profile
+shell -$SHELL
+

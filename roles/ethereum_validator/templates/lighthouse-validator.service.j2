@@ -27,7 +27,7 @@ ExecStart=/home/{{ ethereum_user }}/bin/lighthouse validator_client \
 {% if ethereum_network == "goerli" %}
 --beacon-nodes http://{{ rp_testnet_host }}:5052 \
 {% else %}
---beacon-nodes http://{{ rp_mainnet_host }}:5052,http://localhost:5052 \
+--beacon-nodes http://localhost:5052,http://{{ rp_mainnet_host }}:5052 \
 {% endif %}
 
 [Install]
