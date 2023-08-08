@@ -58,9 +58,17 @@ celocli account:authorize --from $CELO_VALIDATOR_ADDRESS --role validator --sign
 Make sure that the new validator signer is fully synced before authorizing it.  It will take over signing duties at the epoch boundary.
 
 ## Monitoring
-Out of scope for this readme, but the [monitor_client](../../../monitor_client) role can be used to configure prometheus and loki to get telemetry for your celo validator.  See the [Celo Monitoring Guide](https://docs.celo.org/validator/monitoring) for more info.
+See logs: `sudo journalctl -xef -u celo_geth.service`
+
+Monitoring is out of scope for this readme, but the [monitor_client](../../../monitor_client) role can be used to configure prometheus and loki to get telemetry for your celo validator.  See the [Celo Monitoring Guide](https://docs.celo.org/validator/monitoring) for more info.
 
 ## Troubleshooting
 * Did you define the required variables?
 * Is your ansible-vault configured properly?
 * Is your DNS or /etc/hosts properly configured?
+
+## Security
+Firewalling is *NOT* presently in-scope for this role.  You *DO* want your geth p2p port exposed publicly (tcp/udp 30303 by default), but you do *NOT* want your RPC port publicly exposed, particularly on a validator host.  The RPC isn't exposed by this role. If you need RPC services (public or otherwise), take a look at the [Celo Public RPC role](../celo_public_rpc).
+Your validator signer keys are stored encrypted on the filesystem, but so is the passphrase used to decrypt the key.
+As noted above, this role does not yet implement the sentry architecture which depends on "proxies" to communicate with our peers. This exposes your validator to denial of service attacks and generally speaking increases the vulnerability surface of the deployment.
+The proxy/sentry architecture support may be added to this role at some point.
