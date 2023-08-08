@@ -7,7 +7,7 @@ This role will build the Celo fork of Geth from source, and configure a Celo ful
 
  2. Edit [vars/main.yml](vars/main.yml.example) to taste.
 
-Note that the role needs private keys (for the validator signers) and passwords (used to decrypt the private keys on the filesystem). These are best stored in ansible-vault.  More info on ansible-vault [here](https://docs.ansible.com/ansible/latest/cli/ansible-vault.html)
+Note that the role needs private keys (for the validator signers) and passwords (used to decrypt the private keys on the filesystem). These are best stored in [ansible-vault](https://docs.ansible.com/ansible/latest/cli/ansible-vault.html).  
 
 3. Edit your `inventory.yml` as appropriate to add a host entry for the celo_validator
 

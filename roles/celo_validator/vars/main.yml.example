@@ -14,7 +14,7 @@ validator_signer_addresses:
   - '0x32d0C4B38375291FAD407A23A4EfF19Bb1C18C51'  # second signer address [index == 1]
   - '0xF08fC7f08A852Da88157a2bAfff145C63016e805'  # third signer address [index == 2]
   
-# the private keys and passwords associated with the validator_signer_addresses are sensitive, and thus should be stored in an Ansible Vault rather than in the clear here
+# the private keys and passwords associated with the validator_signer_addresses are sensitive, and thus should be stored in an Ansible Vault rather than in the clear here.
 # more info on ansible-vault here: https://docs.ansible.com/ansible/latest/cli/ansible-vault.html
 validator_signer_keys: "{{ vault_validator_signer_keys }}"
 
