@@ -1,0 +1,14 @@
+# disable ipv6
+- name: Disable ipv6 in /etc/gai.conf
+  lineinfile:
+    path: /etc/gai.conf
+    line: 'precedence ::ffff:0:0/96  100'
+    state: present
+
+- name: Disable ipv6 via sysctl ansible module
+  sysctl:
+    name: net.ipv6.conf.all.disable_ipv6
+    value: 1
+    state: present
+    reload: yes
+

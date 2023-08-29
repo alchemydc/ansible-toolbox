@@ -131,8 +131,12 @@
 # Debian 12 (bullseye) has systemd-networkd-wait-online.service enabled by default
 # but it doesn't work properly in Proxmox LXC's because networking isn't configured 
 # via systemd, so it will time out and cause the boot to hang for 2 minutes.
-- name: Mask systemd-networkd-wait-online on Debian 12
-  systemd:
-    name: systemd-networkd-wait-online.service
-    masked: true
-  when: ansible_facts['distribution_release'] == "bookworm"
+#- name: Mask systemd-networkd-wait-online on Debian 12
+#  systemd:
+#    name: systemd-networkd-wait-online.service
+#    masked: true
+#  when: ansible_facts['distribution_release'] == "bookworm"
+
+# disable ipv6
+- name: Disable ipv6
+  import_tasks: disable_ipv6.yml
