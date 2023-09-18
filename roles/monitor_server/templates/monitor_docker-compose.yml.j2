@@ -38,8 +38,11 @@ services:
     # but was added here to try to workaround an issue where we are seeing
     # "If you're seeing this Grafana has failed to load its application files"
     # - GF_ROOT_URL="https://{{ grafana_fqdn }}:443/"
+    # - GF_SERVER_CDN_URL=https://{{ grafana_fqdn }}
+    # - GF_SERVER_DOMAIN="{{ grafana_fqdn }}"   # trying this without the quotes.
+    # neither of those settings worked
     environment:
-      - GF_SERVER_DOMAIN="{{ grafana_fqdn }}"
+      - GF_SERVER_DOMAIN={{ grafana_fqdn }}
       - GF_SMTP_ENABLED=true
       - GF_SMTP_HOST={{ smtp_host }}:{{ smtp_port }}
       - GF_SMTP_FROM_ADDRESS={{ smtp_from }}

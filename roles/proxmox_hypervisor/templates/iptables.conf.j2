@@ -64,16 +64,16 @@ COMMIT
 # permit celo baklava p2p on port 33333 from anywhere to the baklava-validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_baklava_validator_port }} -j DNAT --to-destination {{ celo_baklava_validator_host }}:{{ celo_baklava_validator_port }}
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_baklava_validator_port }} -j DNAT --to-destination {{ celo_baklava_validator_host }}:{{ celo_baklava_validator_port }}
-# permit celo v0-alpha p2p on port 51303 from anywhere to the v0-alpha validator workload
+# permit celo v0-alpha p2p from anywhere to the v0-alpha validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v0_alpha_validator_port }} -j DNAT --to-destination {{ celo_v0_alpha_validator_host }}:{{ celo_v0_alpha_validator_port }}
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v0_alpha_validator_port }}  -j DNAT --to-destination {{ celo_v0_alpha_validator_host }}:{{ celo_v0_alpha_validator_port }}
-# permit celo v0 p2p on port 40303 from anywhere to the v0-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v0_validator_port }} -j DNAT --to-destination {{ celo_v0_validator_host }}:{{ celo_v0_validator_port }}
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v0_validator_port }} -j DNAT --to-destination {{ celo_v0_validator_host }}:{{ celo_v0_validator_port }}
-# permit celo v1 p2p on port 50303 from anywhere to the v1-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v1_validator_port }} -j DNAT --to-destination {{ celo_v1_validator_host }}:{{ celo_v1_validator_port }}
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v1_validator_port }} -j DNAT --to-destination {{ celo_v1_validator_host }}:{{ celo_v1_validator_port }}
-# permit celo v0-alpha p2p on port 51303 from anywhere to the v0-alpha validator workload
+# permit celo v0 p2p from anywhere to the v0-bravo validator workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v0_bravo_validator_port }} -j DNAT --to-destination {{ celo_v0_bravo_validator_host }}:{{ celo_v0_bravo_validator_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v0_bravo_validator_port }} -j DNAT --to-destination {{ celo_v0_bravo_validator_host }}:{{ celo_v0_bravo_validator_port }}
+# permit celo v1 alpha p2p from anywhere to the v1-alpha validator workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v1_alpha_validator_port }} -j DNAT --to-destination {{ celo_v1_alpha_validator_host }}:{{ celo_v1_alpha_validator_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v1_alpha_validator_port }} -j DNAT --to-destination {{ celo_v1_alpha_validator_host }}:{{ celo_v1_alpha_validator_port }}
+# permit celo v1-bravo p2p 51303 from anywhere to the v1-bravo validator workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v1_bravo_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v1_bravo_validator_port }}
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v1_bravo_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v1_bravo_validator_port }}
 
@@ -109,6 +109,8 @@ COMMIT
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ rp_mainnet_cl_p2p_port }} -j DNAT --to-destination {{ rp_mainnet_host }}:{{ rp_mainnet_cl_p2p_port }}
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ rp_mainnet_cl_p2p_port }} -j DNAT --to-destination {{ rp_mainnet_host }}:{{ rp_mainnet_cl_p2p_port }}
 
+# quil port forwards
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ quil_port }} -j DNAT --to-destination {{ quil_host }}:{{ quil_port }}
 
 # SNAT's for outbound traffic
 # SNAT traffic from private subnet guests

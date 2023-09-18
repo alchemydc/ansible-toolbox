@@ -16,7 +16,7 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-          - 'sdl-pokt:8083'
+          - 'pokt:8083'
 
   - job_name: cosmos
     metrics_path: /metrics
@@ -29,33 +29,33 @@ scrape_configs:
           - 'agoric-main-1:44660'
           - 'agoric-emerynet-main-0:45660'
 
-  - job_name: celo_attestation
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-          - 'celo-attestation-v0:8080'
-          - 'celo-attestation-v1:8080'
+  #- job_name: celo_attestation
+  #  metrics_path: /metrics
+  #  static_configs:
+  #    - targets:
+  #        - 'celo-attestation-v0:8080'
+  #        - 'celo-attestation-v1:8080'
 
   - job_name: celo_validators
     metrics_path: /debug/metrics/prometheus
     static_configs:
       - targets:
           - 'celo-baklava-validator:6060'
-          - 'celo-v0:6060'
           - 'celo-v0-alpha:6060'
-          - 'celo-v1:6060'
+          - 'celo-v0-bravo:6060'
+          - 'celo-v1-alpha:6060'
           - 'celo-v1-bravo:6060'
-          - 'eth-validator:6060'
-          - 'eth-mainnet-validator:6060'
+          #- 'rocketpool-mainnet:6060'
+          #- 'rocketpool-testnet:6060'
 
-  - job_name: eth_validators
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-          - 'eth-validator:5054'
-          - 'eth-mainnet-validator:5054'
-          - 'eth-validator:5064'
-          - 'eth-mainnet-validator:5064'
+  #- job_name: eth_validators
+  #  metrics_path: /metrics
+  #  static_configs:
+  #    - targets:
+  #        - 'eth-validator:5054'
+  #        - 'eth-mainnet-validator:5054'
+  #        - 'eth-validator:5064'
+  #        - 'eth-mainnet-validator:5064'
 
   - job_name: node  # node_exporter
     metrics_path: /metrics
@@ -69,9 +69,10 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-        - 'zd1-ingress:8080'
+        #- 'zd1-ingress:8080'
         - 'zd2-ingress:8080'
-        - 'zd3-ingress:8080'
-        #- 'zd4-ingress:8080'
+        #- 'zd3-ingress:8080'
+        - 'zd4-ingress:8080'
         - 'zd5-ingress:8080'
         - 'zd6-ingress:8080'
+        - 'zd7-ingress:8080'

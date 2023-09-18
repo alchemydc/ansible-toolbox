@@ -8,6 +8,7 @@
       - jq
       - curl
       - acl   # required for become_user != root
-      - lz4
+      - lz4   # for snapshot
+      - zstd  # for snapshot
     state: present
     update_cache: yes

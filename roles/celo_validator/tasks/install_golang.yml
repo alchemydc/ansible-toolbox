@@ -17,6 +17,14 @@
     mode: '0700'
   when: which_go.stdout is not search "{{ go_version }}"
 
+- name: remove old install of golang
+  file: 
+    path: '/usr/local/go'
+    state: absent
+  ignore_errors: true
+  become: true
+  when: which_go.stdout is not search "{{ go_version }}"
+
 - name: unarchive go
   unarchive:
     src: '/tmp/go{{ go_version }}.linux-amd64.tar.gz'

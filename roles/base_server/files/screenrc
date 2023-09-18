@@ -13,4 +13,5 @@ bindkey -k F1 prev      # F11 = prev
 bindkey -k F2 next      # F12 = next
 # ensure shells spawn in screen source .profile
 shell -$SHELL
-
+# scrollback
+defscrollback 10000

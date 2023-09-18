@@ -5,31 +5,29 @@ DAY=$(date +%d)
 # grab yesterday's snapshot in case today's isn't taken yet
 YESTERDAY=$(($DAY -1))
 TIMESTAMP="$(date +%Y-%m)-$YESTERDAY"
-#SNAPSHOT_URI=https://storage.googleapis.com/celo-chain-backup/{{ network }}/chaindata-$TIMESTAMP.tar.gz
-# alt snapshot location
-ALT_SNAPSHOT_URI="https://celo.snapshot.directory"
+# celo foundation seems to be using .tar.zst, and the snapshot isn't regularly updated anymore (?)
+#SNAPSHOT_URI=https://storage.googleapis.com/celo-chain-backup/{{ network }}/chaindata-$TIMESTAMP.tar.lz4
+SNAPSHOT_URI=https://storage.googleapis.com/celo-chain-backup/{{ network }}/chaindata-$TIMESTAMP.tar.zst
 
-# celo foundation seems to be using .tar.zst, and the snapshot isn't regularly updated anymore.
-SNAPSHOT_URI=https://storage.googleapis.com/celo-chain-backup/{{ network }}/chaindata-$TIMESTAMP.tar.lz4
+# alt snapshot location hosted by SDL
+#ALT_SNAPSHOT_URI="https://files.stakingdefense.org/file/sdl-snapshots/sdl-celo-snapshot.tar.lz4"
+
 
 echo "Stopping celo daemon to restore chaindata"
 sudo systemctl stop celo-geth
 sleep 3
 
 {% if network == 'baklava' %}
+echo "Using baklava snapshot"
 echo "Pulling baklava chaindata snapshot from $SNAPSHOT_URI"
-#curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | sudo tar --directory {{ celo_data_dir }}/baklava/celo -xvf -
-#curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | tar --directory {{ celo_data_dir }}/baklava/celo -xvf -
 curl -Ls "$SNAPSHOT_URI" | lz4 --decompress --to-stdout | tar --directory {{ celo_data_dir }}/baklava/celo -xvf -
 {% else %}
-#echo "Pulling chaindata snapshot from $SNAPSHOT_URI"
-echo "Pulling chaindata snapshot from $ALT_SNAPSHOT_URI"
-#curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | sudo tar --directory {{ celo_data_dir }}/celo -xvf -
-#curl -Ls "$SNAPSHOT_URI" | gzip --decompress --to-stdout | tar --directory {{ celo_data_dir }}/celo -xvf -
-#curl -Ls "$SNAPSHOT_URI" | lz4 --decompress --to-stdout | tar --directory {{ celo_data_dir }}/celo -xvf -
-
+echo "Using mainnet snapshot"
+echo "Pulling chaindata snapshot from $SNAPSHOT_URI"
 # snapshot.directory is using a different directory structure, so we need to strip the first 4 components
-curl -Ls "$ALT_SNAPSHOT_URI" | lz4 --decompress --to-stdout | tar --strip-components=4 --directory {{ celo_data_dir }}/celo -xvf -
+#curl -Ls "$ALT_SNAPSHOT_URI" | lz4 --decompress --to-stdout | tar --strip-components=4 --directory {{ celo_data_dir }}/celo -xvf -
+# trying the Celo Foundation snapshot provider again
+curl -Ls "$SNAPSHOT_URI" | zstd --decompress --stdout | tar --directory {{ celo_data_dir }}/celo -xvf -
 {% endif %}
 
 echo "Restarting celo-geth service"
