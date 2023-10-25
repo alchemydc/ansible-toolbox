@@ -33,6 +33,7 @@
     mode: '644'
   notify:
     - restart networking
+  tags: "interfaces"
 
 - name: Debug hostname
   debug:
@@ -79,7 +80,12 @@
   include_tasks: configure_swap.yml
   loop: "{{ swap_devices }}"
   tags: "swap"
-  
+  when: swap_devices is defined
+
+- name: Configure sysctl
+  import_tasks: configure_sysctl.yml
+  tags: "proxmox_sysctl"
+
  # this task ensures that each proxmox hypervisor has a ZFS dataset called 'vmdata', created on the defined zfs_pool
  # note that proxmox clustering requires that the underlying pool and dataset names be the same on each node
 - name: Configure ZFS

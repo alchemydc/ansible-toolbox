@@ -1,0 +1,20 @@
+- name: Disable rp_filter by default via sysctl ansible module
+  sysctl:
+    name: net.ipv4.conf.default.rp_filter
+    value: 0
+    state: present
+    reload: yes
+
+- name: Disable rp_filter on all ifaces via sysctl ansible module
+  sysctl:
+    name: net.ipv4.conf.all.rp_filter
+    value: 0
+    state: present
+    reload: yes
+
+- name: Enable ip_forward via sysctl ansible module
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    state: present
+    reload: yes
