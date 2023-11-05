@@ -1,5 +1,16 @@
 maxretry = 3
+{% if usb_ups.stdout is contains("Cyber Power") %}
+# cyber power UPS detected
+# setting higher polling interval to prevent disconnects
+# see https://raspberrypi.stackexchange.com/questions/66611/nut-cyberpower-data-stale
+# and https://serverfault.com/questions/994338/how-can-i-fix-my-ups-repeatedly-disconnecting-and-reconnecting
+# slower polling seems to help some people
+#pollinterval = 15
 pollinterval = 1
+pollonly = "enabled"
+{% else %}
+pollinterval = 1
+{% endif %}
 
 [theUPS]
 driver = usbhid-ups

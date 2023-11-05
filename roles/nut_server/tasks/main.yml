@@ -1,17 +1,18 @@
+- name: Enumerate type of UPS connected
+  shell: lsusb -d {{ups_vendorid}}:{{ups_productid}}
+  register: usb_ups
+  changed_when: false
+  failed_when: false
+
+- name: Debug usb_ups
+  debug:
+    var: usb_ups
+
 - name: Install nut server
   apt:
     name: nut-server
     state: present
     update_cache: yes
-  become: true
-
-- name: Deploy nut ups.conf from template
-  template:
-    src: ups.conf.j2
-    dest: /etc/nut/ups.conf
-    owner: root
-    group: root
-    mode: 0644
   become: true
 
 - name: Deploy nut udev rules from template
@@ -24,23 +25,35 @@
   become: true
   notify: restart udev
 
+- name: Deploy nut ups.conf from template
+  template:
+    src: ups.conf.j2
+    dest: /etc/nut/ups.conf
+    owner: root
+    group: nut
+    mode: 0640
+  become: true
+  notify: restart nut-services
+
 - name: Deploy upsd.conf from template
   template:
     src: upsd.conf.j2
     dest: /etc/nut/upsd.conf
     owner: root
-    group: root
-    mode: 0644
+    group: nut
+    mode: 0640
   become: true
+  notify: restart nut-services
 
 - name: Deploy nut.conf from template
   template:
     src: nut.conf.j2
     dest: /etc/nut/nut.conf
     owner: root
-    group: root
-    mode: 0644
+    group: nut
+    mode: 0640
   become: true
+  notify: restart nut-services
 
 - name: Deploy upsmon.conf from template
   template:
@@ -50,6 +63,7 @@
     group: nut
     mode: 0640
   become: true
+  notify: restart nut-services
 
 - name: Deploy upsd.users from template
   template:
@@ -59,15 +73,17 @@
     group: nut
     mode: 0640
   become: true
+  notify: restart nut-services
 
 - name: Deploy upssched.conf from template
   template:
     src: upssched.conf.j2
     dest: /etc/nut/upssched.conf
     owner: root
-    group: root
-    mode: 0644
+    group: nut
+    mode: 0640
   become: true
+  notify: restart nut-services
 
 - name: Deploy upssched-cmd.sh from template
   template:
@@ -77,6 +93,7 @@
     group: nut
     mode: 0750
   become: true
+  notify: restart nut-services
 
 - name: Enable nut services
   service:
@@ -85,18 +102,7 @@
     state: started
   become: true
   loop:
-    - nut-server
-    - nut-monitor
-    - nut-client
-
-- name: Restart nut services
-  service:
-    name: "{{ item }}"
-    state: restarted
-  become: true
-  loop:
-    - nut-server
-    - nut-monitor
-    - nut-client
-
-
+    - nut-driver.service
+    - nut-server.service
+    - nut-monitor.service
+    - nut-client.service

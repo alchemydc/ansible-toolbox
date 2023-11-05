@@ -300,5 +300,15 @@
           daemon_reload: yes
           state: restarted
         become: true
-
-
+     
+      - name: restart nut-services
+        systemd:
+          name: "{{ item }}"
+          daemon_reload: yes
+          state: restarted
+        become: true
+        loop:
+         - nut-driver.service
+         - nut-server.service
+         - nut-client.service
+         - nut-monitor.service

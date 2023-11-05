@@ -3,7 +3,14 @@ SHUTDOWNCMD "/sbin/shutdown -h +0"
 POLLFREQ 5
 POLLFREQALERT 5
 HOSTSYNC 15
+{% if usb_ups.stdout is contains("Cyber Power") %}
+# cyber power UPS detected
+# setting higher DEADTIME to prevent disconnects
+# see https://raspberrypi.stackexchange.com/questions/66611/nut-cyberpower-data-stale
+DEADTIME 30
+{% else %}
 DEADTIME 15
+{% endif %}
 POWERDOWNFLAG /etc/killpower
 RBWARNTIME 43200
 NOCOMMWARNTIME 300
