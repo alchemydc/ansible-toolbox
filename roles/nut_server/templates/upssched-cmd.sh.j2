@@ -1,0 +1,17 @@
+#!/bin/bash
+case $1 in
+        emailonbatt)
+                  mail -s "UPS on battery power" {{ ups_email }}
+                  ;;
+        emailonline)
+                  mail -s "UPS on line power" {{ ups_email }}
+                  ;;
+        upsonbatt)
+                  echo "upsonbatt"
+                  #ssh root@nas shutdown -h +0
+                  ;;
+        upsonline)
+                  echo "upsonline"
+                  #etherwake 01:23:45:AB:CD:EF
+                  ;;
+esac

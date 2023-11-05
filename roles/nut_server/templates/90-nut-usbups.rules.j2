@@ -1,0 +1,7 @@
+# rules for USB UPSes
+SUBSYSTEM!="usb", GOTO="nut-usbups_rules_end"
+
+# Rule for the UPS - use lsusb for idVendor and idProduct
+ACTION=="add|change", SUBSYSTEM=="usb|usb_device", SUBSYSTEMS=="usb|usb_device", ATTR{idVendor}=="{{ ups_vendorid }}", ATTR{idProduct}=="{{ ups_productid }}", MODE="0664", GROUP="nut", RUN+="/sbin/upsdrvctl stop; /sbin/upsdrvctl start"
+
+LABEL="nut-usbups_rules_end"

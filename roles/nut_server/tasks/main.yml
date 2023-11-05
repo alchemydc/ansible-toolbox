@@ -1,0 +1,102 @@
+- name: Install nut server
+  apt:
+    name: nut-server
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Deploy nut ups.conf from template
+  template:
+    src: ups.conf.j2
+    dest: /etc/nut/ups.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Deploy nut udev rules from template
+  template:
+    src: 90-nut-usbups.rules.j2
+    dest: /etc/udev/rules.d/90-nut-usbups.rules
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart udev
+
+- name: Deploy upsd.conf from template
+  template:
+    src: upsd.conf.j2
+    dest: /etc/nut/upsd.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Deploy nut.conf from template
+  template:
+    src: nut.conf.j2
+    dest: /etc/nut/nut.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Deploy upsmon.conf from template
+  template:
+    src: upsmon.conf.j2
+    dest: /etc/nut/upsmon.conf
+    owner: root
+    group: nut
+    mode: 0640
+  become: true
+
+- name: Deploy upsd.users from template
+  template:
+    src: upsd.users.j2
+    dest: /etc/nut/upsd.users
+    owner: root
+    group: nut
+    mode: 0640
+  become: true
+
+- name: Deploy upssched.conf from template
+  template:
+    src: upssched.conf.j2
+    dest: /etc/nut/upssched.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Deploy upssched-cmd.sh from template
+  template:
+    src: upssched-cmd.sh.j2
+    dest: /etc/nut/upssched-cmd.sh
+    owner: root
+    group: nut
+    mode: 0750
+  become: true
+
+- name: Enable nut services
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  become: true
+  loop:
+    - nut-server
+    - nut-monitor
+    - nut-client
+
+- name: Restart nut services
+  service:
+    name: "{{ item }}"
+    state: restarted
+  become: true
+  loop:
+    - nut-server
+    - nut-monitor
+    - nut-client
+
+

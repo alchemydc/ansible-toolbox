@@ -58,6 +58,8 @@
     - role: postfix_smarthost
       tags: postfix_smarthost
       become: true
+    - role: nut_server
+      tags: nut_server
   
   handlers:
       - name: restart sshd
@@ -291,4 +293,12 @@
           daemon_reload: yes
           state: restarted
         become: true
+      
+      - name: restart udev
+        systemd:
+          name: systemd-udevd.service
+          daemon_reload: yes
+          state: restarted
+        become: true
+
 

@@ -1,0 +1,10 @@
+maxretry = 3
+pollinterval = 1
+
+[theUPS]
+driver = usbhid-ups
+port = auto
+desc = "the server UPS"
+# these two are optional
+vendorid = {{ ups_vendorid }}
+productid = {{ ups_productid }}

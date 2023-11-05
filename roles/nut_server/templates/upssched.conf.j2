@@ -1,0 +1,5 @@
+CMDSCRIPT /etc/nut/upssched-cmd.sh
+AT ONBATT * EXECUTE emailonbatt
+AT ONBATT * START-TIMER upsonbatt 300
+AT ONLINE * EXECUTE emailonline
+AT ONLINE * CANCEL-TIMER upsonbatt upsonline
