@@ -1,0 +1,28 @@
+vrrp_instance VI_1 {
+  {% if vrrp_role is defined and vrrp_role == 'MASTER' %}
+  state {{ vrrp_role }}
+  {% else %}
+  state BACKUP
+  {% endif %}
+  interface {{ ansible_facts.default_ipv4.interface }}
+  virtual_router_id {{ vrrp_router_id }}
+  {% if vrrp_role is defined and vrrp_role == 'MASTER' %}
+  priority 150
+  {% else %}
+  priority 100
+  {% endif %}
+  advert_int 1
+  unicast_src_ip {{ ansible_facts.default_ipv4.address }}
+  unicast_peer {
+    {{ vrrp_peer }}
+  }
+
+  authentication {
+    auth_type PASS
+    auth_pass {{ vrrp_password }}
+  }
+
+  virtual_ipaddress {
+    {{ vrrp_vip }}
+  }
+}

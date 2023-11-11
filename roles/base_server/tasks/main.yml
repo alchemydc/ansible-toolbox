@@ -29,11 +29,10 @@
   tags: 'update_hosts'
   when: ansible_virtualization_role == "guest"
 
-#- name: Disable proxmox enterprise repo
-#  apt_repository:
-#    #repo: deb https://enterprise.proxmox.com/debian/pve bullseye pve-enterprise
-#    repo: deb https://enterprise.proxmox.com/debian/pve {{ ansible_facts['distribution_release'] }} pve-enterprise
-#    state: absent
+- name: Disable proxmox enterprise repo
+  apt_repository:
+    repo: deb https://enterprise.proxmox.com/debian/pve {{ ansible_facts['distribution_release'] }} pve-enterprise
+    state: absent
 
 - name: Update and upgrade the machine
   apt:
@@ -48,7 +47,6 @@
       - vim
       - jq
       - sudo
-      #- unattended-upgrades
     state: present
 
 - name: Install unattended-upgrades but only on guest VM and containers
@@ -63,12 +61,6 @@
 #  import_tasks: htop.yml
 #  tags: 'htop'
 #  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
-
-- name: Remove packaged node-exporter since we're using the binary instead of the package now
-  apt:
-    name:
-      - prometheus-node-exporter
-    state: absent
 
 #- name: set SDN MTU for guest workloads
 #  import_tasks: set_mtu.yml
@@ -86,7 +78,7 @@
 - name: Create admin users
   user:
     name: "{{ item.username }}"
-    password: "{{ item.password }}" # '*': pw is locked/disabled.  key auth only + passwordless sudo
+    password: "{{ item.password }}"
     state: present
     shell: /bin/bash
     createhome: yes

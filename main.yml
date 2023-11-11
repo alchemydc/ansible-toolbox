@@ -62,6 +62,8 @@
       tags: nut_server
     - role: nut_client
       tags: nut_client
+    - role: pihole
+      tags: pihole
   
   handlers:
       - name: restart sshd
@@ -319,6 +321,12 @@
         systemd:
           name: nut-client.service
           daemon_reload: yes
+          state: restarted
+        become: true
+      
+      - name: restart keepalived
+        service:
+          name: keepalived
           state: restarted
         become: true
 

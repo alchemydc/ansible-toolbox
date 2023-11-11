@@ -1,0 +1,30 @@
+#- name: Debug ansible facts to find default ipv4 network interface
+  #debug:
+    #var: ansible_facts.interfaces
+    #var: ansible_facts.default_ipv4.interface
+
+- name: Install required apt packages for VRRP
+  apt: name={{ item }} state=present
+  loop:
+    - keepalived
+    - libipset13
+  become: true
+
+- name: Deploy keepalived.conf from template
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: 0640
+  become: true
+  notify:
+    - restart keepalived
+
+- name: Enable and start keepalived
+  service:
+    name: keepalived
+    enabled: true
+    state: started
+  become: true
+
