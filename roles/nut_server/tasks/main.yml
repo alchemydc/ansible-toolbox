@@ -93,7 +93,26 @@
     group: nut
     mode: 0750
   become: true
+
+- name: Fix monitored pid in nut-monitor.service
+  lineinfile:
+    path: /lib/systemd/system/nut-monitor.service
+    regexp: '^PIDFile='
+    line: 'PIDFile=/var/run/nut/nut-monitor.pid'
+  become: true
   notify: restart nut-services
+
+# optional and can be used to shutdown a remote host via ssh if it can't run the NUT client
+- name: Deploy ssh private key from encrypted file
+  copy:
+    src: "{{ item }}"
+    dest: /etc/nut/ssh_key
+    owner: root
+    group: nut
+    mode: 0640
+  become: true
+  loop:
+    - files/ssh_key.encrypted
 
 - name: Enable nut services
   service:
@@ -102,7 +121,7 @@
     state: started
   become: true
   loop:
-    - nut-driver.service
+    - nut-driver@ups.service
     - nut-server.service
     - nut-monitor.service
     - nut-client.service

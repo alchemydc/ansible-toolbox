@@ -1,3 +1,5 @@
-LISTEN 127.0.0.1 3493
-#LISTEN {{ public_ip }} 3493
-#LISTEN ::1 3493
+LISTEN 127.0.0.1 {{ nut_port }}
+{% if remote_ups_clients is defined and remote_ups_clients == true %}
+LISTEN {{ public_ip }} {{ nut_port }}
+{% endif %}
+#LISTEN ::1 {{ nut_port }}

@@ -1,18 +1,19 @@
 # MONITOR system powervalue username password type
 # Each UPS that you need to be monitor should have a MONITOR line. Not all of these need supply power to the system that is running upsmon. You may monitor other systems if you want to be able to send notifications about status changes on them.
-MONITOR ups@localhost 1 upsmonitor {{ ups_password }} master
-
+#MONITOR ups@{{ nut_server_ip }}:{{ nut_port }} 1 upsmonitor {{ ups_password }} slave
+MONITOR ups@{{ nut_server_ip }}:{{ nut_port }} 1 monuser secret slave
 # Set the number of power supplies that must be receiving power to keep this system running. Normal computers have just one power supply, so the default value of 1 is acceptable.
 # Large/expensive server type systems usually have more, and can run with a few missing. The HP NetServer LH4 can run with 2 out of 4, for example, so you’d set it to 2. The idea is to keep the box running as long as possible, right?
 # Obviously you have to put the redundant supplies on different UPS circuits for this to make sense! 
 MINSUPPLIES 1
 
 # upsmon runs this command when the system needs to be brought down. 
-SHUTDOWNCMD "logger -t upsmon 'SHUTDOWNCMD called' && /sbin/shutdown -h +0"
+SHUTDOWNCMD "/sbin/shutdown -h +0"
 
 # upsmon calls this to send messages when things happen.
 # This command is called with the full text of the message as one argument. The environment string NOTIFYTYPE will contain the type string of whatever caused this event to happen.
 NOTIFYCMD /usr/sbin/upssched
+
 
 # Normally upsmon polls the upsd(8) server every 5 seconds. If this is flooding your network with activity, you can make it higher. You can also make it lower to get faster updates in some cases.
 # There are some catches. First, if you set the POLLFREQ too high, you may miss short-lived power events entirely. You also risk triggering the DEADTIME (see above) if you use a very large number.
@@ -31,14 +32,12 @@ HOSTSYNC 15
 # upsmon requires a UPS to provide status information every few seconds (see POLLFREQ and POLLFREQALERT) to keep things updated. If the status fetch fails, the UPS is marked stale. If it stays stale for more than DEADTIME seconds, the UPS is marked dead.
 # A dead UPS that was last known to be on battery is assumed to have changed to a low battery condition. This may force a shutdown if it is providing a critical amount of power to your system. This seems disruptive, but the alternative is barreling ahead into oblivion and crashing when you run out of power.
 # Note: DEADTIME should be a multiple of POLLFREQ and POLLFREQALERT. Otherwise, you’ll have "dead" UPSes simply because upsmon isn’t polling them quickly enough. Rule of thumb: take the larger of the two POLLFREQ values, and multiply by 3.
-{% if usb_ups.stdout is contains("Cyber Power") %}
-# cyber power UPS detected
-# setting higher DEADTIME to prevent disconnects
+
+# setting higher DEADTIME to prevent disconnects on cyber power UPS
 # see https://raspberrypi.stackexchange.com/questions/66611/nut-cyberpower-data-stale
 DEADTIME 30
-{% else %}
-DEADTIME 15
-{% endif %}
+#DEADTIME 15
+
 
 # POWERDOWNFLAG filename
 # upsmon creates this file when running in primary mode when the UPS needs to be powered off. You should check for this file in your shutdown scripts and call upsdrvctl shutdown if it exists.
@@ -80,16 +79,4 @@ NOTIFYFLAG SHUTDOWN SYSLOG+EXEC
 NOTIFYFLAG REPLBATT SYSLOG+EXEC
 NOTIFYFLAG NOCOMM   SYSLOG+EXEC
 NOTIFYFLAG NOPARENT SYSLOG
-
-# wall is annoying but perhaps useful for people who don’t have syslog
-#NOTIFYFLAG ONLINE   SYSLOG+WALL+EXEC
-#NOTIFYFLAG ONBATT   SYSLOG+WALL+EXEC
-#NOTIFYFLAG LOWBATT  SYSLOG+WALL
-#NOTIFYFLAG FSD      SYSLOG+WALL+EXEC
-#NOTIFYFLAG COMMOK   SYSLOG+WALL+EXEC
-#NOTIFYFLAG COMMBAD  SYSLOG+WALL+EXEC
-#NOTIFYFLAG SHUTDOWN SYSLOG+WALL+EXEC
-#NOTIFYFLAG REPLBATT SYSLOG+WALL
-#NOTIFYFLAG NOCOMM   SYSLOG+WALL+EXEC
-#NOTIFYFLAG NOPARENT SYSLOG+WALL
 

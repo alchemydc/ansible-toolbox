@@ -60,6 +60,8 @@
       become: true
     - role: nut_server
       tags: nut_server
+    - role: nut_client
+      tags: nut_client
   
   handlers:
       - name: restart sshd
@@ -308,7 +310,15 @@
           state: restarted
         become: true
         loop:
-         - nut-driver.service
+         - nut-driver@ups.service
          - nut-server.service
          - nut-client.service
          - nut-monitor.service
+      
+      - name: restart nut-client
+        systemd:
+          name: nut-client.service
+          daemon_reload: yes
+          state: restarted
+        become: true
+

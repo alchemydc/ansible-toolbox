@@ -1,5 +1,43 @@
 CMDSCRIPT /etc/nut/upssched-cmd.sh
-AT ONBATT * EXECUTE emailonbatt
-AT ONBATT * START-TIMER upsonbatt 300
-AT ONLINE * EXECUTE emailonline
-AT ONLINE * CANCEL-TIMER upsonbatt upsonline
+PIPEFN /var/run/nut/upssched.pipe
+LOCKFN /var/run/nut/upssched.lock
+
+# START-TIMER timername interval
+# Start a timer of interval seconds. When it triggers, it will pass the argument timername as an argument to your CMDSCRIPT.
+# EXECUTE command
+# Immediately pass command as an argument to CMDSCRIPT.
+# CANCEL-TIMER timername [cmd]
+# Cancel a running timer called timername, if possible. If the timer has passed then pass the optional argument cmd to CMDSCRIPT.
+
+# notify the user when the UPS goes on battery
+AT ONBATT * EXECUTE onbatt
+
+# if power returns, cancel the onbatt timer and call upssched-cmd.sh with the argument online
+AT ONLINE * EXECUTE online
+AT ONLINE * CANCEL-TIMER onbattlong
+# AT ONLINE * CANCEL-TIMER onbattlong online    # for some reason this doesn't work
+
+# set a timer that will fire if power outage is more than just a flickering
+AT ONBATT * START-TIMER onbattlong {{ ups_shutdown_delay }}
+
+# safe shutdown if power is still out
+AT ONBATTLONG * EXECUTE onbattlong
+
+# if UPS battery runs low, notify
+# lowbatt is triggered way too soon
+# also seems to fire even when UPS is on mains power
+AT LOWBATT * EXECUTE lowbatt
+
+# if we lose comms, start the commbad timer
+AT COMMBAD * START-TIMER commbad 60
+
+# if we regain comms, cancel the commbad timer and call commok
+AT COMMOK * CANCEL-TIMER commbad commok
+
+# if we can't find the UPS, immediate execute commbad without delay
+AT NOCOMM * EXECUTE commbad
+
+AT SHUTDOWN * EXECUTE powerdown
+
+AT REPLBATT * EXECUTE replbatt
+

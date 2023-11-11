@@ -1,0 +1,53 @@
+- name: Install nut client
+  apt:
+    name: nut-server
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Deploy nut.conf from template
+  template:
+    src: nut.conf.j2
+    dest: /etc/nut/nut.conf
+    owner: root
+    group: nut
+    mode: 0640
+  become: true
+  notify: restart nut-client
+
+- name: Deploy upsmon.conf from template
+  template:
+    src: upsmon.conf.j2
+    dest: /etc/nut/upsmon.conf
+    owner: root
+    group: nut
+    mode: 0640
+  become: true
+  notify: restart nut-client
+
+- name: Deploy upssched.conf from template
+  template:
+    src: upssched.conf.j2
+    dest: /etc/nut/upssched.conf
+    owner: root
+    group: nut
+    mode: 0640
+  become: true
+  notify: restart nut-client
+
+- name: Deploy upssched-cmd.sh from template
+  template:
+    src: upssched-cmd.sh.j2
+    dest: /etc/nut/upssched-cmd.sh
+    owner: root
+    group: nut
+    mode: 0750
+  become: true
+
+- name: Fix monitored pid in nut-monitor.service
+  lineinfile:
+    path: /lib/systemd/system/nut-monitor.service
+    regexp: '^PIDFile='
+    line: 'PIDFile=/var/run/nut/nut-monitor.pid'
+  become: true
+  notify: restart nut-client

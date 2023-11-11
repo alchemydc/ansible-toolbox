@@ -29,11 +29,11 @@
   tags: 'update_hosts'
   when: ansible_virtualization_role == "guest"
 
-- name: Disable proxmox enterprise repo
-  apt_repository:
-    #repo: deb https://enterprise.proxmox.com/debian/pve bullseye pve-enterprise
-    repo: deb https://enterprise.proxmox.com/debian/pve {{ ansible_facts['distribution_release'] }} pve-enterprise
-    state: absent
+#- name: Disable proxmox enterprise repo
+#  apt_repository:
+#    #repo: deb https://enterprise.proxmox.com/debian/pve bullseye pve-enterprise
+#    repo: deb https://enterprise.proxmox.com/debian/pve {{ ansible_facts['distribution_release'] }} pve-enterprise
+#    state: absent
 
 - name: Update and upgrade the machine
   apt:
@@ -48,8 +48,15 @@
       - vim
       - jq
       - sudo
+      #- unattended-upgrades
+    state: present
+
+- name: Install unattended-upgrades but only on guest VM and containers
+  apt:
+    name:
       - unattended-upgrades
     state: present
+  when: ansible_virtualization_role == "guest"
 
 # doesn't seem to be required anymore as latest htop properly reports RAM within containers
 #- name: Replace packaged htop with binary that properly supports LXC
@@ -138,5 +145,5 @@
 #  when: ansible_facts['distribution_release'] == "bookworm"
 
 # disable ipv6
-- name: Disable ipv6
-  import_tasks: disable_ipv6.yml
+#- name: Disable ipv6
+#  import_tasks: disable_ipv6.yml

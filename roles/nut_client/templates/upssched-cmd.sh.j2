@@ -1,0 +1,32 @@
+#!/bin/sh
+ case $1 in
+       onbatt)
+          logger -t upssched-cmd "UPS running on battery"
+          echo "{{ ansible_facts['nodename'] }} UPS is on battery power" | mail {{ ups_email }}
+          ;;
+       earlyshutdown)
+          logger -t upssched-cmd "UPS on battery too long, early shutdown"
+          echo "{{ ansible_facts['nodename'] }} UPS on battery too long, early shutdown" | mail {{ ups_email }}
+          /usr/sbin/upsmon -c fsd
+          ;;
+       powerdown)
+          logger -t upssched-cmd "powerdown: forced shutdown"
+          echo "{{ ansible_facts['nodename'] }} UPS powerdown: forced shutdown" | mail {{ ups_email }}
+          /usr/sbin/upsmon -c fsd
+          ;;
+       commbad)
+          logger -t upssched-cmd "Lost connection to UPS"
+          #mail -s "{{ ansible_facts['nodename'] }} Lost connection to UPS" {{ ups_email }}
+          ;;
+       commok)
+          logger -t upssched-cmd "Regained connection to UPS"
+          #mail -s "{{ ansible_facts['nodename'] }} Regained connection to UPS" {{ ups_email }}
+          ;;
+       online)
+          logger -t upssched-cmd "UPS is running on line power"
+          echo "{{ ansible_facts['nodename'] }} UPS is back on line power" | mail {{ ups_email }}
+          ;;
+       *)
+          logger -t upssched-cmd "Unrecognized command: $1"
+          ;;
+ esac

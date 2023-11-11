@@ -1,21 +1,27 @@
 maxretry = 3
-{% if usb_ups.stdout is contains("Cyber Power") %}
-# cyber power UPS detected
-# setting higher polling interval to prevent disconnects
-# see https://raspberrypi.stackexchange.com/questions/66611/nut-cyberpower-data-stale
-# and https://serverfault.com/questions/994338/how-can-i-fix-my-ups-repeatedly-disconnecting-and-reconnecting
-# slower polling seems to help some people
-#pollinterval = 15
-pollinterval = 1
-pollonly = "enabled"
-{% else %}
-pollinterval = 1
-{% endif %}
 
-[theUPS]
-driver = usbhid-ups
-port = auto
-desc = "the server UPS"
-# these two are optional
-vendorid = {{ ups_vendorid }}
-productid = {{ ups_productid }}
+[ups]
+    driver = usbhid-ups
+    port = auto
+    desc = "the server UPS"
+    # these two are optional
+    vendorid = {{ ups_vendorid }}
+    productid = {{ ups_productid }}
+    {% if usb_ups.stdout is contains("Cyber Power") %}
+    # cyber power UPS detected
+    # ref: https://github.com/networkupstools/nut/issues/578
+    # anything else for offdelay and ondelay will NOT work properly for cyber power UPS
+    # and load will be turned back on after shutdown, even if mains power isn't back.
+    offdelay = 60
+    ondelay = 0
+
+    # adjusting polling interval to prevent disconnects
+    # see https://raspberrypi.stackexchange.com/questions/66611/nut-cyberpower-data-stale
+    # and https://serverfault.com/questions/994338/how-can-i-fix-my-ups-repeatedly-disconnecting-and-reconnecting
+    # slower polling seems to help some people
+    pollinterval = 5    # maybe stable? 
+    #pollinterval = 15  # stable but slow
+    #pollinterval = 1   # unstable
+    {% else %}
+    pollinterval = 1
+    {% endif %}
