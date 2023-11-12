@@ -1,2 +1,9 @@
 - name: Install and configure VRRP
   import_tasks: vrrp.yml
+
+# unbound is required in order to pihole to support upstream DNS over TLS
+# ref: https://docs.pi-hole.net/guides/dns/unbound/
+# likely won't be supported natively until dnsmasq support DoT
+- name: Install and configure Unbound DNS
+  import_tasks: unbound.yml
+

@@ -137,5 +137,6 @@
 #  when: ansible_facts['distribution_release'] == "bookworm"
 
 # disable ipv6
-#- name: Disable ipv6
-#  import_tasks: disable_ipv6.yml
+- name: Disable ipv6
+  import_tasks: disable_ipv6.yml
+  tags: "disable_ipv6"

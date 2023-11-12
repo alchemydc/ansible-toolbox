@@ -78,11 +78,13 @@
   import_tasks: compose.yml
   tags: docker_compose
 
+# docker-compose v2 not functional w/ ansible as of nov 2023
+# ref: https://github.com/ansible-collections/community.docker/issues/216
 - name: Install packages required for ansible to interact w/ python on host
   apt:
     name:
       #- python3    # now installed by default in debian 12
-      #- python3-pip
+      - python3-pip
       - python3-docker
     state: present
     update_cache: false

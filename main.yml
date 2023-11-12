@@ -64,7 +64,9 @@
       tags: nut_client
     - role: pihole
       tags: pihole
-  
+    - role: netboot
+      tags: netboot
+      
   handlers:
       - name: restart sshd
         service:
@@ -324,9 +326,7 @@
           state: restarted
         become: true
       
-      - name: restart keepalived
-        service:
-          name: keepalived
-          state: restarted
-        become: true
+
+      
+
 

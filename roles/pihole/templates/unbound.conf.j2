@@ -1,0 +1,66 @@
+server:
+    verbosity: 0
+    use-syslog: yes
+    #log-queries: yes   # default: no
+    interface: 127.0.0.1
+    port: 5353
+    do-ip4: yes
+    do-ip6: no
+    prefer-ip6: no
+    do-udp: yes
+    do-tcp: yes
+    access-control: 127.0.0.0/8 allow
+
+    hide-identity: yes
+    hide-version: yes
+    harden-glue: yes
+    # Require DNSSEC data for trust-anchored zones, if such data is absent, the zone becomes BOGUS
+    harden-dnssec-stripped: yes
+    
+    # DNS Query Name Minimisation to Improve Privacy: RFC 7816
+    qname-minimisation: yes
+    use-caps-for-id: no
+
+    # Perform prefetching of close to expired message cache entries
+    # This only applies to domains that have been frequently queried
+    prefetch: yes
+    # Reduce EDNS reassembly buffer size
+    # TL;DR: use TCP instead of UDP for DNS queries over 1232 bytes
+    edns-buffer-size: 1232
+
+    # One thread should be sufficient, can be increased on beefy machines. In reality for most users running on small networks or on a single machine, it should be unnecessary to seek performance enhancement by increasing num-threads above 1.
+    num-threads: 2
+
+    # Ensure kernel buffer is large enough to not lose messages in traffic spikes
+    so-rcvbuf: 1m
+
+    # serve-expired: yes
+    # msg-cache-size: 128m
+    # rrset-cache-size: 256m
+    
+    tls-cert-bundle: /etc/ssl/certs/ca-certificates.crt
+    
+    # do not forward these upstream
+    private-address: 192.168.0.0/16
+    private-address: 172.16.0.0/12
+    private-address: 10.0.0.0/8
+    private-domain: {{ pihole_local_domain }}
+    private-address: fd00::/8
+    private-address: fe80::/10
+
+    local-zone: "{{ pihole_local_zone }}" nodefault
+
+
+# pihole shouldn't ask unbound for these, but if it does, send to the router
+stub-zone:
+name: "{{ pihole_local_zone }}"
+stub-addr: {{ pihole_local_resolver }}
+
+# forward all requests to upstream on DNS over TLS port 853
+forward-zone:
+    name: "."
+    forward-tls-upstream: yes
+{% for upstream in pihole_upstreams %}
+    forward-addr: {{ upstream }}
+{% endfor %}
+

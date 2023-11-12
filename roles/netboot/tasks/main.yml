@@ -1,0 +1,78 @@
+- name: Create group for netboot user
+  group:
+    name: netboot
+    state: present
+    gid: "{{ netboot_gid }}"
+  become: true
+
+- name: Create netboot user
+  user:
+    name: netboot
+    comment: "Netboot user"
+    shell: /bin/bash
+    createhome: yes
+    home: /home/netboot
+    #password: "{{ netboot_password | password_hash('sha512') }}"
+    password: '*'
+    state: present
+    #groups: sudo
+    append: yes
+    system: yes
+    uid: "{{ netboot_uid }}"
+    group: "netboot"
+    move_home: yes
+    update_password: on_create
+  become: true
+
+- name: Create required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: netboot
+    group: netboot
+    mode: 0755
+  with_items:
+    - /home/netboot
+    - /home/netboot/assets
+    - /home/netboot/config
+  become: true
+
+- name: Deploy docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: /home/netboot/docker-compose.yml
+    owner: netboot
+    group: netboot
+    mode: 0644
+  become: true
+
+#- name: Tear down existing netboot stack
+  #community.docker.docker_compose:
+#    project_src: "/home/netboot"
+#    state: absent
+#  become: true
+
+- name: Tear down existing netboot stack
+  shell: docker-compose down
+  args:
+    chdir: /home/netboot
+  become: true
+
+#- name: Start netboot stack
+#  community.docker.docker_compose:
+#    project_src: "/home/netboot"
+#    state: present
+#  register: netboot_compose_up_output
+#  become: true
+
+- name: Start netboot stack
+  shell: docker-compose up -d
+  args:
+    chdir: /home/netboot
+  become: true
+  register: netboot_compose_up_output
+
+- name: Debug netboot stack
+  debug:
+    msg: netboot_compose_up_output.stdout
+  
