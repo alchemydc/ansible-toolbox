@@ -1,0 +1,23 @@
+---
+    - name: create helper directory
+      file:
+        path: "/home/eigenlayer/helpers"
+        state: directory
+        owner: "eigenlayer"
+        group: "eigenlayer"
+        mode: "0750"
+      become: true
+  
+    - name: deploy helper scripts
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: '0750'
+        owner: "eigenlayer"
+      loop:
+        - { src: 'create_keys.sh', dest: "/home/eigenlayer/helpers/create_keys.sh" }
+        - { src: 'import_keys.sh', dest: "/home/eigenlayer/helpers/import_keys.sh" }
+        - { src: 'list_keys.sh', dest: "/home/eigenlayer/helpers/list_keys.sh" }
+        - { src: 'register_operator.sh', dest: "/home/eigenlayer/helpers/register_operator.sh" }
+      become: true
+

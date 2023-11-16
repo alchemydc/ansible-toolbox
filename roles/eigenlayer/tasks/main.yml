@@ -1,0 +1,109 @@
+#- name: debug facts
+#  debug:
+#    var: ansible_facts
+
+- name: Install required packages via apt
+  apt:
+    name: "{{ item }}"
+    state: present
+  become: true
+  loop:
+    - git
+    - acl
+
+- name: Create eigenlayer group
+  group:
+    name: eigenlayer
+    state: present
+  become: true
+
+- name: Create a new user for eigenlayer service
+  user:
+    name: eigenlayer
+    #password: "{{ 'mypassword' | password_hash('sha512') }}"
+    password: '*'
+    groups: eigenlayer, docker
+    append: yes
+    create_home: yes
+    state: present
+    shell: /bin/bash
+  become: true
+
+- name: Setup common aliases for eigenlayer user
+  lineinfile:
+    path: /home/eigenlayer/.profile
+    line: alias ll='ls -laF'
+    state: present
+  become: true
+
+- name: Ensure eigenlayer user's home/bin directory exists
+  file:
+    path: /home/eigenlayer/bin
+    state: directory
+    owner: eigenlayer
+    group: eigenlayer
+    mode: '0750'
+  become: true
+
+- name: Download eigenlayer cli binary
+  get_url:
+    url: "{{ eigenlayer_cli_url }}"
+    dest: /home/eigenlayer/bin/eigenlayer
+    owner: eigenlayer
+    group: eigenlayer
+    mode: '0750'
+  become: true
+
+- name: Deploy helper scripts
+  import_tasks: deploy_helper_scripts.yml
+
+- name: Deploy operator-config from template
+  template:
+    src: operator-config.yml.j2
+    dest: /home/eigenlayer/.eigenlayer/operator-config.yml
+    owner: eigenlayer
+    group: eigenlayer
+    mode: '0640'
+  become: true
+
+- name: Deploy metadata from template
+  template:
+    src: metadata.json.j2
+    dest: /home/eigenlayer/.eigenlayer/metadata.json
+    owner: eigenlayer
+    group: eigenlayer
+    mode: '0640'
+  become: true
+
+- name: Clone the eigenDA operator repo
+  git:
+    repo: "{{ eigenlayer_operator_repo }}"
+    dest: /home/eigenlayer/eigenda-operator-setup
+    #version: "{{ eigenlayer_operator_version }}"
+    version: "{{ eigenlayer_operator_version if eigenlayer_operator_version is defined else 'master' }}"
+    force: yes
+  become: true
+  become_user: eigenlayer
+
+- name: Create required directories for eigenDA
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: eigenlayer
+    group: eigenlayer
+    mode: '0750'
+  become: true
+  loop:
+    - /home/eigenlayer/.eigenlayer/eigenda
+    - /home/eigenlayer/.eigenlayer/eigenda/logs
+    - /home/eigenlayer/.eigenlayer/eigenda/db
+
+- name: Deploy eigenda .env from template
+  template:
+    src: eigenda.env.j2
+    dest: /home/eigenlayer/eigenda-operator-setup/.env
+    owner: eigenlayer
+    group: eigenlayer
+    mode: '0640'
+  become: true
+

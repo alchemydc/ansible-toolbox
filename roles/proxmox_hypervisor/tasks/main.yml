@@ -15,6 +15,7 @@
       - libpve-network-perl
       - vim
       - parted
+      - lm-sensors
     state: present
     update_cache: yes
 
@@ -34,6 +35,18 @@
   notify:
     - restart networking
   tags: "interfaces"
+
+- name: Configure USB network interfaces
+  template:
+    src: usb-network-rules.j2
+    dest: /etc/udev/rules.d/80-usb-network.rules
+    owner: root
+    group: root
+    mode: '644'
+  notify:
+    - restart udev
+  tags: "usb_nic"
+  when: usb_nic_mac is defined
 
 - name: Debug hostname
   debug:

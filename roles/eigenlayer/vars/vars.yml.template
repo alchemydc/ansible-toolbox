@@ -1,0 +1,22 @@
+# eigenlayer
+eigenlayer_cli_url: "https://github.com/NethermindEth/eigenlayer/releases/download/v0.4.3/eigenlayer-linux-amd64"
+eigenlayer_operator_address: "YOUR_ADDRESS"
+eigenlayer_metadata_url: "https://your_domain/metadata.json"
+eigenlayer_eth_rpc_url: "{{ vault_eigenlayer_eth_rpc_url }}"
+eigenlayer_ecdsa_key_store_path: "/home/eigenlayer/.eigenlayer/operator_keys/test.ecdsa.key.json"
+eigenlayer_bls_key_store_path: "/home/eigenlayer/.eigenlayer/operator_keys/test.bls.key.json"
+eigenlayer_operator_name: "YOUR_OPERATOR"
+eigenlayer_operator_website: YOUR_WEBSITE"
+eigenlayer_operator_description: "YOUR_DESCRIPTION"
+# note logo MUST be png
+eigenlayer_operator_logo: "https://YOUR_logo.png"
+eigenlayer_operator_twitter: "https://warpcast.com/YOUR_HANDLE"
+eigenlayer_operator_repo: "https://github.com/Layr-Labs/eigenda-operator-setup"
+eigenlayer_operator_version: "v0.1.1"  # default is master if undefined, but may specify a specific tag or branch
+eigenlayer_hostname: "eigenlayer.yourdomain.tld"  # publicly reachable IP/hostname of the eigenlayer node
+eigenlayer_retrieval_port: 32004
+eigenlayer_dispersal_port: 32005
+eigenlayer_dispersal_allowed_sources:   # used by optional upstream iptables role
+  - "3.221.120.68/32"
+  - "52.2.226.152/32"
+  - "18.214.113.214/32"
