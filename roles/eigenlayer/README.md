@@ -4,6 +4,7 @@ This role will install and configure the system to be an operator on Eigenlayer 
 ## Prerequisites
 * Docker: Can be installed via this role: `ansible-playbook main.yml --tags "docker_server" -e "target=your_eigenlayer_node"`
 * An Ethereum RPC provider: See https://www.alchemy.com/list-of/rpc-node-providers-on-ethereum if you don't have your own
+* Some ETH on the network you want to deploy to (presently just Goerli)
 
 ## Variables
 See vars/vars.yml.template and update as required
@@ -26,5 +27,5 @@ for this role, but you can use gist.github.com for the metadata.json, and a publ
 6) Docker stack in the master branch of the operator repo fails to come up as of 16 nov 2023 with error: `error pulling image configuration: download failed after attempts=1: error parsing HTTP 408 response body: invalid character '<' looking for beginning of value: "<html><body><h1>408 Request Time-out</h1>\nYour browser didn't send a complete request in time.\n</body></html>\n"` while pulling the reverse-proxy layer.  Will try the last release tag.  That didn't work.  Suspect dockerhub is having issues. Will try again later.
 
 ## References
-* [eigenda-operator-guide] (https://docs.eigenlayer.xyz/operator-guides/avs-installation-and-registration/eigenda-operator-guide)
+* [eigenda-operator-guide](https://docs.eigenlayer.xyz/operator-guides/avs-installation-and-registration/eigenda-operator-guide)
 * [grafana dashboards](https://github.com/Layr-Labs/eigenda-operator-setup/tree/master/dashboards)
