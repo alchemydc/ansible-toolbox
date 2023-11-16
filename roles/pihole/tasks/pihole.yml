@@ -1,0 +1,67 @@
+- name: Debug ansible.default.ipv4
+  debug:
+    msg: "{{ ansible_default_ipv4 }}"
+
+- name: Install required packages via apt
+  apt:
+    name: curl
+    state: present
+  loop:
+    - curl
+    - acl   # required for ansible become_user to work properly
+    #- git
+  become: yes
+
+- name: Create group for pihole user
+  group:
+    name: pihole
+    state: present
+    gid: "{{ pihole_gid }}"
+  become: true
+
+- name: Create pihole user
+  user:
+    name: pihole
+    comment: "Pihole user"
+    shell: /bin/bash
+    createhome: yes
+    home: /home/pihole
+    password: '*'
+    state: present
+    group: "pihole"
+  become: true
+
+- name: Download pihole installer
+  get_url:
+    url: "https://raw.githubusercontent.com/pi-hole/pi-hole/master/automated%20install/basic-install.sh"
+    dest: /home/pihole/basic-install.sh
+    mode: 0755
+    owner: pihole
+    group: pihole
+  become: true
+
+- name: Add pihole user to sudoers
+  lineinfile:
+    dest: /etc/sudoers
+    line: "pihole ALL=(ALL) NOPASSWD: ALL"
+    validate: "visudo -cf %s"
+    state: present
+  become: true
+
+- name: Create /etc/pihole directory
+  file:
+    path: /etc/pihole
+    state: directory
+    owner: pihole
+    group: pihole
+    mode: 0755
+  become: true
+
+- name: Deploy setupvars.conf for pihole from template
+  template:
+    src: setupVars.conf.j2
+    dest: /etc/pihole/setupVars.conf
+    owner: pihole
+    group: pihole
+    mode: 0640
+  become: true

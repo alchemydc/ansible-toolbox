@@ -7,3 +7,6 @@
 - name: Install and configure Unbound DNS
   import_tasks: unbound.yml
 
+- name: Install and configure Pihole
+  import_tasks: pihole.yml
+
