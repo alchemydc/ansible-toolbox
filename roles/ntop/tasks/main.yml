@@ -1,0 +1,73 @@
+- name: Add ntop signing key to apt keyring securely
+  get_url: 
+    url: https://packages.ntop.org/apt/ntop.key
+    dest: /etc/apt/keyrings/ntop.asc  # note that this a key in ASCII, not binary (.gpg) format.
+    mode: '0644'
+    force: true 
+  become: yes
+
+- name: Debug ansible_facts
+  debug:
+    #msg: "{{ ansible_facts['distribution_release'] }}"
+    #msg: "{{ ansible_facts }}"
+    msg: "{{ ansible_facts['architecture'] }}"
+
+- name: Add ntop repository to apt (x64)
+  apt_repository:
+    filename: ntop_x64
+    repo: "deb [signed-by=/etc/apt/keyrings/ntop.asc] https://packages.ntop.org/apt/{{ ansible_facts['distribution_release'] }}/ x64/"
+    state: present
+  become: true
+  when: ansible_facts['architecture'] == 'x86_64'
+
+- name: Add ntop repository to apt (arm64)
+  apt_repository:
+    filename: ntop_x64
+    repo: "deb [signed-by=/etc/apt/keyrings/ntop.asc] https://packages.ntop.org/apt/{{ ansible_facts['distribution_release'] }}/ arm64/"
+    state: present
+  become: true
+  when: ansible_facts['architecture'] == 'aarch64'
+
+- name: Add ntop repositories to apt
+  apt_repository:
+    filename: ntop
+    repo: "deb [signed-by=/etc/apt/keyrings/ntop.asc] https://packages.ntop.org/apt/{{ ansible_facts['distribution_release'] }}/ all/"
+    state: present
+  become: true
+
+- name: Install ntopng
+  apt:
+    name: ntopng
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Stop ntopng service
+  service:
+    name: ntopng
+    state: stopped
+  become: yes
+
+- name: Deploy /etc/ntopng/ntopng.conf configuration file from template
+  template:
+    src: ntopng.conf.j2
+    dest: /etc/ntopng/ntopng.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+
+- name: Make /var/lib/ntopng owned by ntopng:ntopng
+  file:
+    path: /var/lib/ntopng
+    owner: ntopng
+    group: ntopng
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Start ntopng service
+  service:
+    name: ntopng
+    state: started
+  become: yes

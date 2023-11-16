@@ -66,6 +66,10 @@
       tags: pihole
     - role: netboot
       tags: netboot
+    - role: ntop
+      tags: ntop
+    - role: eigenlayer
+      tags: eigenlayer
       
   handlers:
       - name: restart sshd
