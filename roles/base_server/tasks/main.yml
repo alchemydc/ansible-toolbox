@@ -62,6 +62,7 @@
 #  tags: 'htop'
 #  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
+# not  needed anymore as PVE will set the MTU for guests to the MTU of the bridge
 #- name: set SDN MTU for guest workloads
 #  import_tasks: set_mtu.yml
 #  tags: 'mtu'
@@ -127,6 +128,7 @@
 - name: Configure vim to disable visual mouse and a few other tweaks
   import_tasks: configure_vim.yml
 
+# this this has been resolved in latest d12 template
 # Debian 12 (bullseye) has systemd-networkd-wait-online.service enabled by default
 # but it doesn't work properly in Proxmox LXC's because networking isn't configured 
 # via systemd, so it will time out and cause the boot to hang for 2 minutes.
@@ -137,6 +139,6 @@
 #  when: ansible_facts['distribution_release'] == "bookworm"
 
 # disable ipv6
-- name: Disable ipv6
-  import_tasks: disable_ipv6.yml
-  tags: "disable_ipv6"
+#- name: Disable ipv6
+#  import_tasks: disable_ipv6.yml
+#  tags: "disable_ipv6"

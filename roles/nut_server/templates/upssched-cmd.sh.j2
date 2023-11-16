@@ -20,8 +20,10 @@ DISCORD_WEBHOOK="{{ ups_discord_webhook }}"
           logger -t upssched-cmd "onbattlong: UPS running on battery for too long, executing a clean shutdown"
           echo "{{ ansible_facts['nodename'] }} UPS running on battery for too long, executing a clean shutdown" | mail {{ ups_email }}
           curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} onbattlong: UPS on battery for too long, shutting down\"}" $DISCORD_WEBHOOK
+          {% if shutdown_gateway is defined and shutdown_gateway is true %}
           logger -t uspsched-cmd "Shutting down gateway"
           ssh -i /etc/nut/ssh_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ unifi_user }}@{{ unifi_ip }} "shutdown -h now"
+          {% endif %}
           logger -t uspsched-cmd "Sleeping for 60s then Shutting down UPS"
           sleep 60 && /usr/sbin/upsmon -c fsd
           ;;

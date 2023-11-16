@@ -15,8 +15,7 @@ services:
       - ./config:/config
       - ./assets:/assets #optional
     ports:
-      - 3000:3000
+      - "127.0.0.1:3100:3000" #admin console is unprotected so bind only to localhost
       - 69:69/udp
       - 8080:80 #optional
     restart: unless-stopped
-

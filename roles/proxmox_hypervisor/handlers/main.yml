@@ -1,0 +1,6 @@
+- name: Restart udev
+  systemd:
+    name: udev
+    state: restarted
+    enabled: yes
+
