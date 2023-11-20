@@ -1,0 +1,24 @@
+- name: restart nut-services
+  systemd:
+    name: "{{ item }}"
+    daemon_reload: yes
+    state: restarted
+  become: true
+  loop:
+   - nut-driver.service
+   - nut-server.service
+   - nut-monitor.service
+  when: ansible_distribution_release == 'bullseye'
+
+- name: restart nut-services
+  systemd:
+    name: "{{ item }}"
+    daemon_reload: yes
+    state: restarted
+  become: true
+  loop:
+   #- nut-driver@ups.service        # does not seem to be required on bookworm
+   - nut-server.service
+   - nut-monitor.service
+  when: ansible_distribution_release == 'bookworm'
+

@@ -1,13 +1,9 @@
-- name: Enumerate type of UPS connected
-  shell: lsusb -d {{ups_vendorid}}:{{ups_productid}}
-  register: usb_ups
+- name: Enumerate types of UPSes connected
+  shell: lsusb -d {{ item.vendorid }}:{{ item.productid }}
+  register: usb_ups_details
   changed_when: false
-  failed_when: false
-
-- name: Debug usb_ups
-  debug:
-    var: usb_ups
-
+  loop: "{{ ups_devices }}"
+  
 - name: Install nut server
   apt:
     name: nut-server
@@ -101,27 +97,40 @@
     line: 'PIDFile=/var/run/nut/nut-monitor.pid'
   become: true
   notify: restart nut-services
+  when: ansible_distribution_release == 'bookworm'
+  # on bullseye will cause nut-monitor aka nut-client to fail to start
 
-# optional and can be used to shutdown a remote host via ssh if it can't run the NUT client
+## optional and can be used to shutdown a remote host via ssh if it can't run the NUT client
 - name: Deploy ssh private key from encrypted file
   copy:
-    src: "{{ item }}"
+    src: files/ssh_key.encrypted
     dest: /etc/nut/ssh_key
     owner: root
     group: nut
     mode: 0640
   become: true
-  loop:
-    - files/ssh_key.encrypted
-
-- name: Enable nut services
+  when: shutdown_gateway is defined and shutdown_gateway == true
+  
+- name: Enable nut services (bullseye)
   service:
     name: "{{ item }}"
     enabled: yes
     state: started
   become: true
   loop:
-    - nut-driver@ups.service
+    - nut-driver.service
     - nut-server.service
     - nut-monitor.service
-    - nut-client.service
+  when: ansible_distribution_release == 'bullseye'
+
+- name: Enable nut services (bookworm)
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  become: true
+  loop:
+    #- nut-driver@ups.service       # does not seem to be required on bookworm
+    - nut-server.service
+    - nut-monitor.service
+  when: ansible_distribution_release == 'bookworm'

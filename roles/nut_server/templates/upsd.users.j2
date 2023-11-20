@@ -8,6 +8,10 @@ upsmon master
 # the following user/pass is hardcoded into synology NAS and cannot be changed
 # fortunately it's read only
 # ref: https://community.synology.com/enu/forum/1/post/149169
+# note that the synology support is not tested with multi-ups support
+# if you have multiple UPSes and require synology support manually verify ups.conf after running this role
+# the name of the ups in ups.conf must be 'ups' in order for these creds to work
+# the UPS name is hardcoded in the synology UPS daemon
 [monuser]
 password = secret
 upsmon master

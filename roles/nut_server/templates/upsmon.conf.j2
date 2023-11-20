@@ -1,6 +1,12 @@
 # MONITOR system powervalue username password type
 # Each UPS that you need to be monitor should have a MONITOR line. Not all of these need supply power to the system that is running upsmon. You may monitor other systems if you want to be able to send notifications about status changes on them.
+#MONITOR ups@localhost 1 upsmonitor {{ ups_password }} master
+{% if synology_support is defined and synology_support == true%}
 MONITOR ups@localhost 1 upsmonitor {{ ups_password }} master
+{% else %}
+{% for ups in ups_devices %}
+MONITOR {{ ups.name }}@localhost 1 upsmonitor {{ ups_password }} master
+{% endfor %}
 
 # Set the number of power supplies that must be receiving power to keep this system running. Normal computers have just one power supply, so the default value of 1 is acceptable.
 # Large/expensive server type systems usually have more, and can run with a few missing. The HP NetServer LH4 can run with 2 out of 4, for example, so you’d set it to 2. The idea is to keep the box running as long as possible, right?
@@ -31,7 +37,8 @@ HOSTSYNC 15
 # upsmon requires a UPS to provide status information every few seconds (see POLLFREQ and POLLFREQALERT) to keep things updated. If the status fetch fails, the UPS is marked stale. If it stays stale for more than DEADTIME seconds, the UPS is marked dead.
 # A dead UPS that was last known to be on battery is assumed to have changed to a low battery condition. This may force a shutdown if it is providing a critical amount of power to your system. This seems disruptive, but the alternative is barreling ahead into oblivion and crashing when you run out of power.
 # Note: DEADTIME should be a multiple of POLLFREQ and POLLFREQALERT. Otherwise, you’ll have "dead" UPSes simply because upsmon isn’t polling them quickly enough. Rule of thumb: take the larger of the two POLLFREQ values, and multiply by 3.
-{% if usb_ups.stdout is contains("Cyber Power") %}
+
+{% if usb_ups_details.results is contains("Cyber Power") %}
 # cyber power UPS detected
 # setting higher DEADTIME to prevent disconnects
 # see https://raspberrypi.stackexchange.com/questions/66611/nut-cyberpower-data-stale
@@ -93,3 +100,4 @@ NOTIFYFLAG NOPARENT SYSLOG
 #NOTIFYFLAG NOCOMM   SYSLOG+WALL+EXEC
 #NOTIFYFLAG NOPARENT SYSLOG+WALL
 
+{% endif %}
