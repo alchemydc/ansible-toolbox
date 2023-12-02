@@ -21,7 +21,9 @@ maxretry = 3
    # and https://serverfault.com/questions/994338/how-can-i-fix-my-ups-repeatedly-disconnecting-and-reconnecting
    pollinterval = 5
 {% else %}
-   pollinterval = 1
+   #pollinterval = 1
+   # adjusting pollinterval higher to avoid false positives when UPS goes on battery very briefly
+   pollinterval = 5
 {% endif %}
 {% else %} # (no synology support, so we iterate over ups_devices and create a ups.conf entry for each
 {% for ups in ups_devices %}
@@ -45,7 +47,9 @@ maxretry = 3
    pollinterval = 5
 
 {% else %} 
-   pollinterval = 1
+   #pollinterval = 1
+   # adjusting pollinterval higher to avoid false positives when UPS goes on battery very briefly
+   pollinterval = 5
 
 {% endif %}
 {% endfor %}

@@ -1,0 +1,16 @@
+- name: Create take_snapshot script
+  template:
+    src: take_snapshot.sh.j2
+    dest: /home/{{ celo_user }}/take_snapshot.sh
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: 0750
+  become: true
+
+- name: Update sudoers to permit {{ celo_user }} to start/stop celo-geth service
+  community.general.sudoers:
+    name: allow-celo-geth-start-stop
+    state: present
+    user: "{{ celo_user }}"
+    commands: /bin/systemctl stop celo-geth,/bin/systemctl start celo-geth
+  become: true

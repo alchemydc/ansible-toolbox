@@ -1,0 +1,28 @@
+[Unit]
+Description=Celo Geth Service
+After=network.target
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ celo_user }}
+Group={{ celo_user }}
+WorkingDirectory={{ celo_data_dir }}
+Type=simple
+KillMode=process
+KillSignal=SIGINT
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=10s
+ExecStart=/home/{{ celo_user }}/go/bin/geth \
+--port {{ geth_p2p_port }} \
+--verbosity {{ geth_verbosity }} \
+--syncmode full \
+--light.serve 0 \
+--maxpeers {{ geth_maxpeers }} \
+--{{ network }} \
+
+[Install]
+WantedBy=default.target
+
+

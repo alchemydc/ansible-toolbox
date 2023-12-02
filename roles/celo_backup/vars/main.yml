@@ -1,0 +1,6 @@
+snapshot_method: "rclone"
+snapshot_storage:
+  - "gcs" 
+  #- "b2"
+gcloud_project_number: "{{ vault_celo_gcloud_project_number }}"
+gcloud_bucket_name: "{{ vault_celo_gcloud_bucket_name }}"

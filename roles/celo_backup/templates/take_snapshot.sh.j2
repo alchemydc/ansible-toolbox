@@ -1,0 +1,19 @@
+#!/bin/bash
+# using rclone for snapshot transport
+set -ex
+
+{% if snapshot_method is defined and snapshot_method == "rclone" %}
+# using rclone for snapshot transport
+echo "Stopping celo geth to backup chaindata"
+sudo systemctl stop celo-geth
+sleep 3
+
+echo "Backing up chaindata using rclone rsync"
+{% if snapshot_storage is defined and snapshot_storage is contains("gcs") %}
+# using GCS backend
+rclone sync --progress {{ celo_data_dir }}/celo/chaindata/ gcs:{{ gcloud_bucket_name }}/{{ network }}/chaindata/
+{% endif %} 
+
+
+{% endif %}
+

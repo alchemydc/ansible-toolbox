@@ -1,0 +1,16 @@
+{% if snapshot_storage is contains('gcs') %}
+[gcs]
+type = google cloud storage
+service_account_file = ~/.config/celo_gcloud_svc_acct_key.json
+object_acl = authenticatedRead
+bucket_acl = authenticatedRead
+project_number = {{ gcloud_project_number }}
+{% endif %}
+
+{% if snapshot_storage is contains('b2') %}
+[b2]
+type = b2
+account = {{ b2_account_id }}
+key = {{ b2_application_key }}
+bucket = {{ b2_bucket }}
+{% endif %}

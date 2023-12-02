@@ -1,0 +1,87 @@
+#- name: Debug celo-backup-node
+#  debug:
+#    msg: "{{ hostvars[inventory_hostname] }}"
+
+#- name: Debug snapshot_method
+#  debug:
+#    msg: "{{ snapshot_method }}"
+
+- name: Install dependencies
+  import_tasks: install_dependencies.yml
+  become: true
+
+- name: Create celo service user
+  user:
+    name: "{{ celo_user }}"
+    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/{{ celo_user }}"
+    uid: "{{ celo_uid }}"
+    #group: "{{ celo_group }}"
+  become: true
+
+- name: Deploy .profile for {{ celo_user }}
+  template:
+    src: 'profile.j2'
+    dest: '/home/{{ celo_user }}/.profile'
+    owner: '{{ celo_user }}'
+    group: '{{ celo_user }}'
+    mode: '0600'
+  become: true
+
+- name: Create {{ celo_data_dir }}
+  file:
+    path: "{{ celo_data_dir }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+  become: true
+
+- name: Install golang
+  import_tasks: install_golang.yml
+
+- name: Build and install celo geth from source
+  import_tasks: build_and_install_geth.yml
+  
+- name: Deploy celo-geth service systemd service file
+  template:
+    src: celo-geth.service.j2
+    dest: /etc/systemd/system/celo-geth.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart celo-geth
+  become: true
+
+- name: Deploy celo-geth service helper script
+  template:
+    src: get_public_ip.sh.j2
+    dest: "{{ celo_data_dir }}/get_public_ip.sh"
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: '0755'
+  become: true
+
+- name: Enable and start celo-geth service
+  systemd:
+    name: celo-geth.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true
+
+- name: Install and configure rclone
+  import_tasks: install_rclone.yml
+  when: snapshot_method is defined and snapshot_method == 'rclone'
+
+- name: Deploy take snapshot script
+  import_tasks: take_snapshot.yml
+  tags: 'take_celo_snapshot'
+
+- name: Deploy restore from snapshot script
+  import_tasks: restore_snapshot.yml
+  tags: 'restore_celo_snapshot'
+
