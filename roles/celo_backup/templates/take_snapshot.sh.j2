@@ -1,5 +1,4 @@
 #!/bin/bash
-# using rclone for snapshot transport
 set -ex
 
 {% if snapshot_method is defined and snapshot_method == "rclone" %}
@@ -11,9 +10,17 @@ sleep 3
 echo "Backing up chaindata using rclone rsync"
 {% if snapshot_storage is defined and snapshot_storage is contains("gcs") %}
 # using GCS backend
-rclone sync --progress {{ celo_data_dir }}/celo/chaindata/ gcs:{{ gcloud_bucket_name }}/{{ network }}/chaindata/
+rclone sync --retries {{ rclone_retries | default('3') }} --gcs-bucket-policy-only --progress {{ celo_data_dir }}/celo/chaindata/ gcs:{{ backup_bucket_name }}/chaindata/
+# todo: add error handling and notification as prod impact is high if this fails unnoticed
+
+{% elif snapshot_storage is defined and snapshot_storage is contains("r2") %}
+# using r2 backend
+rclone sync --s3-upload-concurrency 1 --retries {{ rclone_retries | default('3') }} --progress {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
+
+# ref: https://github.com/rclone/rclone/issues/6193 re: multipart uploads and r2, requiring the slower --s3-upload-concurrency 2
 {% endif %} 
 
 
-{% endif %}
+# closing snapshot_method == "rclone" if
+{% endif %} 
 

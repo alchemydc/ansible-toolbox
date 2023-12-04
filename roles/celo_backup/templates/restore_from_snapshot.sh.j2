@@ -1,5 +1,26 @@
 #!/bin/bash
 set -ex
 
-# work in progress
+{% if snapshot_method is defined and snapshot_method == "rclone" %}
+# using rclone for snapshot transport
+echo "Stopping celo geth to restore chaindata"
+sudo systemctl stop celo-geth
+sleep 3
+
+echo "Restoring chaindata using rclone copy"
+{% if snapshot_storage is defined and snapshot_storage is contains("gcs") %}
+# using GCS backend
+rclone sync --retries {{ rclone_retries | default('3') }} --gcs-bucket-policy-only --progress gcs:{{ backup_bucket_name }}/chaindata/ {{ celo_data_dir }}/celo/chaindata/
+# todo: add error handling and notification as prod impact is high if this fails unnoticed
+
+{% elif snapshot_storage is defined and snapshot_storage is contains("r2") %}
+# using r2 backend
+rclone sync --retries {{ rclone_retries | default('3') }} --progress r2:{{ backup_bucket_name }}/chaindata {{ celo_data_dir }}/celo/chaindata 
+
+{% endif %} 
+
+
+# closing snapshot_method == "rclone" if
+{% endif %} 
+
 

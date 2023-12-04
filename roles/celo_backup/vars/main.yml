@@ -1,6 +1,19 @@
 snapshot_method: "rclone"
 snapshot_storage:
-  - "gcs" 
+  #- "gcs" 
   #- "b2"
+  - "r2"
+
+# number of retries for rclone commands
+rclone_retries: 3
+
+backup_bucket_name: "{{ vault_celo_backup_bucket_name }}"
+
+# gcloud specific variables
 gcloud_project_number: "{{ vault_celo_gcloud_project_number }}"
-gcloud_bucket_name: "{{ vault_celo_gcloud_bucket_name }}"
+
+# r2 specific variables
+r2_access_key_id: "{{ vault_r2_access_key_id }}"
+r2_secret_access_key: "{{ vault_r2_secret_access_key }}"
+r2_endpoint: "{{ vault_r2_endpoint }}"
+
