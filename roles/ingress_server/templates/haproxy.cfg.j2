@@ -36,7 +36,7 @@ frontend agoric_rpc
 backend agoric_rpc
   option httpchk
   http-check send meth GET uri /status
-  http-check expect string '"catching_up": false'
+  http-check expect string '"catching_up":false'
   server agoric-relayer-0 agoric-relayer-0:44657 check
   server agoric-relayer-1 agoric-relayer-1:44657 check
 
