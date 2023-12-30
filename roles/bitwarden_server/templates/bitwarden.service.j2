@@ -20,13 +20,12 @@ ExecStart=/usr/bin/docker run \
   -e SMTP_HOST={{ smarthost_ip }} \
   -e SMTP_FROM={{ smtp_from }} \
   -e SMTP_SECURITY=off \
-  -e WEBSOCKET_ENABLED=true \
+  -e WEBSOCKET_ENABLED=false \
   -e SIGNUPS_ALLOWED={{ signups_allowed }} \
   -e SIGNUPS_VERIFY={{ signups_verify }} \
   -e IP_HEADER=CF-Connecting-IP \
   -p 8080:8080 \
-  -p 3012:3012 \
-  vaultwarden/server:latest
+  vaultwarden/server:{{ bitwarden_version }}
 ExecStop=/usr/bin/docker stop bitwarden
 
 [Install]

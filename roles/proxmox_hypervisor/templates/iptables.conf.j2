@@ -121,7 +121,7 @@ COMMIT
 # Eigenlayer port forwards
 # unclear if these are TCP, UDP or both
 # permitting just TCP for now
- -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ eigenlayer_retrieval_port }} -j DNAT --to-destination {{ eigenlayer_host }}:{{ eigenlayer_retrieval_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ eigenlayer_retrieval_port }} -j DNAT --to-destination {{ eigenlayer_host }}:{{ eigenlayer_retrieval_port }}
 {% for allowed_source in eigenlayer_dispersal_allowed_sources %}
 -A PREROUTING -s {{ allowed_source }} -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ eigenlayer_dispersal_port }} -j DNAT --to-destination {{ eigenlayer_host }}:{{ eigenlayer_dispersal_port }}
 {% endfor %}

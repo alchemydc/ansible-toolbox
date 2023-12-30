@@ -62,11 +62,10 @@
 #  tags: 'htop'
 #  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
-# not  needed anymore as PVE will set the MTU for guests to the MTU of the bridge
-#- name: set SDN MTU for guest workloads
-#  import_tasks: set_mtu.yml
-#  tags: 'mtu'
-#  when: ansible_virtualization_role == "guest"
+- name: set SDN MTU for guest workloads
+  import_tasks: set_mtu.yml
+  tags: 'mtu'
+  when: ansible_virtualization_role == "guest"
 
 - name: Disable password auth for sshd
   lineinfile:
@@ -87,6 +86,7 @@
     groups:
       - sudo
       - adm
+    append: yes
   loop: "{{ admin_users }}"
 
 - name: Set authorized key for admin users
@@ -139,6 +139,6 @@
 #  when: ansible_facts['distribution_release'] == "bookworm"
 
 # disable ipv6
-#- name: Disable ipv6
-#  import_tasks: disable_ipv6.yml
-#  tags: "disable_ipv6"
+- name: Disable ipv6
+  import_tasks: disable_ipv6.yml
+  tags: "disable_ipv6"

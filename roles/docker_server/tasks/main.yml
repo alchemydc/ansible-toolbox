@@ -10,22 +10,6 @@
     state: present
     update_cache: true
 
-# trying docker and ZFS *without* fuse-overlayfs for now, which is reported to work on 6.x kernels
-# https://forum.proxmox.com/threads/unprivileged-lxc-container-eventually-locks-up-pve-host-processes.108362/#post-506058
-# https://forum.proxmox.com/threads/lxc-zfs-docker-overlay2-driver.122621/
-#- name: Install dependencies for docker on LXC on ZFS
-#  apt:
-#    name:
-#     - fuse-overlayfs # required for docker on LXC.  note: may cause problems w/ underlying ZFS and replication/snapshots
-#    state: present
-#  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
-
-# deprecated as of debian 12
-#- name: add GPG key
-#  apt_key:
-#    url: https://download.docker.com/linux/debian/gpg
-#    state: present
-
 - name: Add docker signing key to apt keyring securely
   get_url: 
     url: https://download.docker.com/linux/debian/gpg
@@ -50,13 +34,13 @@
     update_cache: true
 
 # as of Docker version 23.0.0, build e92dd87 /etc/docker is no longer created by installing the debian package
-- name: Ensure /etc/docker exists
-  file:
-    path: /etc/docker
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
+#- name: Ensure /etc/docker exists
+#  file:
+#    path: /etc/docker
+#    state: directory
+#    owner: root
+#    group: root
+#    mode: '0755'
 
 - name: Configure docker daemon
   template:
@@ -66,7 +50,7 @@
     group: root
     mode: '0644'
   notify: restart docker
-  
+
 - name: Add admin users to docker group
   user:
     name: "{{ item.username }}"
@@ -80,14 +64,14 @@
 
 # docker-compose v2 not functional w/ ansible as of nov 2023
 # ref: https://github.com/ansible-collections/community.docker/issues/216
-- name: Install packages required for ansible to interact w/ python on host
-  apt:
-    name:
-      #- python3    # now installed by default in debian 12
-      - python3-pip
-      - python3-docker
-    state: present
-    update_cache: false
+#- name: Install packages required for ansible to interact w/ python on host
+#  apt:
+#    name:
+#      #- python3    # now installed by default in debian 12
+#      - python3-pip
+#      - python3-docker
+#    state: present
+#    update_cache: false
  
 # not needed on debian 12
 #- name: Install required python packages for ansible to interact w/ docker on host

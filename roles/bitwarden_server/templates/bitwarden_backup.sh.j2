@@ -1,18 +1,20 @@
 #!/bin/bash
-set -ex
+
 TIMESTAMP=$(date +%d%m%Y_%H%M)
 BACKUP_FILENAME="/home/bitwarden/tmp/bitwarden_backup_$TIMESTAMP.tbz"
+PASSPHRASE="{{ vault_bitwarden_backup_passphrase }}"
 
 echo "Stopping bitwarden daemon to backup the database"
 sudo systemctl stop bitwarden
 sleep 5
 
 # Tar up the bitwarden data dir
-echo "Tar up the bitwarden data dir..."
+echo "Tarring up the bitwarden data dir..."
 tar -C /home/bitwarden -jcvf $BACKUP_FILENAME bw-data
 
 # encrypt the backup file
-gpg --passphrase {{ vault_bitwarden_backup_passphrase }} --batch --yes --symmetric $BACKUP_FILENAME
+echo "Encrypting the backup file..."
+gpg --passphrase $PASSPHRASE --batch --yes --symmetric $BACKUP_FILENAME
 
 echo "Uploading the backup to persistent storage"
 rclone --gcs-bucket-policy-only copy $BACKUP_FILENAME.gpg remote:{{ bitwarden_backup_bucket }}
