@@ -17,11 +17,6 @@
     group: "{{ svc_user }}"
     mode: 0600
 
-- name: Install rust
-  include_tasks: install_rust.yml
-  #vars:
-  #  svc_user: "{{ svc_user }}"
-
 - name: Deploy .profile from template
   template:
     src: profile.j2
@@ -37,3 +32,19 @@
   #  stacks_repo: "{{ stacks_repo }}"
   #  stacks_version: "{{ stacks_version }}"
 
+- name: Install nodejs
+  include_tasks: install_nodejs.yml
+  #vars:
+  #  svc_user: "{{ svc_user }}"
+  #  nodejs_version: "{{ nodejs_version }}"
+  #  nodesource_repo_key_url: "{{ nodesource_repo_key_url }}"
+  #  yarn_repo_key_url: "{{ yarn_repo_key_url }}"
+  #  yarn_repo_url: "{{ yarn_repo_url }}"
+
+- name: Install stacks cli npm package
+  npm:
+    name: "@stacks/cli"
+    path: "/home/{{ svc_user }}"
+    state: present
+  become: true
+  become_user: "{{ svc_user }}"

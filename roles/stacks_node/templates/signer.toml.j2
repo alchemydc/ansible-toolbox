@@ -7,8 +7,8 @@ stacks_private_key = "{{ stacks_private_key }}"
 # so as a workaround i've used python to b58 encode the private key and have stored the b58 encoded key in the variable in the vault
 # eg in python: 
 # import base58
-# message_private_key_as_hex = "YOUR_KEY"
-# message_private_key = base58.b58encode(bytes.fromhex(message_private_key))
+# message_private_key_as_hex = "YOUR_KEY"	# must trim the 01 at the end of the HEX key manually prior to b58 encoding it
+# message_private_key = base58.b58encode(bytes.fromhex(message_private_key_as_hex))
 message_private_key = "{{ stacks_message_private_key }}"
 
 # At the moment, there are 3 other fields that need to be included, but those will be removed by the Argon release. Prior to argon, add this to the end of the config file if you want to run the signer:

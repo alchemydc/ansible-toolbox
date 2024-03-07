@@ -21,7 +21,7 @@
       with_items:
         - 'cargo build'
       environment:
-        PATH: '/home/{{ svc_user }}/.cargo/bin'
+        PATH: '/home/{{ svc_user }}/.cargo/bin::/usr/local/bin:/usr/bin:/bin:'
       become: true
       become_user: "{{ svc_user }}"
 

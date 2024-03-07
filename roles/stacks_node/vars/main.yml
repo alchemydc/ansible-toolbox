@@ -1,8 +1,13 @@
 svc_user: "stacks"
-# see https://docs.stacks.co/nakamoto-upgrade/running-a-signer for instructions on generating these keys
-# TLDR: `npx @stacks/cli@latest make_keychain` on a secure machine with nodejs installed
+# `npx stacks make_keychain` to generate the keys
+# see https://docs.stacks.co/nakamoto-upgrade/running-a-signer
+# note that the stacks_message_private_key must be b58encoded, which is non trivial to do via ansible so is left as an exercise for the reader
 stacks_private_key: "{{ vault_stacks_private_key }}"
 stacks_message_private_key: "{{ vault_stacks_message_private_key }}"
 rust_version: "1.76.0"
 stacks_repo: "https://github.com/stacks-network/stacks-core"
 stacks_version: "master"
+
+yarn_repo_key_url: "https://dl.yarnpkg.com/debian/pubkey.gpg" 
+nodesource_repo_key_url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+nodejs_version: "node_20.x"
