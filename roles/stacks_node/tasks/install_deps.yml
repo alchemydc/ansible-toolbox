@@ -1,0 +1,17 @@
+- name: Update installed apt packages
+  apt:
+    upgrade: dist
+    update_cache: yes
+  become: true
+
+- name: Install required packages via apt
+  apt:
+    name:
+      - "git"
+      - "build-essential"
+      - "pkg-config"
+      - "libssl-dev"
+      - "libclang-dev"
+    state: present
+  become: true
+

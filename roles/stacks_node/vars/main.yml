@@ -1,0 +1,8 @@
+svc_user: "stacks"
+# see https://docs.stacks.co/nakamoto-upgrade/running-a-signer for instructions on generating these keys
+# TLDR: `npx @stacks/cli@latest make_keychain` on a secure machine with nodejs installed
+stacks_private_key: "{{ vault_stacks_private_key }}"
+stacks_message_private_key: "{{ vault_stacks_message_private_key }}"
+rust_version: "1.76.0"
+stacks_repo: "https://github.com/stacks-network/stacks-core"
+stacks_version: "master"

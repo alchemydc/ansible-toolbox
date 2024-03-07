@@ -1,0 +1,39 @@
+- name: Create service user
+  user:
+    name: "{{ svc_user }}"
+    password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/{{ svc_user }}"
+    #uid: "{{ svc_uid }}"
+  become: true
+
+- name: Deploy signer.toml from template
+  template:
+    src: signer.toml.j2
+    dest: /home/{{ svc_user }}/signer.toml
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0600
+
+- name: Install rust
+  include_tasks: install_rust.yml
+  #vars:
+  #  svc_user: "{{ svc_user }}"
+
+- name: Deploy .profile from template
+  template:
+    src: profile.j2
+    dest: /home/{{ svc_user }}/.profile
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0600
+  
+- name: Build stacks from source
+  include_tasks: build_stacks.yml
+  #vars:
+  #  svc_user: "{{ svc_user }}"
+  #  stacks_repo: "{{ stacks_repo }}"
+  #  stacks_version: "{{ stacks_version }}"
+

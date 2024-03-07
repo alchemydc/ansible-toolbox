@@ -72,6 +72,8 @@
       tags: ntop
     - role: eigenlayer
       tags: eigenlayer
+    - role: stacks_node
+      tags: stacks_node
       
   handlers:
       - name: restart sshd

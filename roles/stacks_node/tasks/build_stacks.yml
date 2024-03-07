@@ -1,0 +1,27 @@
+- name: Install dependencies
+  include_tasks: install_deps.yml
+
+- name: Install from source
+  block:
+    - name: Clone repo
+      git:
+        repo: '{{ stacks_repo }}'
+        dest: '/home/{{ svc_user }}/stacks-blockchain'
+        version: '{{ stacks_version }}'
+        update: yes
+        force: yes
+        depth: 1
+      become: true
+      become_user: "{{ svc_user }}"
+
+    - name: Build and install stacks
+      command: '{{ item }}'
+      args:
+        chdir: '/home/{{ svc_user }}/stacks-blockchain'
+      with_items:
+        - 'cargo build'
+      environment:
+        PATH: '/home/{{ svc_user }}/.cargo/bin'
+      become: true
+      become_user: "{{ svc_user }}"
+

@@ -1,0 +1,26 @@
+- name: Enumerate installed rust
+  shell: ". /home/{{ svc_user }}/.cargo/env; rustc --version"
+  ignore_errors: true
+  register: which_rust
+
+- name: Debug which_rust
+  debug:
+    msg: "{{ which_rust.stdout }}"
+
+# rust is out of date or not present
+# could potentially use rustup update if rust is already installed
+# but we are going for the nuclear option
+- block:
+  - name: Download rustup installer
+    get_url:
+      url: https://sh.rustup.rs
+      dest: /tmp/sh.rustup.rs
+      mode: '0755'
+      force: 'yes'
+
+  - name: install rust/cargo
+    shell: /tmp/sh.rustup.rs -y
+    become: true
+    become_user: "{{ svc_user }}"
+  when: 'which_rust is not search rust_version'
+
