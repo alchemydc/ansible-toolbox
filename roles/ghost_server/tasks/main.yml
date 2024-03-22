@@ -53,3 +53,12 @@
     state: started
     daemon_reload: yes
   loop: "{{ ghost_sites }}"
+
+- name: Include install rclone
+  include_tasks:
+    file: roles/common/tasks/install_rclone.yml
+
+- name: Enable snapshot backups of ghost site content
+  import_tasks: take_snapshot.yml
+
+  

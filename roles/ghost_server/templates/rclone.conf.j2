@@ -1,0 +1,27 @@
+{% if storage_backends is contains('gcs') %}
+[gcs]
+type = google cloud storage
+service_account_file = ~/.config/{{ svc_user }}_gcloud_svc_acct_key.json
+object_acl = authenticatedRead
+bucket_acl = authenticatedRead
+project_number = {{ gcloud_project_number }}
+{% endif %}
+
+{% if storage_backends is contains('b2') %}
+[b2]
+type = b2
+account = {{ b2_account_id }}
+key = {{ b2_application_key }}
+bucket = {{ b2_bucket }}
+{% endif %}
+
+{% if storage_backends is contains('r2') %}
+[r2]
+type = s3
+provider = Cloudflare
+access_key_id = {{ r2_access_key_id }}
+secret_access_key = {{ r2_secret_access_key }}
+endpoint = {{ r2_endpoint }}
+acl = private
+no_check_bucket = true 
+{% endif %}

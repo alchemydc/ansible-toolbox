@@ -27,13 +27,3 @@
     mode: '0600'
   become: true
 
-# gcs depends on credentials that can't live in the rclone config file
-- name: Deploy gcloud service account key
-  copy: 
-    src: "{{ svc_user }}_gcloud_svc_acct_key.json.encrypted"
-    dest: "/home/{{ svc_user }}/.config/{{ svc_user }}_gcloud_svc_acct_key.json"
-    owner: "{{ svc_user }}"
-    group: "{{ svc_user }}"
-    mode: '0600'
-  become: true
-  when: storage_backends is defined and storage_backends is contains('gcs')

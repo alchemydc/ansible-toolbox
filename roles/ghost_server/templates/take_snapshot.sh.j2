@@ -1,0 +1,53 @@
+#!/bin/bash
+set -ex
+
+DISCORD_WEBHOOK={{ ghost_discord_webhook }}
+
+handle_error() {
+  echo "Error occurred taking snapshot"
+  echo "Sending email notification"
+  echo "{{ ansible_facts['nodename'] }} ghost site backup job failed" | mail {{ operator_email }}
+  echo "Sending discord notification"
+  curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} ghost site data backup job failed\"}" $DISCORD_WEBHOOK
+
+  exit 1
+}
+
+trap handle_error ERR
+
+{% if snapshot_method is defined and snapshot_method == "rsync" %}
+# using rclone rsync for snapshot transport
+#echo "Stopping ghost to backup site data"
+#{% for site in ghost_sites %}
+#sudo /bin/systemctl stop ghost-{{ site.hostname }}.service
+#{% endfor %}
+#sleep 3
+
+echo "Backing up chaindata using rclone rsync"
+{% if snapshot_storage is defined and snapshot_storage is contains("gcs") %}
+# using GCS backend
+rclone sync --retries {{ rclone_retries | default('3') }} --gcs-bucket-policy-only --progress /home/{{ svc_user }}/ gcs:{{ backup_bucket_name }}/backups
+# todo: add error handling and notification as prod impact is high if this fails unnoticed
+
+{% elif snapshot_storage is defined and snapshot_storage is contains("r2") %}
+# using r2 backend
+{% for site in ghost_sites %}
+echo "Stopping site {{ site.hostname }}"
+sudo /bin/systemctl stop ghost-{{ site.hostname }}.service
+#rclone sync --skip-links --copy-links --progress --s3-upload-cutoff=4096M --s3-chunk-size=1024M /home/{{ svc_user }}/{{ site.hostname }} r2:{{ backup_bucket_name }}/{{ site.hostname }}
+rclone sync --progress --s3-upload-cutoff=4096M --s3-chunk-size=1024M /home/{{ svc_user }}/{{ site.hostname }} r2:{{ backup_bucket_name }}/{{ site.hostname }}
+echo "Starting site {{ site.hostname }}"
+sudo /bin/systemctl start ghost-{{ site.hostname }}.service
+{% endfor %}
+# ref: https://github.com/rclone/rclone/issues/6193 re: multipart uploads and r2 causing signature failures.
+# so for now we just disable multipart uploads by setting the cutoff to 4096M
+{% endif %} 
+
+
+# closing snapshot_method == "rsync" if
+{% endif %} 
+
+#echo "Restarting ghost services"
+#{% for site in ghost_sites %}
+#sudo /bin/systemctl start ghost-{{ site.hostname }}.service
+#{% endfor %}

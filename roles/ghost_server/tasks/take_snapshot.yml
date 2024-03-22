@@ -1,0 +1,46 @@
+- name: Create take_snapshot script
+  template:
+    src: take_snapshot.sh.j2
+    dest: /home/{{ svc_user }}/take_snapshot.sh
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0750
+  become: true
+
+- name: Create restore_snapshot script
+  template:
+    src: restore_snapshot.sh.j2
+    dest: /home/{{ svc_user }}/restore_snapshot.sh
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0750
+  become: true
+
+- name: Update sudoers to permit {{ svc_user }} to start ghost services
+  community.general.sudoers:
+    name: allow-start-{{ item.port }}
+    state: present
+    user: "{{ svc_user }}"
+    commands: /bin/systemctl start ghost-{{ item.hostname }}.service
+  become: true
+  loop: "{{ ghost_sites }}"
+
+- name: Update sudoers to permit {{ svc_user }} to stop ghost services
+  community.general.sudoers:
+    name: allow-stop-{{ item.port }}
+    state: present
+    user: "{{ svc_user }}"
+    commands: /bin/systemctl stop ghost-{{ item.hostname }}.service
+  become: true
+  loop: "{{ ghost_sites }}"
+
+- name: Create take snapshot cronjob    # careful with this, as this will stop the daemons temporarily to take the snapshots
+  cron:
+    user: '{{ svc_user }}'
+    name: '{{ svc_user }} snapshot'
+    minute: '{{ snapshot_minute }}'
+    hour: '{{ snapshot_hour }}'
+    weekday: '{{ snapshot_day }}'
+    job: '/bin/bash /home/{{ svc_user }}/take_snapshot.sh'
+  when: (schedule_snapshots is defined and schedule_snapshots|bool == true )
+  become: true
