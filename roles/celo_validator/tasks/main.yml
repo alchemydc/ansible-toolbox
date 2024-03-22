@@ -83,6 +83,10 @@
     daemon_reload: yes
   become: true
 
+- name: Install and configure rclone
+  import_tasks: install_rclone.yml
+  when: snapshot_method is defined and snapshot_method == 'rsync'
+
 - name: Deploy restore from snapshot script
   import_tasks: restore_snapshot.yml
   tags: 'restore_celo_snapshot'

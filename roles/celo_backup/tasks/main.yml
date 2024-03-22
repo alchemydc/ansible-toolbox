@@ -40,9 +40,14 @@
     group: "{{ celo_user }}"
   become: true
 
-- name: Install golang
-  import_tasks: install_golang.yml
+- name: Set variables required for include_tasks install_golang.yml
+  set_fact:
+    svc_user: "{{ celo_user }}"
 
+- name: Include install golang
+  include_tasks:
+    file: roles/common/tasks/install_golang.yml
+  
 - name: Build and install celo geth from source
   import_tasks: build_and_install_geth.yml
   
@@ -66,7 +71,7 @@
 
 - name: Install and configure rclone
   import_tasks: install_rclone.yml
-  when: snapshot_method is defined and snapshot_method == 'rclone'
+  when: snapshot_method is defined and snapshot_method == 'rsync'
 
 - name: Deploy take snapshot script
   import_tasks: take_snapshot.yml

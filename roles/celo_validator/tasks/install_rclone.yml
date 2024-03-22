@@ -1,0 +1,38 @@
+- name: Install rclone
+  become: true
+  apt:
+    name:
+      - rclone
+    state: present
+    update_cache: yes
+
+- name: Create rclone config directory
+  file:
+    path: "/home/{{ celo_user }}/{{ item }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+  become: true
+  loop:
+    - ".config"
+    - ".config/rclone"
+
+- name: Deploy rclone config file
+  template:
+    src: 'rclone.conf.j2'
+    dest: '/home/{{ celo_user }}/.config/rclone/rclone.conf'
+    owner: '{{ celo_user }}'
+    group: '{{ celo_user }}'
+    mode: '0600'
+  become: true
+
+- name: Deploy gcloud service account key
+  copy: 
+    src: "celo_gcloud_svc_acct_key.json.encrypted"
+    dest: "/home/{{ celo_user }}/.config/celo_gcloud_svc_acct_key.json"
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: '0600'
+  become: true
+  when: snapshot_storage is defined and snapshot_storage is contains('gcs')

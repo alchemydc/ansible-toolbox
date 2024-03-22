@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-{% if snapshot_method is defined and snapshot_method == "rclone" %}
+{% if snapshot_method is defined and snapshot_method == "rsync" %}
 # using rclone for snapshot transport
 echo "Stopping celo geth to restore chaindata"
 sudo systemctl stop celo-geth

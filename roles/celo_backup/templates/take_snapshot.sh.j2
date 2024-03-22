@@ -1,8 +1,8 @@
 #!/bin/bash
 set -ex
 
-{% if snapshot_method is defined and snapshot_method == "rclone" %}
-# using rclone for snapshot transport
+{% if snapshot_method is defined and snapshot_method == "rsync" %}
+# using rclone rsync for snapshot transport
 echo "Stopping celo geth to backup chaindata"
 sudo systemctl stop celo-geth
 sleep 3
@@ -15,8 +15,9 @@ rclone sync --retries {{ rclone_retries | default('3') }} --gcs-bucket-policy-on
 
 {% elif snapshot_storage is defined and snapshot_storage is contains("r2") %}
 # using r2 backend
-rclone sync --s3-upload-concurrency 1 --retries {{ rclone_retries | default('3') }} --progress {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
-
+#rclone sync --s3-upload-concurrency 1 --retries {{ rclone_retries | default('3') }} --progress {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
+#rclone sync --s3-upload-cutoff=100M --s3-chunk-size=100M --progress {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
+rclone sync --s3-upload-cutoff=50M --s3-chunk-size=25M --progress {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
 # ref: https://github.com/rclone/rclone/issues/6193 re: multipart uploads and r2, requiring the slower --s3-upload-concurrency 2
 {% endif %} 
 
@@ -24,3 +25,4 @@ rclone sync --s3-upload-concurrency 1 --retries {{ rclone_retries | default('3')
 # closing snapshot_method == "rclone" if
 {% endif %} 
 
+# --tpslimit=5 

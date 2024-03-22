@@ -4,9 +4,6 @@ snapshot_storage:
   #- "b2"
   - "r2"
 
-# number of retries for rclone commands
-rclone_retries: 3
-
 backup_bucket_name: "{{ vault_celo_backup_bucket_name }}"
 
 # gcloud specific variables
