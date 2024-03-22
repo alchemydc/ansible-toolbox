@@ -1,0 +1,21 @@
+# note that these variables are expected to be overriden by the role that includes this role
+# svc_user: "go_user"
+# go_version: "1.21.4"
+
+storage_backends:
+  - "r2"   # cloudflare r2
+  #- "gcs" # google cloud storage
+  #- "b2"  # backblaze b2
+
+# number of retries for rclone commands
+rclone_retries: 3
+
+backup_bucket_name: "{{ vault_backup_bucket_name }}"
+
+# gcloud specific variables
+gcloud_project_number: "{{ vault_gcloud_project_number }}"
+
+# r2 specific variables
+r2_access_key_id: "{{ vault_r2_access_key_id }}"
+r2_secret_access_key: "{{ vault_r2_secret_access_key }}"
+r2_endpoint: "{{ vault_r2_endpoint }}"

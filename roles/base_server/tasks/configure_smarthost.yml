@@ -1,0 +1,29 @@
+- name: Install Postfix
+  apt:
+    name:
+      - postfix
+      - bsd-mailx
+    state: present
+
+- name: Configure postfix main.cf to use smarthost
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^relayhost ='
+    line: relayhost = [smarthost]:25
+  notify: restart postfix
+
+- name: Configure postfix main.cf to use native (local) DNS for host lookup
+  lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^smtp_host_lookup ='
+    line: smtp_host_lookup = native,dns
+  notify: restart postfix
+
+- name: Configure email forwarding for root user
+  copy:
+    content: "{{ operator_email }}"
+    dest: /root/.forward
+    owner: root
+    group: root
+    mode: 0600
+

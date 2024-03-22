@@ -2,48 +2,48 @@
 DISCORD_WEBHOOK="{{ ups_discord_webhook }}"
  case $1 in
        onbatt)
-          logger -t upssched-cmd "onbatt: UPS running on battery"
-          echo "{{ ansible_facts['nodename'] }} UPS is on battery power" | mail {{ ups_email }}
-          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} onbatt: UPS is on battery power\"}" $DISCORD_WEBHOOK
+          logger -t upssched-cmd "onbatt: UPS $UPSNAME running on battery"
+          echo "{{ ansible_facts['nodename'] }} UPS $UPSNAME is on battery power" | mail {{ ups_email }}
+          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} onbatt: UPS $UPSNAME is on battery power\"}" $DISCORD_WEBHOOK
           ;;
        online)
-          logger -t upssched-cmd "online: UPS running on line power"
-          echo "{{ ansible_facts['nodename'] }} UPS is back on line power" | mail {{ ups_email }}
-          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} online: UPS is back on main line power\"}" $DISCORD_WEBHOOK
+          logger -t upssched-cmd "online: UPS $UPSNAME running on line power"
+          echo "{{ ansible_facts['nodename'] }} UPS $UPSNAME is back on line power" | mail {{ ups_email }}
+          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} online: UPS is $UPSNAME back on main line power\"}" $DISCORD_WEBHOOK
           ;;
        lowbatt)
-          logger -t upssched-cmd "lowbatt: UPS is running on battery and battery is low"
+          logger -t upssched-cmd "lowbatt: UPS $UPSNAME is running on battery and battery is low"
           echo "{{ ansible_facts['nodename'] }} UPS is running on battery and battery is low" | mail {{ ups_email }}
           curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} lowbatt: UPS is low battery \"}" $DISCORD_WEBHOOK
           ;;
        onbattlong)
-          logger -t upssched-cmd "onbattlong: UPS running on battery for too long, executing a clean shutdown"
-          echo "{{ ansible_facts['nodename'] }} UPS running on battery for too long, executing a clean shutdown" | mail {{ ups_email }}
-          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} onbattlong: UPS on battery for too long, shutting down\"}" $DISCORD_WEBHOOK
+          logger -t upssched-cmd "onbattlong: UPS $UPSNAME running on battery for too long, executing a clean shutdown"
+          echo "{{ ansible_facts['nodename'] }} UPS $UPSNAME running on battery for too long, executing a clean shutdown" | mail {{ ups_email }}
+          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} onbattlong: UPS $UPSNAME on battery for too long, shutting down\"}" $DISCORD_WEBHOOK
           {% if shutdown_gateway is defined and shutdown_gateway is true %}
           logger -t uspsched-cmd "Shutting down gateway"
           ssh -i /etc/nut/ssh_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ unifi_user }}@{{ unifi_ip }} "shutdown -h now"
           {% endif %}
-          logger -t uspsched-cmd "Sleeping for 60s then Shutting down UPS"
+          logger -t uspsched-cmd "Sleeping for 60s then Shutting down UPS $UPSNAME"
           sleep 60 && /usr/sbin/upsmon -c fsd
           ;;
        powerdown)
           logger -t upssched-cmd "powerdown: upssched called powerdown()"
           ;;
        commbad)
-          logger -t upssched-cmd "Lost connection to UPS"
-          echo "{{ ansible_facts['nodename'] }} Lost connection to UPS" | mail {{ ups_email }}
-          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} commbad: lost connection to UPS \"}" $DISCORD_WEBHOOK
+          logger -t upssched-cmd "Lost connection to UPS $UPSNAME"
+          echo "{{ ansible_facts['nodename'] }} Lost connection to UPS $UPSNAME" | mail {{ ups_email }}
+          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} commbad: lost connection to UPS $UPSNAME \"}" $DISCORD_WEBHOOK
           ;;
        commok)
-          logger -t upssched-cmd "Regained connection to UPS"
-          echo "{{ ansible_facts['nodename'] }} Regained connection to UPS" | mail {{ ups_email }}
-          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} commbad: regained connection to UPS \"}" $DISCORD_WEBHOOK
+          logger -t upssched-cmd "Regained connection to UPS $UPSNAME"
+          echo "{{ ansible_facts['nodename'] }} Regained connection to UPS $UPSNAME" | mail {{ ups_email }}
+          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} commbad: regained connection to UPS $UPSNAME \"}" $DISCORD_WEBHOOK
           ;;
         replbatt)
-          logger -t upssched-cmd "UPS battery needs to be replaced"
-          echo "{{ ansible_facts['nodename'] }} UPS battery needs to be replaced" | mail {{ ups_email }}
-          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} replbatt: UPS needs battery replacement \"}" $DISCORD_WEBHOOK
+          logger -t upssched-cmd "UPS battery needs to be replaced on UPS $UPSNAME"
+          echo "{{ ansible_facts['nodename'] }} UPS battery needs to be replaced on UPS $UPSNAME" | mail {{ ups_email }}
+          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} replbatt: UPS $UPSNAME needs battery replacement \"}" $DISCORD_WEBHOOK
           ;;
        *)
           logger -t upssched-cmd "Unrecognized command: $1"

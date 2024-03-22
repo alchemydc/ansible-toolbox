@@ -11,12 +11,12 @@
 
 - name: Create ghost service user
   user: 
-    name: "ghost"
+    name: "{{ svc_user }}"
     password: '*'   # pw is locked/disabled.  key auth only + passwordless sudo
     state: present
     shell: /bin/bash
     createhome: yes
-    home: "/home/ghost"
+    home: "/home/{{ svc_user }}"
     uid: "{{ ghost_uid }}"
     group: "{{ ghost_group }}"
     groups:
@@ -34,11 +34,11 @@
 
 - name: Create ghost data directories
   file:
-    path: "/home/ghost/{{ item.hostname }}"
+    path: "/home/{{ svc_user }}/{{ item.hostname }}"
     state: directory
     mode: '0750'
-    owner: "ghost"
-    group: "ghost"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
   loop: "{{ ghost_sites }}"
 
 - name: Create docker network for ghost
@@ -53,7 +53,3 @@
     state: started
     daemon_reload: yes
   loop: "{{ ghost_sites }}"
-
-#- name: Install and configure backups for ghost data
-#  import_tasks: ghost_backup.yml
-#  tags: 'ghost_backup'

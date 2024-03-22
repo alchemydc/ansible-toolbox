@@ -1,0 +1,39 @@
+- name: Install rclone
+  become: true
+  apt:
+    name:
+      - rclone
+    state: present
+    update_cache: yes
+
+- name: Create rclone config directory
+  file:
+    path: "/home/{{ svc_user }}/{{ item }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+  become: true
+  loop:
+    - ".config"
+    - ".config/rclone"
+
+- name: Deploy rclone config file
+  template:
+    src: 'rclone.conf.j2'
+    dest: '/home/{{ svc_user }}/.config/rclone/rclone.conf'
+    owner: '{{ svc_user }}'
+    group: '{{ svc_user }}'
+    mode: '0600'
+  become: true
+
+# gcs depends on credentials that can't live in the rclone config file
+- name: Deploy gcloud service account key
+  copy: 
+    src: "{{ svc_user }}_gcloud_svc_acct_key.json.encrypted"
+    dest: "/home/{{ svc_user }}/.config/{{ svc_user }}_gcloud_svc_acct_key.json"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: '0600'
+  become: true
+  when: storage_backends is defined and storage_backends is contains('gcs')

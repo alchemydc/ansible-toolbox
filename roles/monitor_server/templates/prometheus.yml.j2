@@ -76,3 +76,27 @@ scrape_configs:
         - 'zd5-ingress:8080'
         - 'zd6-ingress:8080'
         - 'zd7-ingress:8080'
+
+  # federate metrics from the rocketpool monitoring stack
+  - job_name: 'federate'
+    scrape_interval: 30s
+
+    honor_labels: true
+    metrics_path: '/federate'
+
+    params:
+      'match[]':
+        - '{job="eth1"}'
+        - '{job="eth2"}'
+        - '{job="validator"}'
+        - '{job="node"}'
+        - '{job="prometheus"}'
+        - '{job="rocketpool"}'
+        - '{job="watchtower"}'
+        #- '{__name__=~"job:.*"}'
+
+    static_configs:
+      - targets:
+        - 'rocketpool-mainnet:9091'
+        #- 'source-prometheus-2:9090'
+        #- 'source-prometheus-3:9090'

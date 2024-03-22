@@ -1,6 +1,20 @@
 #!/bin/bash
 set -ex
 
+DISCORD_WEBHOOK={{ celo_discord_webhook }}
+
+handle_error() {
+  echo "Error occurred taking snapshot"
+  echo "Sending email notification"
+  echo "{{ ansible_facts['nodename'] }} chaindata backup job failed" | mail {{ operator_email }}
+  echo "Sending discord notification"
+  curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} chaindata backup job failed\"}" $DISCORD_WEBHOOK
+
+  exit 1
+}
+
+trap handle_error ERR
+
 {% if snapshot_method is defined and snapshot_method == "rsync" %}
 # using rclone rsync for snapshot transport
 echo "Stopping celo geth to backup chaindata"
@@ -15,14 +29,15 @@ rclone sync --retries {{ rclone_retries | default('3') }} --gcs-bucket-policy-on
 
 {% elif snapshot_storage is defined and snapshot_storage is contains("r2") %}
 # using r2 backend
-#rclone sync --s3-upload-concurrency 1 --retries {{ rclone_retries | default('3') }} --progress {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
-#rclone sync --s3-upload-cutoff=100M --s3-chunk-size=100M --progress {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
-rclone sync --s3-upload-cutoff=50M --s3-chunk-size=25M --progress {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
-# ref: https://github.com/rclone/rclone/issues/6193 re: multipart uploads and r2, requiring the slower --s3-upload-concurrency 2
+#rclone sync --s3-upload-cutoff=4096M --s3-chunk-size=1024M --progress {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
+rclone sync --s3-upload-cutoff=4096M --s3-chunk-size=1024M {{ celo_data_dir }}/celo/chaindata r2:{{ backup_bucket_name }}/chaindata
+# ref: https://github.com/rclone/rclone/issues/6193 re: multipart uploads and r2 causing signature failures.
+# so for now we just disable multipart uploads by setting the cutoff to 4096M
 {% endif %} 
 
 
-# closing snapshot_method == "rclone" if
+# closing snapshot_method == "rsync" if
 {% endif %} 
 
-# --tpslimit=5 
+echo "Restarting celo geth"
+sudo systemctl start celo-geth

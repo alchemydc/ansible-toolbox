@@ -142,3 +142,9 @@
 - name: Disable ipv6
   import_tasks: disable_ipv6.yml
   tags: "disable_ipv6"
+
+# configure smarthost
+- name: Configure smarthost
+  import_tasks: configure_smarthost.yml
+  tags: "configure_smarthost"
+  become: true

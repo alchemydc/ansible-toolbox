@@ -17,3 +17,10 @@ r2_access_key_id: "{{ vault_r2_access_key_id }}"
 r2_secret_access_key: "{{ vault_r2_secret_access_key }}"
 r2_endpoint: "{{ vault_r2_endpoint }}"
 
+# schedule snapshots to be taken at this time each day
+schedule_snapshots: true
+snapshot_hour: 04
+snapshot_minute: 20
+
+# alerting
+celo_discord_webhook: "{{ vault_celo_discord_webhook }}"

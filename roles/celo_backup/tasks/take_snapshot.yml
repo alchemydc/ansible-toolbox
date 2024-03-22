@@ -14,3 +14,13 @@
     user: "{{ celo_user }}"
     commands: /bin/systemctl stop celo-geth,/bin/systemctl start celo-geth
   become: true
+
+- name: Create take snapshot cronjob    # careful with this, as this will stop the daemon to take the snapshot. do NOT run this on validators!
+  cron:
+    user: '{{ celo_user }}'
+    name: '{{ network }} snapshot'
+    minute: '{{ snapshot_minute }}'
+    hour: '{{ snapshot_hour }}'
+    job: '/bin/bash /home/{{ celo_user }}/take_snapshot.sh'
+  when: (schedule_snapshots is defined and schedule_snapshots|bool == true )
+  become: true

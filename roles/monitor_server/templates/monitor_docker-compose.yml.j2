@@ -43,6 +43,7 @@ services:
     # neither of those settings worked
     environment:
       - GF_SERVER_DOMAIN={{ grafana_fqdn }}
+      - GF_ROOT_URL=https://{{ grafana_fqdn }}
       - GF_SMTP_ENABLED=true
       - GF_SMTP_HOST={{ smtp_host }}:{{ smtp_port }}
       - GF_SMTP_FROM_ADDRESS={{ smtp_from }}
