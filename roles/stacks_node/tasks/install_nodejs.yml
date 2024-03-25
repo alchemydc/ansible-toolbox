@@ -1,9 +1,9 @@
-- name: Install dependencies
+- name: Install nodejs dependencies
   apt:
     name: 
      - gnupg 
     state: present
-    update_cache: true
+  become: true
 
 - name: Ensure /etc/apt/keyrings directory exists # exists out of the box on debian >= 12
   ansible.builtin.file:
@@ -12,6 +12,7 @@
     mode: '0755'
     owner: root
     group: root
+  become: true
 
 - name: Add nodesource apt repository key.
   ansible.builtin.get_url:
@@ -19,12 +20,14 @@
     dest: /etc/apt/keyrings/nodesource.asc
     mode: '0644'
     force: true
+  become: true
 
 - name: Add NodeSource repo
   apt_repository: 
     filename: nodesource.list
     repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/nodesource.asc] https://deb.nodesource.com/{{ nodejs_version }} {{ ansible_facts['distribution_release'] }} main"
     state: present
+  become: true
 
 - name: Add yarn apt repository key.
   ansible.builtin.get_url:
@@ -32,12 +35,14 @@
     dest: /etc/apt/keyrings/yarnpkg.asc
     mode: '0644'
     force: true
+  become: true
 
 - name: Add yarn repo
   apt_repository: 
     filename: yarnpkg.list
     repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/yarnpkg.asc] https://dl.yarnpkg.com/debian stable main"
     state: present
+  become: true
 
 - name: Install nodejs #and yarn
   apt:
@@ -46,3 +51,4 @@
      #- yarn
     state: present
     update_cache: true
+  become: true

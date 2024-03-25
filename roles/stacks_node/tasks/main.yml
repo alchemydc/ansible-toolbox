@@ -1,3 +1,14 @@
+- name: Install acl via apt
+# needed for running tasks as svc_user properly
+# curl just because
+  apt:
+    name:
+      - acl
+      - curl
+    state: present
+    update_cache: yes
+  become: true
+
 - name: Create service user
   user:
     name: "{{ svc_user }}"
@@ -9,13 +20,25 @@
     #uid: "{{ svc_uid }}"
   become: true
 
+- name: Create data directory for signer
+  file:
+    path: "/home/{{ svc_user }}/signer"
+    state: directory
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0700
+  become: true
+  become_user: "{{ svc_user }}"
+
 - name: Deploy signer.toml from template
   template:
     src: signer.toml.j2
-    dest: /home/{{ svc_user }}/signer.toml
+    dest: /home/{{ svc_user }}/signer/signer.toml
     owner: "{{ svc_user }}"
     group: "{{ svc_user }}"
     mode: 0600
+  become: true
+  become_user: "{{ svc_user }}"
 
 - name: Deploy .profile from template
   template:
@@ -24,7 +47,9 @@
     owner: "{{ svc_user }}"
     group: "{{ svc_user }}"
     mode: 0600
-  
+  become: true
+  become_user: "{{ svc_user }}"
+
 - name: Build stacks from source
   include_tasks: build_stacks.yml
   #vars:

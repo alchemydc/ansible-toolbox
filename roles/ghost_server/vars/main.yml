@@ -1,4 +1,5 @@
 svc_user: "ghost"
+ghost_image: "ghost:5-alpine"
 ghost_gid: 1111
 ghost_uid: 1111
 ghost_group: "ghost"

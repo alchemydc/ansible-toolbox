@@ -1,23 +1,26 @@
+# The IP address and port where your Stacks node can be accessed. 
+# The port 20443 is the default RPC endpoint for Stacks nodes. 
+# Note that you must use an IP address - DNS hosts are not supported at this time.
 node_host = "127.0.0.1:20443"
-endpoint = "127.0.0.1:30000"
-network = "testnet"
-stacks_private_key = "{{ stacks_private_key }}"
-# ansible unfortunately lacks a b58encode filter :(
-# message_private_key = "{{ stacks_message_private_key | b64encode }}"
-# so as a workaround i've used python to b58 encode the private key and have stored the b58 encoded key in the variable in the vault
-# eg in python: 
-# import base58
-# message_private_key_as_hex = "YOUR_KEY"	# must trim the 01 at the end of the HEX key manually prior to b58 encoding it
-# message_private_key = base58.b58encode(bytes.fromhex(message_private_key_as_hex))
-message_private_key = "{{ stacks_message_private_key }}"
 
-# At the moment, there are 3 other fields that need to be included, but those will be removed by the Argon release. Prior to argon, add this to the end of the config file if you want to run the signer:
-stackerdb_contract_id = "ST11Z60137Y96MF89K1KKRTA3CR6B25WY1Y931668.signers-stackerdb"
-signer_id = 0
-signers = [
-	{public_key = "swBaKxfzs4pQne7spxhrkF6AtB34WEcreAkJ8mPcqx3t", key_ids = [1, 2, 3, 4]},
-	{public_key = "yDJhntuJczbss1XGDmyWtG9Wpw5NDqoBBnedxmyhKiFN", key_ids = [5, 6, 7, 8]},
-	{public_key = "xNVCph6zd7HLLJcuwrWz1gNbFoPHjXxn7cyRvvTYhP3U", key_ids = [9, 10, 11, 12]},
-	{public_key = "p2wFfLEbwGCmxCR5eGa46Ct6i3BVjFrvBixRn7FnCQjA", key_ids = [13, 14, 15, 16]},
-	{public_key = "26jpUNnJPvzDJRJg3hfBn5s5MR4eQ4LLTokjrSDzByh4i", key_ids = [17, 18, 19, 20]}
-]
+# This is the location where the signer will expose an RPC endpoint for 
+# receiving events from your Stacks node.
+#endpoint = "0.0.0.0:30000"
+endpoint = "127.0.0.1:30000"
+# stacks node is on same host as signer (for now), so no need to bind to any iface other than lo
+
+# Either “testnet” or “mainnet”
+network = "testnet"
+
+# This is the hex-encoded privateKey field from `stacks make-keychain`
+stacks_private_key = "{{ stacks_private_key }}"
+
+# this is a file path where your signer will persist data. If using Docker, 
+# this must be within a volume, so that data can be persisted across restarts
+db_path = "/home/{{ svc_user }}/signer/signer.sqlite"
+
+# an authentication token that is used for some HTTP requests made from the 
+# signer to your Stacks node. You’ll need to use this later on when configuring 
+# your Stacks node. You create this field yourself, rather than it being generated 
+# with your private key.
+auth_password = "{{ stacks_http_auth_token }}"

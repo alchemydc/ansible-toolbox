@@ -7,6 +7,11 @@ StartLimitBurst=3
 StartLimitIntervalSec=300
 
 [Service]
+# give docker time to pull the image if it's not already available
+# likely not necessary once we get past the PVE7 docker on LXC on ZFS bug
+# failed to register layer: unlinkat /tmp/v8-compile-cache-0/10.2.154.26-node.28: invalid argument
+# TimeoutStartSec=300
+# ExecStartPre=/usr/bin/docker pull {{ ghost_image }}
 User=ghost
 Restart=always
 ExecStart=/usr/bin/docker run \
@@ -29,7 +34,7 @@ ExecStart=/usr/bin/docker run \
   -e database__debug=false \
   -p {{ item.port }}:2368 \
   -v /home/ghost/{{ item.hostname }}:/var/lib/ghost/content \
-  ghost:5-alpine
+  {{ ghost_image }}
 ExecStop=/usr/bin/docker stop ghost-{{ item.hostname }}
 
 [Install]

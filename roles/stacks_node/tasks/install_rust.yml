@@ -2,6 +2,8 @@
   shell: ". /home/{{ svc_user }}/.cargo/env; rustc --version"
   ignore_errors: true
   register: which_rust
+  become: true
+  become_user: "{{ svc_user }}"
 
 - name: Debug which_rust
   debug:
@@ -23,4 +25,6 @@
     become: true
     become_user: "{{ svc_user }}"
   when: 'which_rust is not search rust_version'
+  become: true
+  become_user: "{{ svc_user }}"
 

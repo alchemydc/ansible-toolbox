@@ -11,17 +11,16 @@
         update: yes
         force: yes
         depth: 1
-      become: true
-      become_user: "{{ svc_user }}"
-
+      
     - name: Build and install stacks
       command: '{{ item }}'
       args:
         chdir: '/home/{{ svc_user }}/stacks-blockchain'
       with_items:
-        - 'cargo build'
+        - 'cargo build --release'
       environment:
         PATH: '/home/{{ svc_user }}/.cargo/bin::/usr/local/bin:/usr/bin:/bin:'
-      become: true
-      become_user: "{{ svc_user }}"
+
+  become: true
+  become_user: "{{ svc_user }}"
 
