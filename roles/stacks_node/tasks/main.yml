@@ -20,20 +20,33 @@
     #uid: "{{ svc_uid }}"
   become: true
 
-- name: Create data directory for signer
+- name: Create data directories for signer and node
   file:
-    path: "/home/{{ svc_user }}/signer"
+    path: "/home/{{ svc_user }}/{{ item }}"
     state: directory
     owner: "{{ svc_user }}"
     group: "{{ svc_user }}"
     mode: 0700
+  loop:
+    - "node"
+    - "signer"
   become: true
   become_user: "{{ svc_user }}"
 
-- name: Deploy signer.toml from template
+- name: Deploy signer-config.toml from template
   template:
-    src: signer.toml.j2
-    dest: /home/{{ svc_user }}/signer/signer.toml
+    src: signer-config.toml.j2
+    dest: /home/{{ svc_user }}/signer/signer-config.toml
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0600
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Deploy node-config.toml from template
+  template:
+    src: node-config.toml.j2
+    dest: /home/{{ svc_user }}/node/node-config.toml
     owner: "{{ svc_user }}"
     group: "{{ svc_user }}"
     mode: 0600
@@ -68,8 +81,11 @@
 
 - name: Install stacks cli npm package
   npm:
-    name: "@stacks/cli"
+    name: "{{ item }}"
     path: "/home/{{ svc_user }}"
     state: present
+  loop:
+    - "@stacks/cli"
+    - "stacks-gen"
   become: true
   become_user: "{{ svc_user }}"

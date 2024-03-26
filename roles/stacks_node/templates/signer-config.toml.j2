@@ -9,10 +9,10 @@ node_host = "127.0.0.1:20443"
 endpoint = "127.0.0.1:30000"
 # stacks node is on same host as signer (for now), so no need to bind to any iface other than lo
 
-# Either “testnet” or “mainnet”
+# Either testnet or mainnet
 network = "testnet"
 
-# This is the hex-encoded privateKey field from `stacks make-keychain`
+# This is the hex-encoded privateKey field from `npx stacks-gen sk --testnet`
 stacks_private_key = "{{ stacks_private_key }}"
 
 # this is a file path where your signer will persist data. If using Docker, 

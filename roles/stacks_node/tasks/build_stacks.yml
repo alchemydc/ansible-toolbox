@@ -17,7 +17,7 @@
       args:
         chdir: '/home/{{ svc_user }}/stacks-blockchain'
       with_items:
-        - 'cargo build --release'
+        - 'cargo build --release --features monitoring_prom'
       environment:
         PATH: '/home/{{ svc_user }}/.cargo/bin::/usr/local/bin:/usr/bin:/bin:'
 
