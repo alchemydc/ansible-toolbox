@@ -72,10 +72,16 @@ scrape_configs:
         #- 'zd1-ingress:8080'
         - 'zd2-ingress:8080'
         #- 'zd3-ingress:8080'
-        - 'zd4-ingress:8080'
+        #- 'zd4-ingress:8080'
         - 'zd5-ingress:8080'
-        - 'zd6-ingress:8080'
+        #- 'zd6-ingress:8080'
         - 'zd7-ingress:8080'
+  
+  - job_name: stacks
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        - 'stacks-dev:9153'
 
   # federate metrics from the rocketpool monitoring stack
   - job_name: 'federate'
