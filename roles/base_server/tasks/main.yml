@@ -29,10 +29,8 @@
   tags: 'update_hosts'
   when: ansible_virtualization_role == "guest"
 
-- name: Disable proxmox enterprise repo
-  apt_repository:
-    repo: deb https://enterprise.proxmox.com/debian/pve {{ ansible_facts['distribution_release'] }} pve-enterprise
-    state: absent
+- name: Configure proxmox repos
+  import_tasks: configure_proxmox_repos.yml
 
 - name: Update and upgrade the machine
   apt:
@@ -148,3 +146,4 @@
   import_tasks: configure_smarthost.yml
   tags: "configure_smarthost"
   become: true
+  when: ansible_virtualization_role == "guest"

@@ -38,7 +38,7 @@
 
 - name: Configure USB network interfaces
   template:
-    src: usb-network-rules.j2
+    src: usb-network.rules.j2
     dest: /etc/udev/rules.d/80-usb-network.rules
     owner: root
     group: root

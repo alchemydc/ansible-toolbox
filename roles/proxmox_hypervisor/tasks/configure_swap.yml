@@ -1,7 +1,7 @@
 # Proxmox kills LXC's that OOM without remorse, which is pretty uncool.
 # This task uses any remaining space on the SSD's to create swap partitions
 # since swap on ZFS is non-performant.
-# Tested on hetzner AX41 and AX51 NVME SSD's configured with ZFS as proxmox root, but in theory should work 
+# Tested on hetzner AX41 and AX51 and AX102 NVME SSD's configured with ZFS as proxmox root, but in theory should work 
 # on any Proxmox ZFS/root installs with free space *after* the 3 default partitions (bios boot, EFI, and ZFS)
 
 - name: Read device information from the swap device
