@@ -61,6 +61,7 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
+          - 'rocketpool-mainnet:9103'
 {% for monitored_host in monitored_hosts %}
           - '{{ monitored_host }}:9100'
 {% endfor %}

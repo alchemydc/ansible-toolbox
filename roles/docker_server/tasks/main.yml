@@ -10,6 +10,14 @@
     state: present
     update_cache: true
 
+- name: Ensure /etc/apt/keyrings dir exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Add docker signing key to apt keyring securely
   get_url: 
     url: https://download.docker.com/linux/debian/gpg

@@ -13,6 +13,7 @@
       - sudo
       - wireguard
       - libpve-network-perl
+      - frr-pythontools
       - vim
       - parted
       - lm-sensors
