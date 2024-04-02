@@ -89,3 +89,32 @@
     - "stacks-gen"
   become: true
   become_user: "{{ svc_user }}"
+
+- name: Deploy stacks-node.service from template
+  template:
+    src: stacks-node.service.j2
+    dest: /etc/systemd/system/stacks-node.service
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Deploy stacks-signer.service from template
+  template:
+    src: stacks-signer.service.j2
+    dest: /etc/systemd/system/stacks-signer.service
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Enable and start stacks-node and stacks-signer
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  loop:
+    - stacks-node
+    - stacks-signer
+  become: true
+

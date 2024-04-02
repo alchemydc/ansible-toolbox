@@ -20,6 +20,6 @@ fi
 
 # helpful aliases
 alias ll='ls -alF'
-alias start_signer='/home/{{ svc_user }}/stacks-blockchain/target/release/stacks-signer run --config /home/{{ svc_user }}/signer/signer-config.toml'
-alias start_node='/home/{{ svc_user }}/stacks-blockchain/target/release/stacks-node start --config /home/{{ svc_user }}/node/node-config.toml'
+alias start_signer='/usr/local/bin/stacks-signer run --config /home/{{ svc_user }}/signer/signer-config.toml'
+alias start_node='/usr/local/bin/stacks-node start --config /home/{{ svc_user }}/node/node-config.toml'
 alias stacks='npx stacks'

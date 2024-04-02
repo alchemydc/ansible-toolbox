@@ -20,7 +20,26 @@
         - 'cargo build --release --features monitoring_prom'
       environment:
         PATH: '/home/{{ svc_user }}/.cargo/bin::/usr/local/bin:/usr/bin:/bin:'
-
+    
   become: true
   become_user: "{{ svc_user }}"
 
+- name: Copy built stacks-node binary to /usr/local/bin
+  copy:
+    src: '/home/{{ svc_user }}/stacks-blockchain/target/release/stacks-node'
+    dest: '/usr/local/bin/stacks-node'
+    mode: '0755'
+    owner: '{{ svc_user }}'
+    group: '{{ svc_user }}'
+    remote_src: true
+  become: true
+
+- name: Copy built stacks-signer binary to /usr/local/bin
+  copy:
+    src: '/home/{{ svc_user }}/stacks-blockchain/target/release/stacks-signer'
+    dest: '/usr/local/bin/stacks-signer'
+    mode: '0755'
+    owner: '{{ svc_user }}'
+    group: '{{ svc_user }}'
+    remote_src: true
+  become: true
