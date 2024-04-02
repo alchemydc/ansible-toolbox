@@ -4,6 +4,7 @@ svc_user: "stacks"
 stacks_private_key: "{{ vault_stacks_private_key }}"
 stacks_http_auth_token: "{{ vault_stacks_http_auth_token }}"
 stacks_local_peer_seed: "{{ vault_stacks_local_peer_seed }}"
+stacks_pox_address: "{{ vault_stacks_pox_address }}"
 
 rust_version: "1.77.0"
 stacks_repo: "https://github.com/stacks-network/stacks-core"
