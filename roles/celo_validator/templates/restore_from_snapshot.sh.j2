@@ -9,7 +9,7 @@ sleep 3
 {% if snapshot_method is defined and snapshot_method == "rsync" and snapshot_storage is defined and snapshot_storage is contains("r2") %}
 # rsync from r2 via rclone
 echo "Rsyncing chaindata from R2"
-rclone sync --tpslimit=5 --s3-upload-cutoff=100M --s3-chunk-size=100M --progress r2:{{ backup_bucket_name }}/chaindata {{ celo_data_dir }}/celo/chaindata 
+rclone sync --s3-upload-cutoff=100M --s3-chunk-size=100M --progress r2:{{ backup_bucket_name }}/chaindata {{ celo_data_dir }}/celo/chaindata 
 {% endif %}
 
 {% if snapshot_method is defined and snapshot_method == "rsync" and snapshot_storage is defined and snapshot_storage is contains("gcs") %}

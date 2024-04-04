@@ -131,6 +131,9 @@ COMMIT
 #-A PREROUTING -s {{ allowed_source }} -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ eigenlayer_dispersal_port }} -j DNAT --to-destination {{ eigenlayer_host }}:{{ eigenlayer_dispersal_port }}
 {% endfor %}
 
+# stacks port forwards
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ stacks_dev_port }} -j DNAT --to-destination {{ stacks_dev_host }}:{{ stacks_dev_port }}
+
 # SNAT's for outbound traffic
 # SNAT traffic from private subnet guests
 -A POSTROUTING -s {{ private_subnet }}  -o {{ public_bridge }} -j SNAT --to-source {{ public_ip }}
