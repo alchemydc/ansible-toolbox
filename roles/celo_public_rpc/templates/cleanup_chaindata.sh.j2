@@ -1,0 +1,26 @@
+#!/bin/bash
+set -ex
+
+DISCORD_WEBHOOK={{ celo_discord_webhook }}
+
+handle_error() {
+  echo "Error occurred cleaning up light client chaindata"
+  echo "Sending email notification"
+  echo "{{ ansible_facts['nodename'] }} chaindata cleanup job failed" | mail {{ operator_email }}
+  echo "Sending discord notification"
+  curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} chaindata backup job failed\"}" $DISCORD_WEBHOOK
+
+  exit 1
+}
+
+trap handle_error ERR
+
+echo "Stopping celo geth to backup chaindata"
+sudo systemctl stop celo-geth
+sleep 3
+
+echo "Cleaning up light client chaindata"
+rm -rfv /home/{{ celo_user }}/.celo/celo/lightestchaindata
+
+echo "Starting celo geth"
+sudo systemctl start celo-geth

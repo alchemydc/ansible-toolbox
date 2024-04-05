@@ -70,10 +70,6 @@
     mode: '0755'
   become: true
 
-#- name: Create keystore
-#  import_tasks: create_keystore.yml
-#  tags: "native_keystore"
-
 - name: Enable and start celo-geth service
   systemd:
     name: celo-geth.service
@@ -86,6 +82,29 @@
   import_tasks: restore_snapshot.yml
   tags: 'restore_celo_snapshot'
 
-#- name: Deploy generate proof of possession script
-#  import_tasks: generate_pop.yml
-#  tags: 'generate_pop'
+- name: Update sudoers to permit {{ celo_user }} to start/stop celo-geth service
+  community.general.sudoers:
+    name: allow-celo-geth-start-stop
+    state: present
+    user: "{{ celo_user }}"
+    commands: /bin/systemctl stop celo-geth,/bin/systemctl start celo-geth
+  become: true
+
+- name: Deploy chain cleanup script
+  template: 
+    src: cleanup_chaindata.sh.j2
+    dest: "/home/{{ celo_user }}/cleanup_chaindata.sh"
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: '0755'
+  become: true
+  become_user: "{{ celo_user }}"
+
+- name: Create cleanup_chaindata cronjob
+  cron:
+    user: '{{ celo_user }}'
+    name: '{{ network }} cleanup_chaindata'
+    minute: '{{ snapshot_minute }}'
+    hour: '{{ snapshot_hour }}'
+    job: '/bin/bash /home/{{ celo_user }}/cleanup_chaindata.sh'
+  become: true

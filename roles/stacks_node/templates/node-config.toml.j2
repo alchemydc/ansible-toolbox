@@ -11,9 +11,16 @@ stacker = true
 [burnchain]
 chain = "bitcoin"
 mode = "xenon"
-peer_host = "bitcoind.testnet.stacks.co"
-username = "blockstack"
-password = "blockstacksystem"
+# primary peer_host
+#peer_host = "bitcoind.testnet.stacks.co"
+#username = "blockstack"
+#password = "blockstacksystem"
+#rpc_port = 18332
+#peer_port = 18333
+# secondary peer host
+peer_host = bitcoin.testnet.stacks.org
+user: stacks
+pass: foundation
 rpc_port = 18332
 peer_port = 18333
 
