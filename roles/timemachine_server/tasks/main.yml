@@ -61,3 +61,17 @@
   loop: "{{ samba_users }}"
   become: true
 
+- name: Disable Samba active directory sync service via systemd
+  systemd:
+    name: samba-ad-dc
+    state: stopped
+    enabled: no
+  become: true
+
+- name: Start Samba service via systemd
+  systemd:
+    name: smbd
+    state: started
+    enabled: yes
+  become: true
+

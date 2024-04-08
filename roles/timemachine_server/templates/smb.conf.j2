@@ -7,6 +7,10 @@
    server string = %h Samba Server
    security = user
 
+   logging = systemd
+   log file = /dev/null
+   log level = 1 auth_audit:3 auth_json_audit:3
+
    # do not sync smb passwords with unix passwords
    unix password sync = no
    pam password change = no

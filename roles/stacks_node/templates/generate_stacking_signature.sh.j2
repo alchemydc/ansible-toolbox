@@ -1,0 +1,27 @@
+#!/bin/bash
+set -ex
+
+REWARD_CYCLE=$(curl -s 'http://localhost:20443/v2/pox' | jq .current_cycle.id)
+NEXT_REWARD_CYCLE=$(($REWARD_CYCLE + 1))
+echo "Next reward cycle: $NEXT_REWARD_CYCLE"
+
+# Get auth ID from user
+echo "Please enter an integer auth ID:"
+read AUTH_ID
+
+# Check if the input is an integer
+if [[ $AUTH_ID =~ ^[0-9]+$ ]]; then
+    echo "You entered: $AUTH_ID"
+else
+    echo "Error: Auth ID input is not an integer."
+    exit 1
+fi
+
+/usr/local/bin/stacks-signer generate-stacking-signature  \
+  --pox-address {{ stacks_pox_address }}                  \
+  --reward-cycle $NEXT_REWARD_CYCLE                       \
+  --config /home/{{ svc_user }}/signer/signer-config.toml \
+  --period 1                                              \
+  --method agg-commit                                     \
+  --max-amount 9900000000000                              \
+  --auth-id $AUTH_ID

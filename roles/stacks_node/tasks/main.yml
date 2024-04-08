@@ -118,3 +118,14 @@
     - stacks-signer
   become: true
 
+- name: Deploy generate_stacking_signature.sh from template
+  template:
+    src: generate_stacking_signature.sh.j2
+    dest: /home/{{ svc_user }}/generate_stacking_signature.sh
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0700
+  become: true
+  become_user: "{{ svc_user }}"
+  tags: generate_stacking_signature
+
