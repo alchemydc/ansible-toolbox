@@ -1,0 +1,63 @@
+- name: Update installed packages via APT
+  apt:
+    upgrade: yes
+    update_cache: yes
+  become: true
+
+- name: Install Samba via APT
+  apt:
+    name: samba
+    state: present
+  become: true
+
+- name: Create time machine directory
+  file:
+    path: /mnt/timemachine
+    state: directory
+    owner: root
+    group: sambashare
+    mode: '0775'
+  become: true
+
+- name: Deploy samba smb.conf from template
+  template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart samba
+  become: true
+
+- name: Create samba users
+  user:
+    name: "{{ item.username }}"
+    password: '*'
+    state: present
+    shell: /bin/false
+    createhome: no
+    groups:
+      - sambashare
+  loop: "{{ samba_users }}"
+  become: true
+
+- name: Create admin users
+  user:
+    name: "{{ item.username }}"
+    password: "{{ item.password }}"
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: /home/{{ item.username }}
+    groups:
+      - sudo
+      - adm
+    append: yes
+  loop: "{{ admin_users }}"
+  become: true
+
+- name: Create smbpasswd entries for the users
+  shell: "printf '{{ item.samba_password }}\n{{ item.samba_password }}\n' | smbpasswd -s -a {{ item.username }}"
+  loop: "{{ samba_users }}"
+  become: true
+

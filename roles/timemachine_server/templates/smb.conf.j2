@@ -1,0 +1,61 @@
+# ref: https://www.antoneliasson.se/journal/time-machine-compatible-samba-on-debian-buster/
+# ref: https://wiki.samba.org/index.php/Configure_Samba_to_Work_Better_with_Mac_OS_X
+
+# Global Settings
+[global]
+   workgroup = WORKGROUP
+   server string = %h Samba Server
+   security = user
+
+   # do not sync smb passwords with unix passwords
+   unix password sync = no
+   pam password change = no
+   map to guest = Bad User
+
+   # Apple extensions ("AAPL") run under SMB2/3 protocol, make that the minimum (probably shouldn't be running SMB1 anyway...) - defaults to SMB2_2 in Samba 4.11+:
+   server min protocol = SMB3_00
+
+   # Apple extensions require support for extended attributes(xattr) - defaults to yes in Samba 4.9+:
+   ea support = yes
+
+   # the relevant VFS modules need to be enabled using the vfs objects parameter. fruit is the module that implements the protocol features.
+   # It depends on streams_xattr for storing the alternate data streams in extended attributes, so that also needs to be loaded.
+   vfs objects = catia fruit streams_xattr
+
+   # store OS X metadata as a stream in a hidden file .DS_Store
+   fruit:metadata = stream
+
+   # sets the finder icon
+   fruit:model = MacSamba
+
+   # The fruit module needs to be told where to store the alternate data streams. The default storage is a file, which is slow but works with every filesystem.
+   # It can also use xattrs, but only with filesystems that support very large xattrs such as ZFS, the greatest filesystem that ever was or will be. As it happens, ZFS is what I use and thus I add:
+   fruit:resource = xattr
+
+   # To tell fruit to reverse the encoding of the aforementioned illegal characters using the catia module, the following parameter must be set:
+   fruit:encoding = native
+   
+   # I also enabled fruit:copyfile which enables a feature that lets the client request a server side file copy for increased performance. It is not enabled by default and I cannot find a quotation why.
+   fruit:copyfile = yes
+
+   # Fruit specific file cleanup Settings
+   fruit:veto_appledouble = no
+   fruit:posix_rename = yes 
+   fruit:zero_file_id = yes
+   fruit:wipe_intentionally_left_blank_rfork = yes 
+   fruit:delete_empty_adfiles = yes 
+
+
+# Share Configuration for Time Machine
+[TimeMachineBackup]
+   comment = Time Machine Backup
+   path = {{ timemachine_path }}
+   # members of the sambashare system group can access the share w/ valid creds 
+   valid users = @sambashare
+   read only = no
+   browseable = yes
+   fruit:time machine = yes
+
+   # Since Time Machine will fill the target with as many backups as there is space for before removing old ones it is a good idea to set a reasonable advertised limit.
+   # Note according to vfs_fruit(8) that this only works as intended when the share is used solely as a Time Machine target.
+   fruit:time machine max size = 1T

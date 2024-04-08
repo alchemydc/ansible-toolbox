@@ -1,0 +1,19 @@
+# path on the server or container to store time machine backups on
+# will be created if does not exist
+timemachine_path: "/mnt/timemachine"
+
+# admin users
+# these will be created and will have valid shells and be able to login
+# admin_users: "{{ vault_admin_users }}"
+# list with following key/values:
+# username: username
+# sshpublickey: ssh public key
+# password: hashed password
+ 
+# samba users
+# these will be created and will have valid samba passwords but will NOT have valid shells or UNIX passwords
+# the idea is that not every Samba user needs to be logging in interactively
+# samba_users: "{{ vault_samba_users }}"
+# list with following key/values:
+# username: username
+# samba_password: cleartext samba password

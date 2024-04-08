@@ -74,6 +74,8 @@
       tags: eigenlayer
     - role: stacks_node
       tags: stacks_node
+    - role: timemachine_server
+      tags: timemachine_server
       
   handlers:
       - name: restart sshd
