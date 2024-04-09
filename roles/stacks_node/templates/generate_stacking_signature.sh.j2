@@ -1,21 +1,36 @@
 #!/bin/bash
-set -ex
+#set -ex
 
 REWARD_CYCLE=$(curl -s 'http://localhost:20443/v2/pox' | jq .current_cycle.id)
 NEXT_REWARD_CYCLE=$(($REWARD_CYCLE + 1))
 echo "Next reward cycle: $NEXT_REWARD_CYCLE"
 
 # Get auth ID from user
-echo "Please enter an integer auth ID:"
+echo "Please enter an integer auth ID (nonce) that has not been previously used for a stacking TX:"
 read AUTH_ID
 
 # Check if the input is an integer
 if [[ $AUTH_ID =~ ^[0-9]+$ ]]; then
-    echo "You entered: $AUTH_ID"
+    echo "Using Auth ID: $AUTH_ID"
 else
     echo "Error: Auth ID input is not an integer."
     exit 1
 fi
+
+# Get max-amount from user
+echo "Please enter max-amount in microstacks (uSTX) eg 9900000000000 :"
+read MAX_AMOUNT_USTX
+
+# Check if the input is an integer
+if [[ $MAX_AMOUNT_USTX =~ ^[0-9]+$ ]]; then
+    echo "using max-amount: $MAX_AMOUNT_USTX uSTX"
+else
+    echo "Error: max-amount input is not an integer."
+    exit 1
+fi
+
+# calculate max-amount in stacks
+MAX_AMOUNT_STX=$(($MAX_AMOUNT_USTX / 1000000))
 
 /usr/local/bin/stacks-signer generate-stacking-signature  \
   --pox-address {{ stacks_pox_address }}                  \
@@ -23,5 +38,13 @@ fi
   --config /home/{{ svc_user }}/signer/signer-config.toml \
   --period 1                                              \
   --method agg-commit                                     \
-  --max-amount 9900000000000                              \
+  --max-amount $MAX_AMOUNT_USTX                           \
   --auth-id $AUTH_ID
+
+
+
+echo "Note that CLI max-amount is in microstacks (uSTX), not stacks."
+echo "lockstacks.com UI max-amount is in stacks, not uSTX."
+echo "Dividing max-amount by 1000000 to get stacks."
+echo "max-amount in stacks: $MAX_AMOUNT_STX"
+
