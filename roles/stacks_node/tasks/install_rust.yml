@@ -24,6 +24,7 @@
     shell: /tmp/sh.rustup.rs -y
     become: true
     become_user: "{{ svc_user }}"
+  # need a better way to do this so we don't nuke newer versions and have to reinstall
   when: 'which_rust is not search rust_version'
   become: true
   become_user: "{{ svc_user }}"

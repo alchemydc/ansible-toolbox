@@ -5,10 +5,9 @@ maxretry = 3
 [ups]
    driver = usbhid-ups
    port = auto
-   #port = "/dev/{{ ups.name }}"    # this will work but udev likely won't create the required symlink without a reboot so using auto by default
    desc = "synology compatible UPS" # manually verify multi-UPS config if you need synology support
-   vendorid = {{ ups.vendorid }}
-   productid = {{ ups.productid }}
+   vendorid = {{ ups_vendorid }}
+   productid = {{ ups_productid }}
 {% if usb_ups_details.results[loop.index0].stdout is contains("Cyber Power") %}
    # cyber power UPS detected
    # ref: https://github.com/networkupstools/nut/issues/578

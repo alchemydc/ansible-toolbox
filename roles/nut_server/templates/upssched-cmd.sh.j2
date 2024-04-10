@@ -1,15 +1,22 @@
 #!/bin/sh
 DISCORD_WEBHOOK="{{ ups_discord_webhook }}"
+NOISY_UPS="{{ noisy_ups }}"
  case $1 in
        onbatt)
           logger -t upssched-cmd "onbatt: UPS $UPSNAME running on battery"
-          echo "{{ ansible_facts['nodename'] }} UPS $UPSNAME is on battery power" | mail {{ ups_email }}
-          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} onbatt: UPS $UPSNAME is on battery power\"}" $DISCORD_WEBHOOK
+          # skip sending the notifications if UPSNAME is the noisy UPS
+            if [ "$UPSNAME" != "$NOISY_UPS" ]; then
+               echo "{{ ansible_facts['nodename'] }} UPS $UPSNAME is on battery power" | mail {{ ups_email }}
+               curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} onbatt: UPS $UPSNAME is on battery power\"}" $DISCORD_WEBHOOK
+            fi
           ;;
        online)
           logger -t upssched-cmd "online: UPS $UPSNAME running on line power"
-          echo "{{ ansible_facts['nodename'] }} UPS $UPSNAME is back on line power" | mail {{ ups_email }}
-          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} online: UPS is $UPSNAME back on main line power\"}" $DISCORD_WEBHOOK
+          # skip sending the notifications if UPSNAME is the noisy UPS
+            if [ "$UPSNAME" != "$NOISY_UPS" ]; then
+               echo "{{ ansible_facts['nodename'] }} UPS $UPSNAME is back on line power" | mail {{ ups_email }}
+               curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} online: UPS $UPSNAME is back on main line power\"}" $DISCORD_WEBHOOK
+            fi
           ;;
        lowbatt)
           logger -t upssched-cmd "lowbatt: UPS $UPSNAME is running on battery and battery is low"

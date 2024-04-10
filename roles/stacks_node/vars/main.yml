@@ -9,6 +9,7 @@ stacks_pox_address: "{{ vault_stacks_pox_address }}"
 rust_version: "1.77.0"
 stacks_repo: "https://github.com/stacks-network/stacks-core"
 stacks_version: "2.5.0.0.0-rc1"
+#stacks_version: "2.5.0.0.0-rc2"
 
 yarn_repo_key_url: "https://dl.yarnpkg.com/debian/pubkey.gpg" 
 nodesource_repo_key_url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
