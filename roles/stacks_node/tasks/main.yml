@@ -42,6 +42,7 @@
     mode: 0600
   become: true
   become_user: "{{ svc_user }}"
+  notify: restart stacks-signer
 
 - name: Deploy node-config.toml from template
   template:
@@ -52,6 +53,7 @@
     mode: 0600
   become: true
   become_user: "{{ svc_user }}"
+  notify: restart stacks-node
 
 - name: Deploy .profile from template
   template:
@@ -98,6 +100,7 @@
     group: root
     mode: 0644
   become: true
+  notify: restart stacks-node
 
 - name: Deploy stacks-signer.service from template
   template:
@@ -107,6 +110,7 @@
     group: root
     mode: 0644
   become: true
+  notify: restart stacks-signer
 
 - name: Enable and start stacks-node and stacks-signer
   systemd:

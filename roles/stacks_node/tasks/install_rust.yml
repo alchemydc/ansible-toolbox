@@ -1,31 +1,31 @@
-- name: Enumerate installed rust
-  shell: ". /home/{{ svc_user }}/.cargo/env; rustc --version"
-  ignore_errors: true
-  register: which_rust
+- name: Check if rust is installed
+  command: rustc --version
+  environment:
+    PATH: "/home/{{ svc_user }}/.cargo/bin"
+  register: rust_check
+  failed_when: false
+  changed_when: false
   become: true
   become_user: "{{ svc_user }}"
 
-- name: Debug which_rust
+- name: Debug rust_check
   debug:
-    msg: "{{ which_rust.stdout }}"
+    msg: "{{ rust_check }}"
 
-# rust is out of date or not present
-# could potentially use rustup update if rust is already installed
-# but we are going for the nuclear option
-- block:
-  - name: Download rustup installer
-    get_url:
-      url: https://sh.rustup.rs
-      dest: /tmp/sh.rustup.rs
-      mode: '0755'
-      force: 'yes'
-
-  - name: install rust/cargo
-    shell: /tmp/sh.rustup.rs -y
+- name : Install Rust
+  block:
+  - name: Install Rust
+    shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    args:
+      creates: /home/{{ svc_user }}/.cargo/env  # only run if rust not already installed
     become: true
     become_user: "{{ svc_user }}"
-  # need a better way to do this so we don't nuke newer versions and have to reinstall
-  when: 'which_rust is not search rust_version'
+  when: rust_check.rc != 0
+
+- name: Update Rust to latest version
+  command: rustup update
+  environment:
+    PATH: "/home/{{ svc_user }}/.cargo/bin"
   become: true
   become_user: "{{ svc_user }}"
-
+  when: rust_check.rc == 0
