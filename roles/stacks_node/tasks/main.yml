@@ -133,3 +133,20 @@
   become_user: "{{ svc_user }}"
   tags: generate_stacking_signature
 
+- name: Update sudoers to permit {{ svc_user }} to start/stop stacks services
+  community.general.sudoers:
+    name: allow-stacks-start-stop
+    state: present
+    user: "{{ svc_user }}"
+    commands: /bin/systemctl stop stacks-signer,/bin/systemctl stop stacks-node,/bin/systemctl start stacks-signer,/bin/systemctl start stacks-node
+  become: true
+
+- name: Deploy restore_from_snapshot.sh from template
+  template:
+    src: restore_from_snapshot.sh.j2
+    dest: /home/{{ svc_user }}/restore_from_snapshot.sh
+    owner: "{{ svc_user }}"
+    mode: 0740
+  become: true
+  become_user: "{{ svc_user }}"
+

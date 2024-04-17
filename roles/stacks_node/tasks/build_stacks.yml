@@ -33,7 +33,7 @@
     group: '{{ svc_user }}'
     remote_src: true
   become: true
-  notify: restart stacks-node
+  notify: Restart stacks-node
 
 - name: Copy built stacks-signer binary to /usr/local/bin
   copy:
@@ -44,4 +44,4 @@
     group: '{{ svc_user }}'
     remote_src: true
   become: true
-  notify: restart stacks-signer
+  notify: Restart stacks-signer

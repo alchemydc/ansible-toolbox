@@ -1,14 +1,27 @@
-# work in progress
+#!/bin/bash
+set -ex
+STACKS_NETWORK="{{ stacks_network }}"
 
-#Start with an archive
-#If you are running your Stacks node on the primary testnet, it will be much faster to start with an archive of the chain state rather than syncing from genesis.
-#
-#Archives can be found from https://archive.hiro.so. For the Stacks node testnet, the latest snapshot can be found at https://archive.hiro.so/testnet/stacks-blockchain/testnet-stacks-blockchain-2.5.0.0.0-rc1-latest.tar.gz. Note that the version is specified (2.5.0.0.0-rc1). When we update versions (ie to a new RC), that URL will need to change. You can also browse all testnet snapshots.
-#
-#You’ll want to download this on the same machine that will run the Stacks node. One way to do this is:
-#
-#Copy
-#curl https://archive.hiro.so/testnet/stacks-blockchain/testnet-stacks-blockchain-2.5.0.0.0-rc1-latest.tar.gz -o stacks-snapshot.tar.gz
-#tar -zxvf stacks-snapshot.tar.gz
-#This will decompress the snapshot and create a xenon folder in the same place that you downloaded the archive.
+echo "Stopping the stacks-signer and node for snapshot restore"
+sudo systemctl stop stacks-node
+sudo systemctl stop stacks-signer
+
+echo "Deleting old chain data from /home/{{ svc_user }}/node/xenon"
+rm -rfv /home/{{ svc_user }}/node/xenon/*
+
+echo "Restoring the snapshot"
+# use testnet snapshot URI if stacks_network is 'testnet'
+if [ "{{ stacks_network }}" == "testnet" ]; then
+  SNAPSHOT_URI="https://archive.hiro.so/testnet/stacks-blockchain/testnet-stacks-blockchain-latest.tar.gz"
+  echo "Using testnet snapshot at $SNAPSHOT_URI"
+  wget -O - $SNAPSHOT_URI | tar --directory /home/{{ svc_user }}/node -zxvf -
+else
+  SNAPSHOT_URI="https://archive.hiro.so/mainnet/stacks-blockchain/mainnet-stacks-blockchain-latest.tar.gz"
+  echo "Using mainnet snapshot at $SNAPSHOT_URI"
+  wget -O - $SNAPSHOT_URI | tar --directory /home/{{ svc_user }}/node -zxvf -
+fi
+
+echo "Restarting the stacks-signer and node services"
+sudo systemctl start stacks-signer
+sudo systemctl start stacks-node
 
