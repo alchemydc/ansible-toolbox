@@ -1,0 +1,71 @@
+- name: restart transmission
+  systemd:
+    name: transmission.service
+    state: restarted
+  become: true
+- name: restart radarr
+  systemd:
+    name: radarr
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart readarr
+  systemd:
+    name: readarr
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart calibre
+  systemd:
+    name: calibre
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart calibre-web
+  systemd:
+    name: calibre-web
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart sonarr
+  systemd:
+    name: sonarr
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart prowlarr
+  systemd:
+    name: prowlarr
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart sabnzbd
+  systemd:
+    name: sabnzbd
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart qbittorrent
+  systemd:
+    name: qbittorrent
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart deluge
+  systemd:
+    name: deluge
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart plex
+  systemd:
+    name: plex
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart wireguard
+  systemd:
+    name: wireguard.service
+    daemon_reload: yes
+    state: restarted
+  become: true

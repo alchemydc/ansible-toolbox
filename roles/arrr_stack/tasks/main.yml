@@ -61,6 +61,8 @@
     - "/home/{{ svc_user }}/qbittorrent/"
     - "/home/{{ svc_user }}/qbittorrent/config"
     - "/home/{{ svc_user }}/qbittorrent/config/config"
+    - "/home/{{ svc_user }}/transmission/"
+    - "/home/{{ svc_user }}/transmission/config"
     - "/home/{{ svc_user }}/deluge"
     - "/home/{{ svc_user }}/deluge/config"
     - "/home/{{ svc_user }}/wireguard"
@@ -115,3 +117,6 @@
 
 - name: Deploy plex
   import_tasks: plex.yml
+
+- name: Deploy transmission
+  import_tasks: transmission.yml

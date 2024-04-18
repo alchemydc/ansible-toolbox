@@ -37,7 +37,7 @@ ExecStart=/usr/bin/docker run \
   --label "traefik.http.routers.plex-secure.tls=true" \
   --label "traefik.http.routers.plex-secure.service=plex" \
   --label "traefik.http.services.plex.loadbalancer.server.port=32400" \
-  cr.hotio.dev/hotio/plex
+  ghcr.io/hotio/plex
 ExecStop=/usr/bin/docker stop plex
 
 [Install]

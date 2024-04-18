@@ -1,0 +1,60 @@
+## deluge systemd unit
+[Unit]
+Description=transmission service
+Requires=wireguard.service
+After=wireguard.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name transmission \
+  --network=container:wireguard \
+  -e PUID={{ svc_uid }} \
+  -e PGID={{ svc_uid }} \
+  -e UMASK=002 \
+  -e TZ="Etc/UTC" \
+  -e USER="{{ svc_user }}" \
+  -e PASS="{{ svc_user }}" \
+  -v /home/{{ svc_user }}/space/DO_NOT_USE:/downloads \
+  -v /home/{{ svc_user }}/space/downloads:/space/downloads \
+  -v /home/{{ svc_user }}/transmission/config:/config \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.transmission.entrypoints=http" \
+  --label "traefik.http.routers.transmission.rule=Host(`transmission.{{ service_domain }}`)" \
+  --label "traefik.http.routers.transmission.service=transmission" \
+  --label "traefik.http.routers.transmission-secure.entrypoints=https" \
+  --label "traefik.http.routers.transmission-secure.rule=Host(`transmission.{{ service_domain }}`)" \
+  --label "traefik.http.routers.transmission-secure.tls=true" \
+  --label "traefik.http.routers.transmission-secure.service=transmission" \
+  --label "traefik.http.services.transmission.loadbalancer.server.port=9091" \
+  lscr.io/linuxserver/transmission:latest
+ExecStop=/usr/bin/docker stop transmission
+
+[Install]
+WantedBy=default.target
+
+# other flags
+#  Specify the path to an alternative UI folder.
+#  -e TRANSMISSION_WEB_HOME= `#optional` \ 
+#  Specify an optional username for the interface
+#  -e USER= `#optional` \
+#  Specify an optional password for the interface
+#  -e PASS= `#optional` \
+#  Specify an optional list of comma separated ip whitelist. Fills rpc-whitelist setting.
+#  -e WHITELIST= `#optional` \
+#  Specify an optional port for torrent TCP/UDP connections. Fills peer-port setting.
+#  -e PEERPORT= `51413` \
+# eg for inbound port forwarding
+#  -p 51413:51413 \
+#  -p 51413:51413/udp \
+#  Specify an optional list of comma separated dns name whitelist. Fills rpc-host-whitelist setting.
+#  -e HOST_WHITELIST= `#optional` \
+#  Watch folder for torrent files.
+#  -v /path/to/watch/folder:/watch \
+#  -e USER="{{ svc_user }}" \
+#  -e PASS="{{ svc_user }}" \  

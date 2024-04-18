@@ -30,7 +30,7 @@ ExecStart=/usr/bin/docker run \
   --label "traefik.http.routers.radarr-secure.tls=true" \
   --label "traefik.http.routers.radarr-secure.service=radarr" \
   --label "traefik.http.services.radarr.loadbalancer.server.port=7878" \
-  cr.hotio.dev/hotio/radarr
+  ghcr.io/hotio/radarr
 ExecStop=/usr/bin/docker stop radarr
 
 [Install]

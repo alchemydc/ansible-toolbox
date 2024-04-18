@@ -19,7 +19,7 @@ ExecStart=/usr/bin/docker run \
   -e UMASK=002 \
   -e TZ="Etc/UTC" \
   -v /home/{{ svc_user }}/sabnzbd/config:/config \
-  cr.hotio.dev/hotio/sabnzbd
+  ghcr.io/hotio/sabnzbd
 ExecStop=/usr/bin/docker stop sabnzbd
 
 [Install]

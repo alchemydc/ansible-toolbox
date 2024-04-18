@@ -2,15 +2,17 @@
   command: "docker pull {{ item }}"
   loop:
     - lscr.io/linuxserver/calibre-web
-    - cr.hotio.dev/hotio/prowlarr
+    - ghcr.io/hotio/prowlarr
     - linuxserver/wireguard
     - lscr.io/linuxserver/calibre
     - traefik
     - lscr.io/linuxserver/deluge
-    - cr.hotio.dev/hotio/plex
-    - cr.hotio.dev/hotio/radarr
-    - cr.hotio.dev/hotio/readarr
+    - lscr.io/linuxserver/transmission
+    - ghcr.io/hotio/plex
+    - ghcr.io/hotio/radarr
+    - ghcr.io/hotio/readarr
   register: docker_pull_result
+  become: true
 
 - name: determine whether a restart is required of the docker stack
   set_fact:
@@ -30,6 +32,7 @@
     - calibre
     - traefik
     - deluge
+    - transmission
     - plex
     - radarr
     - readarr
@@ -38,4 +41,6 @@
 
 - name: Prune unused docker images
   command: "docker image prune -a --force"
+  #command: "docker image prune --force"
   when: docker_restart_required is defined
+  become: true
