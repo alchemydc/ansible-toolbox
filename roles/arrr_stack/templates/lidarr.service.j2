@@ -1,0 +1,38 @@
+## lidarr systemd unit
+[Unit]
+Description=lidarr service
+Requires=wireguard.service
+After=wireguard.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name lidarr \
+  --network=container:wireguard \
+  -e PUID={{ svc_uid }} \
+  -e PGID={{ svc_uid }} \
+  -e UMASK=002 \
+  -e TZ="Etc/UTC" \
+  -v /home/{{ svc_user }}/lidarr/config:/config \
+  -v /home/{{ svc_user }}/space:/space \
+  -v /mnt/zrust/media:/mnt/zrust/media \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.lidarr.entrypoints=http" \
+  --label "traefik.http.routers.lidarr.rule=Host(`lidarr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.lidarr.service=lidarr" \
+  --label "traefik.http.routers.lidarr-secure.entrypoints=https" \
+  --label "traefik.http.routers.lidarr-secure.rule=Host(`lidarr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.lidarr-secure.tls=true" \
+  --label "traefik.http.routers.lidarr-secure.service=lidarr" \
+  --label "traefik.http.services.lidarr.loadbalancer.server.port=8686" \
+  lscr.io/linuxserver/lidarr
+ExecStop=/usr/bin/docker stop lidarr
+
+[Install]
+WantedBy=default.target
+

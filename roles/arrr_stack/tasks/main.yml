@@ -37,11 +37,13 @@
     - "/home/{{ svc_user }}/space/downloads"
     - "/home/{{ svc_user }}/space/downloads/temp" # should be SSD
     - "/home/{{ svc_user }}/space/downloads/books"
+    - "/home/{{ svc_user }}/space/downloads/music"
     - "/home/{{ svc_user }}/space/transcode"      # should be SSD
     - "/home/{{ svc_user }}/space/media"
     - "/home/{{ svc_user }}/space/media/movies"
     - "/home/{{ svc_user }}/space/media/tv"
     - "/home/{{ svc_user }}/space/media/books"
+    - "/home/{{ svc_user }}/space/media/music"
     - "/home/{{ svc_user }}/plex"
     - "/home/{{ svc_user }}/plex/config"
     - "/home/{{ svc_user }}/radarr"
@@ -67,6 +69,10 @@
     - "/home/{{ svc_user }}/deluge/config"
     - "/home/{{ svc_user }}/wireguard"
     - "/home/{{ svc_user }}/wireguard/config"
+    - "/home/{{ svc_user }}/lidarr"
+    - "/home/{{ svc_user }}/lidarr/config"
+    - "/home/{{ svc_user }}/jackett"
+    - "/home/{{ svc_user }}/jackett/config"
   become: true
 
 - name: Create DO_NOT_USE file
@@ -120,3 +126,10 @@
 
 - name: Deploy transmission
   import_tasks: transmission.yml
+
+- name: Deploy lidarr
+  import_tasks: lidarr.yml  
+
+- name: Deploy jackett
+  import_tasks: jackett.yml
+

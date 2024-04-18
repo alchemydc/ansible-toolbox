@@ -1,0 +1,17 @@
+- name: Deploy jackett service systemd service file
+  template:
+    src: jackett.service.j2
+    dest: "/etc/systemd/system/jackett.service"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart jackett
+  become: true
+
+- name: Enable and start jackett service
+  systemd:
+    name: jackett.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true

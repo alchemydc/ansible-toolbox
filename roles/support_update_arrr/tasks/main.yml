@@ -11,6 +11,8 @@
     - ghcr.io/hotio/plex
     - ghcr.io/hotio/radarr
     - ghcr.io/hotio/readarr
+    - lscr.io/linuxserver/lidarr
+    - lscr.io/linuxserver/jackett
   register: docker_pull_result
   become: true
 
@@ -36,11 +38,12 @@
     - plex
     - radarr
     - readarr
+    - lidarr
+    - jackett
   when: docker_restart_required is defined
   become: true
 
 - name: Prune unused docker images
   command: "docker image prune -a --force"
-  #command: "docker image prune --force"
   when: docker_restart_required is defined
   become: true

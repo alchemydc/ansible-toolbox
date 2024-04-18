@@ -69,3 +69,15 @@
     daemon_reload: yes
     state: restarted
   become: true
+- name: restart lidarr
+  systemd:
+    name: lidarr
+    daemon_reload: yes
+    state: restarted
+  become: true
+- name: restart jackett
+  systemd:
+    name: jackett
+    daemon_reload: yes
+    state: restarted
+  become: true

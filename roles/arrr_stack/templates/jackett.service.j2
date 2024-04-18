@@ -1,0 +1,37 @@
+## jackett systemd unit
+[Unit]
+Description=jackett service
+Requires=wireguard.service
+After=wireguard.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name jackett \
+  --network=container:wireguard \
+  -e PUID={{ svc_uid }} \
+  -e PGID={{ svc_uid }} \
+  -e TZ="Etc/UTC" \
+  -e AUTO_UPDATE=true \
+  -v /home/{{ svc_user }}/jackett/config:/config \
+  -v /home/{{ svc_user }}/space:/space \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.jackett.entrypoints=http" \
+  --label "traefik.http.routers.jackett.rule=Host(`jackett.{{ service_domain }}`)" \
+  --label "traefik.http.routers.jackett.service=jackett" \
+  --label "traefik.http.routers.jackett-secure.entrypoints=https" \
+  --label "traefik.http.routers.jackett-secure.rule=Host(`jackett.{{ service_domain }}`)" \
+  --label "traefik.http.routers.jackett-secure.tls=true" \
+  --label "traefik.http.routers.jackett-secure.service=jackett" \
+  --label "traefik.http.services.jackett.loadbalancer.server.port=9117" \
+  lscr.io/linuxserver/jackett
+ExecStop=/usr/bin/docker stop jackett
+
+[Install]
+WantedBy=default.target
+
