@@ -107,7 +107,7 @@
     dest: /etc/nut/ssh_key
     owner: root
     group: nut
-    mode: 0640
+    mode: 0600
   become: true
   when: shutdown_gateway is defined and shutdown_gateway == true
   

@@ -30,12 +30,25 @@ NOISY_UPS="{{ noisy_ups }}"
           {% if shutdown_gateway is defined and shutdown_gateway is true %}
           logger -t uspsched-cmd "Shutting down gateway"
           ssh -i /etc/nut/ssh_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ unifi_user }}@{{ unifi_ip }} "shutdown -h now"
+          # open question: will this block waiting for the shutdown to complete or will it return immediately?
+          # i suspect it returns immediately as the shutdown should terminate the SSH connection even if it takes the gateway awhile to shutdown
           {% endif %}
           logger -t uspsched-cmd "Sleeping for 60s then Shutting down UPS $UPSNAME"
           sleep 60 && /usr/sbin/upsmon -c fsd
           ;;
        powerdown)
           logger -t upssched-cmd "powerdown: upssched called powerdown()"
+          echo "{{ ansible_facts['nodename'] }} UPS $UPSNAME invoked powerdown, executing a clean shutdown" | mail {{ ups_email }}
+          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} powerdown: UPS $UPSNAME invoked powerdown, executing a clean shutdown\"}" $DISCORD_WEBHOOK
+          {% if shutdown_gateway is defined and shutdown_gateway is true %}
+          logger -t uspsched-cmd "Shutting down gateway"
+          echo "{{ ansible_facts['nodename'] }} UPS $UPSNAME invoked powerdown, shutting down gateway" | mail {{ ups_email }}
+          curl -s -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\": \"{{ ansible_facts['nodename'] }} powerdown: UPS $UPSNAME invoked powerdown, shutting down gateway\"}" $DISCORD_WEBHOOK
+          ssh -i /etc/nut/ssh_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ unifi_user }}@{{ unifi_ip }} "shutdown -h now"
+          # open question: will this block waiting for the shutdown to complete or will it return immediately?
+          # i suspect it returns immediately as the shutdown should terminate the SSH connection even if it takes the gateway awhile to shutdown
+          {% endif %}
+          # not calling upsmon -c fsd here because powerdown() is called by upsmon -c fsd
           ;;
        commbad)
           logger -t upssched-cmd "Lost connection to UPS $UPSNAME"
