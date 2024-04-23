@@ -73,6 +73,9 @@
     - "/home/{{ svc_user }}/lidarr/config"
     - "/home/{{ svc_user }}/jackett"
     - "/home/{{ svc_user }}/jackett/config"
+    - "/home/{{ svc_user }}/lms"
+    - "/home/{{ svc_user }}/lms/config"
+    - "/home/{{ svc_user }}/lms/playlist"
   become: true
 
 - name: Create DO_NOT_USE file
@@ -133,3 +136,5 @@
 - name: Deploy jackett
   import_tasks: jackett.yml
 
+- name: Deploy LMS
+  import_tasks: lms.yml

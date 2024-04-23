@@ -81,3 +81,9 @@
     daemon_reload: yes
     state: restarted
   become: true
+- name: restart lms
+  systemd:
+    name: lms
+    daemon_reload: yes
+    state: restarted
+  become: true

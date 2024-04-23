@@ -1,0 +1,44 @@
+## lms systemd unit
+[Unit]
+Description=lms service
+Requires=docker.service
+After=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name lms \
+  --hostname lms \
+  --network="proxy" \
+      -v "/home/{{ svc_user }}/lms/config":"/config":rw \
+      -v "/mnt/zrust/media/music":"/music":ro \
+      -v "/home/{{ svc_user }}/lms/playlist":"/playlist":rw \
+      -v "/etc/localtime":"/etc/localtime":ro \
+      -v "/etc/timezone":"/etc/timezone":ro \
+      -p 9000:9000/tcp \
+      -p 9090:9090/tcp \
+      -p 3483:3483/tcp \
+      -p 3483:3483/udp \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.lms.entrypoints=http" \
+  --label "traefik.http.routers.lms.rule=Host(`lms.{{ service_domain }}`)" \
+  --label "traefik.http.routers.lms.service=lms" \
+  --label "traefik.http.routers.lms-secure.entrypoints=https" \
+  --label "traefik.http.routers.lms-secure.rule=Host(`lms.{{ service_domain }}`)" \
+  --label "traefik.http.routers.lms-secure.tls=true" \
+  --label "traefik.http.routers.lms-secure.service=lms" \
+  --label "traefik.http.services.lms.loadbalancer.server.port=9000" \
+  lmscommunity/logitechmediaserver
+ExecStop=/usr/bin/docker stop lms
+
+[Install]
+WantedBy=default.target
+
+# other flags
+# if we set the http port to something other than 9000, must let the clients know
+-e HTTP_PORT

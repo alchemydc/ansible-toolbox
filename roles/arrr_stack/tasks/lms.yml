@@ -1,0 +1,27 @@
+#- name: Deploy lms configuration
+#  template:
+#    src: lms.conf.j2
+#    dest: "/home/{{ svc_user }}/lms/config/config/lms.conf"
+#    owner: "{{ svc_user }}"
+#    group: "{{ svc_user }}"
+#    mode: "0640"
+#  become: true
+#  become_user: "{{ svc_user }}"
+
+- name: Deploy lms service systemd service file
+  template:
+    src: lms.service.j2
+    dest: "/etc/systemd/system/lms.service"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart lms
+  become: true
+
+- name: Enable and start lms service
+  systemd:
+    name: lms.service
+    enabled: yes
+    state: started  
+    daemon_reload: yes
+  become: true
