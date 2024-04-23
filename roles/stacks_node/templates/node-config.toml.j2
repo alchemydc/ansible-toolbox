@@ -1,8 +1,10 @@
 [node]
 working_dir = "/home/{{ svc_user }}/node" # needs to be on a volume with 500GB-1TB of available storage
 rpc_bind = "127.0.0.1:20443"  #must be accessible by your signer
-p2p_bind = "0.0.0.0:20444"  #must be exposed to the internet (TCP only per Stacks team)
 prometheus_bind = "0.0.0.0:9153"
+
+{% if stacks_network == "testnet" %}
+p2p_bind = "0.0.0.0:20444"  #must be exposed to the internet (TCP only per Stacks team)
 # This is the node that your node will use to begin syncing chain state
 bootstrap_node = "029266faff4c8e0ca4f934f34996a96af481df94a89b0c9bd515f3536a95682ddc@seed.testnet.hiro.so:30444"
 wait_time_for_microblocks = 10000
@@ -24,6 +26,24 @@ peer_port = 18333
 #rpc_port = 18332
 #peer_port = 18333
 
+{% elif stacks_network == "mainnet" %}
+p2p_bind = "0.0.0.0:21444"  #must be exposed to the internet (TCP only per Stacks team)
+
+# This is the node that your node will use to begin syncing chain state
+bootstrap_node = "02196f005965cebe6ddc3901b7b1cc1aa7a88f305bb8c5893456b8f9a605923893@seed.mainnet.hiro.so:20444,02539449ad94e6e6392d8c1deb2b4e61f80ae2a18964349bc14336d8b903c46a8c@cet.stacksnodes.org:20444,02ececc8ce79b8adf813f13a0255f8ae58d4357309ba0cedd523d9f1a306fcfb79@sgt.stacksnodes.org:20444,0303144ba518fe7a0fb56a8a7d488f950307a4330f146e1e1458fc63fb33defe96@est.stacksnodes.org:20444"
+wait_time_for_microblocks = 10000
+stacker = true
+
+[burnchain]
+chain = "bitcoin"
+mode = "mainnet"
+peer_host = "bitcoind.stacks.co"
+username = "blockstack"
+password = "blockstacksystem"
+rpc_port = 8332
+peer_port = 8333
+{% endif %}
+
 # Set your auth token, which the signer uses
 # This should match the auth_password field of your signer config
 [connection_options]
@@ -37,6 +57,7 @@ retry_count = 255
 include_data_events = false
 events_keys = ["stackerdb", "block_proposal", "burn_blocks"]
 
+{% if stacks_network == "testnet" %}
 [[ustx_balance]]
 address = "ST2QKZ4FKHAH1NQKYKYAYZPY440FEPK7GZ1R5HBP2"
 amount = 10000000000000000
@@ -52,4 +73,4 @@ amount = 10000000000000000
 [[ustx_balance]]
 address = "ST2TFVBMRPS5SSNP98DQKQ5JNB2B6NZM91C4K3P7B"
 amount = 10000000000000000
-
+{% endif %}

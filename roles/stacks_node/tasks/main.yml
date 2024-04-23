@@ -117,6 +117,7 @@
     name: "{{ item }}"
     enabled: yes
     state: started
+    daemon_reload: yes
   loop:
     - stacks-node
     - stacks-signer
@@ -141,10 +142,28 @@
     commands: /bin/systemctl stop stacks-signer,/bin/systemctl stop stacks-node,/bin/systemctl start stacks-signer,/bin/systemctl start stacks-node
   become: true
 
+- name: Deploy set_stacks_chainstate_perms.sh from template
+  template:
+    src: set_stacks_chainstate_perms.sh.j2
+    dest: "/home/{{ svc_user }}/set_stacks_chainstate_perms.sh"
+    owner: "root"
+    group: "root"
+    mode: 0744
+  become: true
+
+- name: Update sudoers to allow {{ svc_user }} to fix perms on chaindata
+# can't pass params to the module, so we have to have a script to call
+  community.general.sudoers:
+    name: allow-stacks-set-perms
+    state: present
+    user: "{{ svc_user }}"
+    commands: ['/home/{{ svc_user }}/set_stacks_chainstate_perms.sh']
+  become: true
+
 - name: Deploy restore_from_snapshot.sh from template
   template:
     src: restore_from_snapshot.sh.j2
-    dest: /home/{{ svc_user }}/restore_from_snapshot.sh
+    dest: "/home/{{ svc_user }}/restore_from_snapshot.sh"
     owner: "{{ svc_user }}"
     mode: 0740
   become: true

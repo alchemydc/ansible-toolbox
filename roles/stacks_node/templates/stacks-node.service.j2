@@ -6,26 +6,19 @@ StartLimitIntervalSec=300
 ConditionFileIsExecutable=/usr/local/bin/stacks-node
 ConditionPathExists=/home/{{ svc_user }}/node
 ConditionFileNotEmpty=/home/{{ svc_user }}/node/node-config.toml
-# Directory creation and permissions
-####################################
-User={{ svc_user }}
-Group={{ svc_user }}
-WorkingDirectory=/home/{{ svc_user }}/node
+
 
 
 [Service]
 ExecStart=/usr/local/bin/stacks-node start --config /home/{{ svc_user }}/node/node-config.toml
-
-# Process management
-####################
+User={{ svc_user }}
+Group={{ svc_user }}
+WorkingDirectory=/home/{{ svc_user }}/node
 Type=simple
 Restart=on-failure
 TimeoutStopSec=600
 KillSignal=SIGTERM
 #KillSignal=SIGINT
-
-# Hardening measures
-####################
 # Provide a private /tmp and /var/tmp.
 PrivateTmp=true
 # Mount /usr, /boot/ and /etc read-only for the process.

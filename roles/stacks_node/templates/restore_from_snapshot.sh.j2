@@ -1,13 +1,25 @@
 #!/bin/bash
 set -ex
-STACKS_NETWORK="{{ stacks_network }}"
+
+function fix_permissions {
+  # set permissions on chainstate directory for svc_user
+  echo "Fixing permissions on chainstate directory"
+  sudo /home/{{ svc_user }}/set_stacks_chainstate_perms.sh
+}
 
 echo "Stopping the stacks-signer and node for snapshot restore"
 sudo systemctl stop stacks-node
 sudo systemctl stop stacks-signer
 
+fix_permissions
+
+{% if stacks_network == "testnet" %}
 echo "Deleting old chain data from /home/{{ svc_user }}/node/xenon"
 rm -rfv /home/{{ svc_user }}/node/xenon/*
+{% elif stacks_network == "mainnet" %}
+echo "Deleting old chain data from /home/{{ svc_user }}/node/xenon"
+rm -rfv /home/{{ svc_user }}/node/mainnet/*
+{% endif %}
 
 echo "Restoring the snapshot"
 # use testnet snapshot URI if stacks_network is 'testnet'
@@ -20,6 +32,8 @@ else
   echo "Using mainnet snapshot at $SNAPSHOT_URI"
   wget -O - $SNAPSHOT_URI | tar --directory /home/{{ svc_user }}/node -zxvf -
 fi
+
+fix_permissions
 
 echo "Restarting the stacks-signer and node services"
 sudo systemctl start stacks-signer

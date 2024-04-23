@@ -6,26 +6,17 @@ StartLimitIntervalSec=300
 ConditionFileIsExecutable=/usr/local/bin/stacks-signer
 ConditionPathExists=/home/{{ svc_user }}/signer
 ConditionFileNotEmpty=/home/{{ svc_user }}/signer/signer-config.toml
-# Directory creation and permissions
-####################################
-User={{ svc_user }}
-Group={{ svc_user }}
-WorkingDirectory=/home/{{ svc_user }}/signer
-
 
 [Service]
 ExecStart=/usr/local/bin/stacks-signer run --config /home/{{ svc_user }}/signer/signer-config.toml
-
-# Process management
-####################
+User={{ svc_user }}
+Group={{ svc_user }}
+WorkingDirectory=/home/{{ svc_user }}/signer
 Type=simple
 Restart=on-failure
 TimeoutStopSec=600
-#KillSignal=SIGTERM
-KillSignal=SIGINT
-
-# Hardening measures
-####################
+KillSignal=SIGTERM
+#KillSignal=SIGINT
 # Provide a private /tmp and /var/tmp.
 PrivateTmp=true
 # Mount /usr, /boot/ and /etc read-only for the process.

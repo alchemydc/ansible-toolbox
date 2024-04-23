@@ -1,4 +1,4 @@
-- name: Restart stacks-node
+- name: restart stacks-node
   systemd:
     name: stacks-node
     state: restarted
@@ -6,7 +6,7 @@
     daemon_reload: yes
   become: true
 
-- name: Restart stacks-signer
+- name: restart stacks-signer
   systemd:
     name: stacks-signer
     state: restarted
