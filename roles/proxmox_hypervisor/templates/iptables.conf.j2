@@ -132,7 +132,8 @@ COMMIT
 {% endfor %}
 
 # stacks port forwards
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ stacks_dev_port }} -j DNAT --to-destination {{ stacks_dev_host }}:{{ stacks_dev_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ stacks_testnet_port }} -j DNAT --to-destination {{ stacks_testnet_host }}:{{ stacks_testnet_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ stacks_mainnet_port }} -j DNAT --to-destination {{ stacks_mainnet_host }}:{{ stacks_mainnet_port }}
 
 # SNAT's for outbound traffic
 # SNAT traffic from private subnet guests

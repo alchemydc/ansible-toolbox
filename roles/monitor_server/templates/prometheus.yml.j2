@@ -82,7 +82,8 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-        - 'stacks-dev:9153'
+        - 'stacks-testnet:9153'
+        - 'stacks-mainnet:9153'
 
   # federate metrics from the rocketpool monitoring stack
   - job_name: 'federate'

@@ -17,8 +17,8 @@ WorkingDirectory=/home/{{ svc_user }}/node
 Type=simple
 Restart=on-failure
 TimeoutStopSec=600
-KillSignal=SIGTERM
-#KillSignal=SIGINT
+#KillSignal=SIGTERM
+KillSignal=SIGINT
 # Provide a private /tmp and /var/tmp.
 PrivateTmp=true
 # Mount /usr, /boot/ and /etc read-only for the process.

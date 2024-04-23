@@ -17,7 +17,11 @@ network = "testnet"
 {% endif %}
 
 # This is the hex-encoded privateKey field from `npx stacks-gen sk --testnet`
-stacks_private_key = "{{ stacks_private_key }}"
+{% if stacks_network == "mainnet" %}
+stacks_private_key = "{{ stacks_mainnet_private_key }}"
+{% elif stacks_network == "testnet" %}
+stacks_private_key = "{{ stacks_testnet_private_key }}"
+{% endif %}
 
 # this is a file path where your signer will persist data. If using Docker, 
 # this must be within a volume, so that data can be persisted across restarts
