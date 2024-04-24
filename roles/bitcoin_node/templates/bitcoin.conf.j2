@@ -29,6 +29,7 @@
 # signet:
 # 0000000870f15246ba23c16e370a7ffb1fc8a3dcf8cb4492882ed4b0e3d4cd26)
 #assumevalid=<hex>
+#assumevalid=00000000000000000001de69ca10699e0c7b85f2484014c02e063bb894d1cc2b
 
 # Maintain an index of compact filters by block (default: 0, values:
 # basic). If <type> is not supplied or if <type> = 1, indexes for
@@ -62,7 +63,7 @@
 #conf=<file>
 
 # Run in the background as a daemon and accept commands (default: 0)
-#daemon=1
+daemon=0
 
 # Wait for initialization to be finished before exiting. This implies
 # -daemon (default: 0)
@@ -621,6 +622,9 @@ printtoconsole=1
 # ipv4 (0.0.0.0/0), or all ipv6 (::/0). This option can be
 # specified multiple times
 #rpcallowip=<ip>
+rpcallowip=10.0.0.0/8
+rpcallowip=172.16.0.0/12
+rpcallowip=192.168.0.0/16
 
 # Username and HMAC-SHA-256 hashed password for JSON-RPC connections. The
 # field <userpw> comes in the format: <USERNAME>:<SALT>$<HASH>. A
@@ -629,6 +633,7 @@ printtoconsole=1
 # rpcuser=<USERNAME>/rpcpassword=<PASSWORD> pair of arguments. This
 # option can be specified multiple times
 #rpcauth=<userpw>
+rpcauth={{ bitcoin_rpc_username }}:{{ bitcoin_rpcauth_hash }}
 
 # Bind to given address to listen for JSON-RPC connections. Do not expose
 # the RPC server to untrusted networks such as the public internet!
@@ -637,6 +642,7 @@ printtoconsole=1
 # IPv6. This option can be specified multiple times (default:
 # 127.0.0.1 and ::1 i.e., localhost)
 #rpcbind=<addr>[:port]
+rpcbind=0.0.0.0
 
 # Location of the auth cookie. Relative paths will be prefixed by a
 # net-specific datadir location. (default: data dir)
@@ -644,6 +650,7 @@ printtoconsole=1
 
 # Password for JSON-RPC connections
 #rpcpassword=<pw>
+rpcpassword={{ bitcoin_rpc_password }}
 
 # Listen for JSON-RPC connections on <port> (default: 8332, testnet:
 # 18332, signet: 38332, regtest: 18443)
@@ -654,6 +661,7 @@ printtoconsole=1
 
 # Username for JSON-RPC connections
 #rpcuser=<user>
+rpcuser={{ bitcoin_rpc_username }}
 
 # Set a whitelist to filter incoming RPC calls for a specific user. The
 # field <whitelist> comes in the format: <USERNAME>:<rpc 1>,<rpc

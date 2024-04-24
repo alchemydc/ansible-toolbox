@@ -1,14 +1,29 @@
 [Unit]
 Description=Bitcoin daemon
-After=network.target
+# https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
+After=network-online.target
+Wants=network-online.target
+#After=network.target
+ConditionFileIsExecutable=/home/{{ svc_user }}/bin/bitcoind
+ConditionPathExists=/home/{{ svc_user }}/.bitcoin
+ConditionFileNotEmpty=/home/{{ svc_user }}/.bitcoin/bitcoin.conf
 
 [Service]
-ExecStart=/home/{{ svc_user }}/bin/bitcoind -daemon -conf=/home/{{ svc_user }}/.bitcoin/bitcoin.conf -pid=/home/{{ svc_user }}/.bitcoin/bitcoind.pid
+ExecStart=/home/{{ svc_user }}/bin/bitcoind \
+  -conf=/home/{{ svc_user }}/.bitcoin/bitcoin.conf \
+  -pid=/home/{{ svc_user }}/.bitcoin/bitcoind.pid  \
+  -startupnotify='systemd-notify --ready'
+PermissionsStartOnly=true
 User={{ svc_user }}
 Group={{ svc_user }}
-Type=forking
+Type=notify
+NotifyAccess=all
 PIDFile=/home/{{ svc_user }}/.bitcoin/bitcoind.pid
 Restart=on-failure
+StartLimitBurst=3
+StartLimitIntervalSec=300
+TimeoutStopSec=600s
+TimeoutStartSec=infinity
 # Provide a private /tmp and /var/tmp.
 PrivateTmp=true
 # Mount /usr, /boot/ and /etc read-only for the process.
@@ -17,15 +32,10 @@ NoNewPrivileges=true
 # Use a new /dev namespace only populated with API pseudo devices
 # such as /dev/null, /dev/zero and /dev/random.
 PrivateDevices=true
-
-StartLimitBurst=3
-StartLimitIntervalSec=300
-TimeoutStopSec=60s
-TimeoutStartSec=2s
-ConditionFileIsExecutable=/home/{{ svc_user }}/bin/bitcoind
-ConditionPathExists=/home/{{ svc_user }}/.bitcoin
-ConditionFileNotEmpty=/home/{{ svc_user }}/.bitcoin/bitcoin.conf
-
-
+# Deny the creation of writable and executable memory mappings.
+MemoryDenyWriteExecute=true
+# Restrict ABIs to help ensure MemoryDenyWriteExecute is enforced
+SystemCallArchitectures=native
+\
 [Install]
 WantedBy=multi-user.target

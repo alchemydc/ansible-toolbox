@@ -4,5 +4,6 @@ bitcoin_version: "27.0"
 #bitcoin_binary_url: "https://bitcoincore.org/bin/bitcoin-core-27.0/bitcoin-27.0-x86_64-linux-gnu.tar.gz"
 bitcoin_binary_url: "https://bitcoincore.org/bin/bitcoin-core-{{ bitcoin_version }}/bitcoin-{{ bitcoin_version }}-{{ ansible_architecture }}-linux-gnu.tar.gz"
 
-
-
+bitcoin_rpc_username: "{{ vault_bitcoin_rpc_username }}"
+bitcoin_rpc_password: "{{ vault_bitcoin_rpc_password }}"
+bitcoin_rpcauth_hash: "{{ vault_bitcoin_rpcauth_hash }}"
