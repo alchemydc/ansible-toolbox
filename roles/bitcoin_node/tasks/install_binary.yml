@@ -1,0 +1,48 @@
+- name: Download binary
+  get_url:
+    url: "{{ bitcoin_binary_url }}"
+    dest: "/tmp/bitcoin-{{ bitcoin_version }}.tar.gz"
+  become: true
+  become_user: "{{ svc_user }}"
+  notify: restart bitcoind
+
+- name: Unarchive binary
+  unarchive:
+    src: "/tmp/bitcoin-{{ bitcoin_version }}.tar.gz"
+    dest: "/home/{{ svc_user }}"
+    remote_src: yes
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Ensure /home/{{ svc_user }}/bin exists
+  file:
+    path: "/home/{{ svc_user }}/bin"
+    state: directory
+    owner: "{{ svc_user }}"
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Install binaries into /home/{{ svc_user }}/bin
+  command: "install -m 0755 -o {{ svc_user }} -g {{ svc_user }} -t /home/{{ svc_user }}/bin/ /home/{{ svc_user }}/bitcoin-{{ bitcoin_version }}/bin/{{ item }}"
+  loop:
+    - "bitcoin-cli"
+    - "bitcoind"
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Ensure /home/{{ svc_user }}/bin is in PATH
+  lineinfile:
+    path: "/home/{{ svc_user }}/.bashrc"
+    line: "export PATH=$PATH:/home/{{ svc_user }}/bin"
+    create: yes
+  become: true
+  become_user: "{{ svc_user }}"
+  #register: path_result
+
+- name: Create ll alias in .bashrc
+  lineinfile:
+    path: "/home/{{ svc_user }}/.bashrc"
+    line: "ll='ls -alF'"
+    create: yes
+  become: true
+  become_user: "{{ svc_user }}"

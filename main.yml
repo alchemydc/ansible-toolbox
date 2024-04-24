@@ -76,6 +76,8 @@
       tags: stacks_node
     - role: timemachine_server
       tags: timemachine_server
+    - role: bitcoin_node
+      tags: bitcoin_node
       
   handlers:
       - name: restart sshd

@@ -1,0 +1,66 @@
+- name: Create svc_user
+  user:
+    name: "{{ svc_user }}"
+    state: present
+    shell: /bin/bash
+    createhome: yes
+    home: "/home/{{ svc_user }}"
+    password: "*"
+    update_password: on_create
+  become: true
+
+- name: Upgrade all packages
+  apt:
+    update_cache: yes
+    upgrade: full
+  become: true
+
+- name: Install acl package via apt
+  apt:
+    name: acl
+    state: present
+  become: true
+
+#- name: Build from source
+#  include_tasks: build_bitcoind.yml
+
+- name: Install binary
+  include_tasks: install_binary.yml
+
+- name: Ensure .bitcoin dir exists
+  file:
+    path: "/home/{{ svc_user }}/.bitcoin"
+    state: directory
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0700
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Install config file from template
+  template:
+    src: bitcoin.conf.j2
+    dest: "/home/{{ svc_user }}/.bitcoin/bitcoin.conf"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0600
+  become: true
+  become_user: "{{ svc_user }}"
+  notify: restart bitcoind
+
+- name: Install systemd service from template
+  template:
+    src: bitcoind.service.j2
+    dest: "/etc/systemd/system/bitcoind.service"
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: daemon-reload
+
+- name: Enable and Start bitcoind
+  systemd:
+    name: bitcoind
+    enabled: yes
+    state: started
+  become: true

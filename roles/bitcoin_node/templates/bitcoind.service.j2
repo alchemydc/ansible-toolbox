@@ -1,0 +1,31 @@
+[Unit]
+Description=Bitcoin daemon
+After=network.target
+
+[Service]
+ExecStart=/home/{{ svc_user }}/bin/bitcoind -daemon -conf=/home/{{ svc_user }}/.bitcoin/bitcoin.conf -pid=/home/{{ svc_user }}/.bitcoin/bitcoind.pid
+User={{ svc_user }}
+Group={{ svc_user }}
+Type=forking
+PIDFile=/home/{{ svc_user }}/.bitcoin/bitcoind.pid
+Restart=on-failure
+# Provide a private /tmp and /var/tmp.
+PrivateTmp=true
+# Mount /usr, /boot/ and /etc read-only for the process.
+ProtectSystem=full
+NoNewPrivileges=true
+# Use a new /dev namespace only populated with API pseudo devices
+# such as /dev/null, /dev/zero and /dev/random.
+PrivateDevices=true
+
+StartLimitBurst=3
+StartLimitIntervalSec=300
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+ConditionFileIsExecutable=/home/{{ svc_user }}/bin/bitcoind
+ConditionPathExists=/home/{{ svc_user }}/.bitcoin
+ConditionFileNotEmpty=/home/{{ svc_user }}/.bitcoin/bitcoin.conf
+
+
+[Install]
+WantedBy=multi-user.target

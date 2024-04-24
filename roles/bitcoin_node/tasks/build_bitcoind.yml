@@ -1,0 +1,30 @@
+- name: Install dependencies
+  apt:
+    name:
+      - build-essential
+      - libtool
+      - autotools-dev
+      - automake
+      - pkg-config
+      - bsdmainutils
+      - python3
+      - libevent-dev
+      - libboost-dev
+    state: present
+  become: true
+
+- name: Clone repository
+  git:
+    repo: "{{ bitcoin_repo }}"
+    tag: "v{{ bitcoin_version }}"
+    update: yes
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Build bitcoind
+  command: ./autogen.sh && ./configure --without-gui --disable-wallet && make
+  args:
+    chdir: "/home/{{ svc_user }}/bitcoin"
+  become: true
+  become_user: "{{ svc_user }}"
+
