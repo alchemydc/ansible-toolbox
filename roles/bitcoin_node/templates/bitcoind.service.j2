@@ -7,6 +7,8 @@ Wants=network-online.target
 ConditionFileIsExecutable=/home/{{ svc_user }}/bin/bitcoind
 ConditionPathExists=/home/{{ svc_user }}/.bitcoin
 ConditionFileNotEmpty=/home/{{ svc_user }}/.bitcoin/bitcoin.conf
+StartLimitBurst=3
+StartLimitIntervalSec=300
 
 [Service]
 ExecStart=/home/{{ svc_user }}/bin/bitcoind \
@@ -20,8 +22,7 @@ Type=notify
 NotifyAccess=all
 PIDFile=/home/{{ svc_user }}/.bitcoin/bitcoind.pid
 Restart=on-failure
-StartLimitBurst=3
-StartLimitIntervalSec=300
+
 TimeoutStopSec=600s
 TimeoutStartSec=infinity
 # Provide a private /tmp and /var/tmp.
@@ -36,6 +37,6 @@ PrivateDevices=true
 MemoryDenyWriteExecute=true
 # Restrict ABIs to help ensure MemoryDenyWriteExecute is enforced
 SystemCallArchitectures=native
-\
+
 [Install]
 WantedBy=multi-user.target

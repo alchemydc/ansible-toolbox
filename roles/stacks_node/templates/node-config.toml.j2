@@ -37,9 +37,16 @@ stacker = true
 [burnchain]
 chain = "bitcoin"
 mode = "mainnet"
-peer_host = "bitcoind.stacks.co"
-username = "blockstack"
-password = "blockstacksystem"
+
+# peer_host = "bitcoind.stacks.co"
+# username = "blockstack"
+# password = "blockstacksystem"
+# rpc_port = 8332
+# peer_port = 8333
+
+peer_host = "bitcoin-mainnet"
+username = "{{ bitcoin_rpc_username }}"
+password = "{{ bitcoin_rpc_password }}"
 rpc_port = 8332
 peer_port = 8333
 {% endif %}

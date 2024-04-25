@@ -1,6 +1,12 @@
 #!/bin/bash
 #set -ex
 
+{% if stacks_network == "mainnet" %}
+STACKS_POX_ADDRESS="{{ stacks_mainnet_pox_address }}"
+{% elif stacks_network == "testnet" %}
+STACKS_POX_ADDRESS="{{ stacks_testnet_pox_address }}"
+{% endif %}
+
 REWARD_CYCLE=$(curl -s 'http://localhost:20443/v2/pox' | jq .current_cycle.id)
 NEXT_REWARD_CYCLE=$(($REWARD_CYCLE + 1))
 echo "Next reward cycle: $NEXT_REWARD_CYCLE"
@@ -33,7 +39,7 @@ fi
 MAX_AMOUNT_STX=$(($MAX_AMOUNT_USTX / 1000000))
 
 /usr/local/bin/stacks-signer generate-stacking-signature  \
-  --pox-address {{ stacks_pox_address }}                  \
+  --pox-address $STACKS_POX_ADDRESS                       \
   --reward-cycle $NEXT_REWARD_CYCLE                       \
   --config /home/{{ svc_user }}/signer/signer-config.toml \
   --period 1                                              \
