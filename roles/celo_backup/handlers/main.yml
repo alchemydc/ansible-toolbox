@@ -1,0 +1,16 @@
+- name: deploy geth binaries
+  copy:
+    src: "/home/{{ celo_user }}/celo-blockchain/build/bin/geth"
+    remote_src: yes
+    dest: "/home/{{ celo_user }}/go/bin/geth"
+    owner: "{{ celo_user }}"
+    mode: '0755'
+  become: true
+  notify: restart celo-geth
+
+- name: restart celo-geth
+  systemd:
+    name: celo-geth
+    state: restarted
+    enabled: yes
+  become: true

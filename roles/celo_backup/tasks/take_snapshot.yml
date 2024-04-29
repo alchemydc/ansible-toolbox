@@ -21,6 +21,6 @@
     name: '{{ network }} snapshot'
     minute: '{{ snapshot_minute }}'
     hour: '{{ snapshot_hour }}'
-    job: '/bin/bash /home/{{ celo_user }}/take_snapshot.sh'
+    job: '/bin/bash /home/{{ celo_user }}/take_snapshot.sh | logger'
   when: (schedule_snapshots is defined and schedule_snapshots|bool == true )
   become: true

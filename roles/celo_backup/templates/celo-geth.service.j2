@@ -21,6 +21,7 @@ ExecStart=/home/{{ celo_user }}/go/bin/geth \
 --light.serve 0 \
 --maxpeers {{ geth_maxpeers }} \
 --{{ network }} \
+--metrics --pprof --pprof.addr 0.0.0.0 \
 
 [Install]
 WantedBy=default.target

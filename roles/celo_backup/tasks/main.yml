@@ -40,6 +40,15 @@
     group: "{{ celo_user }}"
   become: true
 
+- name: Create go/bin directory
+  file:
+    path: "/home/{{ celo_user }}/go/bin"
+    state: directory
+    owner: "{{ celo_user }}"
+    group: "{{ celo_user }}"
+    mode: '0755'
+  become: true
+
 - name: Set variables required for include_tasks install_golang.yml
   set_fact:
     svc_user: "{{ celo_user }}"

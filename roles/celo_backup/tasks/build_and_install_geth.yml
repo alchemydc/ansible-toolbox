@@ -22,23 +22,5 @@
         GOPATH: '/home/{{ celo_user }}/go'
       become: true
       become_user: "{{ celo_user }}"
+      notify: deploy geth binaries
 
-- name: Install geth binary
-  block:
-    - name: Create go/bin directory
-      file:
-        path: "/home/{{ celo_user }}/go/bin"
-        state: directory
-        owner: "{{ celo_user }}"
-        group: "{{ celo_user }}"
-        mode: '0755'
-      become: true
-
-    - name: Copy built geth binary to go/bin
-      copy:
-        src: "/home/{{ celo_user }}/celo-blockchain/build/bin/geth"
-        remote_src: yes
-        dest: "/home/{{ celo_user }}/go/bin/geth"
-        owner: "{{ celo_user }}"
-        mode: '0755'
-      become: true
