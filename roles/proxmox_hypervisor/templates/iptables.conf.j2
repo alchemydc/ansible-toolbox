@@ -30,10 +30,20 @@
 -A INPUT -s {{ ups_client_subnet }} -p tcp -m tcp --dport {{ nut_port }} -j ACCEPT
 {% endif %}
 
+# actively reject connections to RFC1918 addresses on the public interface
+-A OUTPUT -o {{ public_bridge }} -d 10.0.0.0/8 -j REJECT
+-A OUTPUT -o {{ public_bridge }} -d 172.16.0.0/12 -j ACCEPT
+-A OUTPUT -o {{ public_bridge }} -d 192.168.0.0/16 -j REJECT
+
 # log and drop everything else
 -A INPUT -j LOGANDDROP
 -A LOGANDDROP -m limit --limit 1/sec -j LOG --log-prefix "IPT_" --log-level 7
 -A LOGANDDROP -j DROP
+
+# actively reject connections to RFC1918 addresses on the public interface
+-A FORWARD -o {{ public_bridge }} -d 10.0.0.0/8 -j REJECT
+-A FORWARD -o {{ public_bridge }} -d 172.16.0.0/12 -j REJECT
+-A FORWARD -o {{ public_bridge }} -d 192.168.0.0/16 -j REJECT
 
 # permit prometheus connections from {{ anycast_subnets[1] }} to {{ anycast_subnets[0] }}
 -A FORWARD -s {{ anycast_subnets[1] }} -d {{ anycast_subnets[0] }} -p tcp --dport 9100 -m state --state NEW -j ACCEPT
