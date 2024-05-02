@@ -43,5 +43,5 @@
   when: docker_pull_result.stdout is search('Downloaded newer image for haproxy:lts-alpine')
 
 - name: Prune unused docker images
-  command: "docker image prune -a --force"
+  command: "docker image prune --force"
   become: true

@@ -28,6 +28,7 @@ peer_port = 18333
 
 {% elif stacks_network == "mainnet" %}
 p2p_bind = "0.0.0.0:{{ stacks_mainnet_port }}"  #must be exposed to the internet (TCP only per Stacks team)
+#p2p_address = "{{ stacks_mainnet_p2p_address }}"
 
 # This is the node that your node will use to begin syncing chain state
 bootstrap_node = "02196f005965cebe6ddc3901b7b1cc1aa7a88f305bb8c5893456b8f9a605923893@seed.mainnet.hiro.so:20444,02539449ad94e6e6392d8c1deb2b4e61f80ae2a18964349bc14336d8b903c46a8c@cet.stacksnodes.org:20444,02ececc8ce79b8adf813f13a0255f8ae58d4357309ba0cedd523d9f1a306fcfb79@sgt.stacksnodes.org:20444,0303144ba518fe7a0fb56a8a7d488f950307a4330f146e1e1458fc63fb33defe96@est.stacksnodes.org:20444"
@@ -55,6 +56,20 @@ peer_port = 8333
 # This should match the auth_password field of your signer config
 [connection_options]
 block_proposal_token = "{{ stacks_http_auth_token }}"
+# do not try to connect to p2p peers with non routable IP's
+private_neighbors = false
+num_clients = 10 # inbound p2p connections
+
+# testing: this may resolve some p2p discovery wonkiness
+#public_ip_address = "{{ stacks_mainnet_p2p_address }}"
+
+# setting this in an attempt to reduce overall number of p2p peers
+# notably, this does not cap peers like one would expect
+num_neighbors = 10 # number of neighbor's inventories to track
+
+#max_sockets = n # max number of network sockets to open
+#inv_sync_interval = n # in seconds, how often block inventories are refreshed from neighbors
+
 
 # Set your signer as an event observer
 [[events_observer]]

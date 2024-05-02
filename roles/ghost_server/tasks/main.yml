@@ -61,4 +61,3 @@
 - name: Enable snapshot backups of ghost site content
   import_tasks: take_snapshot.yml
 
-  

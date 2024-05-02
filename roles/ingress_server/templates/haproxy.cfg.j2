@@ -29,15 +29,16 @@ frontend stats
 #  server evmos-relayer-1 evmos-relayer-1:34657 check
 #  # server evmos-relayer-1 evmos-relayer-1:34657 check inter 30s    #only check health every 30s
 
-frontend agoric_rpc
-  bind :44657
-  default_backend agoric_rpc
+#frontend agoric_rpc
+#  bind :44657
+#  default_backend agoric_rpc
 
-backend agoric_rpc
-  option httpchk
-  http-check send meth GET uri /status
-  http-check expect string '"catching_up":false'
-  server agoric-relayer-0 agoric-relayer-0:44657 check
-  server agoric-relayer-1 agoric-relayer-1:44657 check
+#backend agoric_rpc
+#  option httpchk
+#  http-check send meth GET uri /status
+#  http-check expect string '"catching_up":false'
+#  server agoric-relayer-0 agoric-relayer-0:44657 check
+#  server agoric-relayer-1 agoric-relayer-1:44657 check
 
 # haproxy needs a trailing linefeed after last config line!!
+

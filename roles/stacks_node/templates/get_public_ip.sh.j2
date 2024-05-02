@@ -1,0 +1,5 @@
+#!/bin/bash
+set -ex
+
+echo "PUBLIC_IP=$(curl -s '{{ icanhazip_uri }} ')" > /home/{{ svc_user }}/node/environment.env
+

@@ -1,0 +1,8 @@
+# defining these again here due to precedence issues with vault vars
+# ref: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable
+
+# r2 specific variables
+r2_access_key_id: "{{ vault_ghost_r2_access_key_id }}"
+r2_secret_access_key: "{{ vault_ghost_r2_secret_access_key }}"
+r2_endpoint: "{{ vault_ghost_r2_endpoint }}"
+backup_bucket_name: "{{ vault_ghost_backup_bucket_name }}"

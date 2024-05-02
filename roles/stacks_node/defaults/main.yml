@@ -7,6 +7,9 @@ stacks_http_auth_token: "{{ vault_stacks_http_auth_token }}"
 stacks_local_peer_seed: "{{ vault_stacks_local_peer_seed }}"
 stacks_testnet_pox_address: "{{ vault_stacks_testnet_pox_address }}"
 stacks_mainnet_pox_address: "{{ vault_stacks_mainnet_pox_address }}"
+# the p2p public address autodiscovery doesn't seem reliable, so we hard code it here
+# this is used in the node-config.toml.j2 template
+stacks_mainnet_p2p_address: "{{ vault_stacks_mainnet_p2p_address }}"
 
 stacks_repo: "https://github.com/stacks-network/stacks-core"
 #stacks_version: "2.5.0.0.0-rc1"

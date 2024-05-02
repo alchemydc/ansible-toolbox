@@ -19,3 +19,4 @@ gcloud_project_number: "{{ vault_gcloud_project_number }}"
 r2_access_key_id: "{{ vault_r2_access_key_id }}"
 r2_secret_access_key: "{{ vault_r2_secret_access_key }}"
 r2_endpoint: "{{ vault_r2_endpoint }}"
+
