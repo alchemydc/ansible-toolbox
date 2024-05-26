@@ -58,17 +58,24 @@ peer_port = 8333
 block_proposal_token = "{{ stacks_http_auth_token }}"
 # do not try to connect to p2p peers with non routable IP's
 private_neighbors = false
-num_clients = 10 # inbound p2p connections
+num_clients = 5 # inbound p2p connections
 
 # testing: this may resolve some p2p discovery wonkiness
 #public_ip_address = "{{ stacks_mainnet_p2p_address }}"
 
 # setting this in an attempt to reduce overall number of p2p peers
 # notably, this does not cap peers like one would expect
-num_neighbors = 10 # number of neighbor's inventories to track
+num_neighbors = 5 # number of neighbor's inventories to track
 
 #max_sockets = n # max number of network sockets to open
 #inv_sync_interval = n # in seconds, how often block inventories are refreshed from neighbors
+
+# perf tuning (testing)
+read_only_call_limit_write_length = 0
+read_only_call_limit_read_length = 100000
+read_only_call_limit_write_count = 0
+read_only_call_limit_read_count = 30
+read_only_call_limit_runtime = 1000000000
 
 
 # Set your signer as an event observer

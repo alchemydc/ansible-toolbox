@@ -13,6 +13,7 @@
     - ghcr.io/hotio/readarr
     - lscr.io/linuxserver/lidarr
     - lscr.io/linuxserver/jackett
+    - lscr.io/linuxserver/overserr
   register: docker_pull_result
   become: true
 
@@ -33,17 +34,19 @@
     - wireguard
     - calibre
     - traefik
-    - deluge
+    #- deluge
     - transmission
     - plex
     - radarr
     - readarr
     - lidarr
     - jackett
+    - overseerr
   when: docker_restart_required is defined
   become: true
 
 - name: Prune unused docker images
-  command: "docker image prune -a --force"
+  #command: "docker image prune -a --force"
+  command: "docker image prune --force"
   when: docker_restart_required is defined
   become: true

@@ -1,0 +1,17 @@
+- name: Deploy overseerr service systemd service file
+  template:
+    src: overseerr.service.j2
+    dest: "/etc/systemd/system/overseerr.service"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart overseerr
+  become: true
+
+- name: Enable and start overseerr service
+  systemd:
+    name: overseerr.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true

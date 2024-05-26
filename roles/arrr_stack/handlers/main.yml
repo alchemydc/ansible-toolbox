@@ -87,3 +87,9 @@
     daemon_reload: yes
     state: restarted
   become: true
+- name: restart overseerr
+  systemd:
+    name: overseerr
+    daemon_reload: yes
+    state: restarted
+  become: true

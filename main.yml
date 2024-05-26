@@ -78,6 +78,8 @@
       tags: timemachine_server
     - role: bitcoin_node
       tags: bitcoin_node
+    - role: nodeset_server
+      tags: nodeset_server
       
   handlers:
       - name: restart sshd

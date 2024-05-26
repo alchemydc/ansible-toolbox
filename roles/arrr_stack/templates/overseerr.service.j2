@@ -1,0 +1,36 @@
+## overseerr systemd unit
+[Unit]
+Description=overseerr service
+Requires=wireguard.service
+After=wireguard.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+[Service]
+User={{ svc_user }}
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name overseerr \
+  --network=container:wireguard \
+  -e PUID={{ svc_uid }} \
+  -e PGID={{ svc_uid }} \
+  -e UMASK=002 \
+  -e TZ="Etc/UTC" \
+  -v /home/{{ svc_user }}/overseerr/config:/config \
+  --label "traefik.enable=true" \
+  --label "traefik.http.routers.overseerr.entrypoints=http" \
+  --label "traefik.http.routers.overseerr.rule=Host(`overseerr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.overseerr.service=overseerr" \
+  --label "traefik.http.routers.overseerr-secure.entrypoints=https" \
+  --label "traefik.http.routers.overseerr-secure.rule=Host(`overseerr.{{ service_domain }}`)" \
+  --label "traefik.http.routers.overseerr-secure.tls=true" \
+  --label "traefik.http.routers.overseerr-secure.service=overseerr" \
+  --label "traefik.http.services.overseerr.loadbalancer.server.port=5055" \
+  ghcr.io/hotio/overseerr
+ExecStop=/usr/bin/docker stop overseerr
+
+[Install]
+WantedBy=default.target
+

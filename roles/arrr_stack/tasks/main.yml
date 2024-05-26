@@ -76,6 +76,7 @@
     - "/home/{{ svc_user }}/lms"
     - "/home/{{ svc_user }}/lms/config"
     - "/home/{{ svc_user }}/lms/playlist"
+    - "/home/{{ svc_user }}/overseerr/config"
   become: true
 
 - name: Create DO_NOT_USE file
@@ -121,8 +122,8 @@
 #- name: Deploy qbittorrent
 #  import_tasks: qbittorrent.yml
 
-- name: Deploy deluge
-  import_tasks: deluge.yml
+#- name: Deploy deluge
+#  import_tasks: deluge.yml
 
 - name: Deploy plex
   import_tasks: plex.yml
@@ -136,5 +137,9 @@
 - name: Deploy jackett
   import_tasks: jackett.yml
 
-- name: Deploy LMS
-  import_tasks: lms.yml
+#- name: Deploy LMS
+#  import_tasks: lms.yml
+
+- name: Deploy overseerr
+  import_tasks: overseerr.yml
+
