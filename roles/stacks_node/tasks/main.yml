@@ -67,9 +67,17 @@
 
 - name: Build stacks from source
   include_tasks: build_stacks.yml
+  when: install_type == "source"
   #vars:
   #  svc_user: "{{ svc_user }}"
   #  stacks_repo: "{{ stacks_repo }}"
+  #  stacks_version: "{{ stacks_version }}"
+
+- name: Install stacks binaries
+  include_tasks: install_binaries.yml
+  when: install_type == "binary"
+  #vars:
+  #  svc_user: "{{ svc_user }}"
   #  stacks_version: "{{ stacks_version }}"
 
 - name: Install nodejs

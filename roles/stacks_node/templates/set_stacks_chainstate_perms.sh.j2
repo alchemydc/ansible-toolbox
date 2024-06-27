@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-if [ -d "/home/{{ svc_user }}/node/xenon/chainstate" ]; then
+if [ -d "/home/{{ svc_user }}/node/xenon/chainstate" ] || [ -d "/home/{{ svc_user }}/node/mainnet/chainstate" ]; then
     echo "Setting permissions on chainstate directory for {{ svc_user }}"
     {% if stacks_network == "testnet" %}
     echo "Setting perms on testnet data"

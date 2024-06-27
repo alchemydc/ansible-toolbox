@@ -15,10 +15,12 @@ User={{ svc_user }}
 Group={{ svc_user }}
 WorkingDirectory=/home/{{ svc_user }}/node
 Type=simple
-Restart=on-failure
-TimeoutStopSec=600
-#KillSignal=SIGTERM
+Restart=no
+TimeoutStopSec=900
+# KillSignal=SIGTERM    # do not use -- can lead to chainstate corruption
 KillSignal=SIGINT
+SendSIGKILL=no
+
 # Provide a private /tmp and /var/tmp.
 PrivateTmp=true
 # Mount /usr, /boot/ and /etc read-only for the process.

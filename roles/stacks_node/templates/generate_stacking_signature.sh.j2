@@ -10,6 +10,16 @@ STACKS_POX_ADDRESS="{{ stacks_testnet_pox_address }}"
 REWARD_CYCLE=$(curl -s 'http://localhost:20443/v2/pox' | jq .current_cycle.id)
 NEXT_REWARD_CYCLE=$(($REWARD_CYCLE + 1))
 echo "Next reward cycle: $NEXT_REWARD_CYCLE"
+# Get reward cycle to commit to from user
+echo "Please enter the reward cycle to commit to (integer):"
+read REWARD_CYCLE
+# Check if the input is an integer
+if [[ $REWARD_CYCLE =~ ^[0-9]+$ ]]; then
+    echo "Using reward cycle: $REWARD_CYCLE"
+else
+    echo "Error: Reward cycle input is not an integer."
+    exit 1
+fi
 
 # Get auth ID from user
 echo "Please enter an integer auth ID (nonce) that has not been previously used for a stacking TX:"
@@ -40,14 +50,12 @@ MAX_AMOUNT_STX=$(($MAX_AMOUNT_USTX / 1000000))
 
 /usr/local/bin/stacks-signer generate-stacking-signature  \
   --pox-address $STACKS_POX_ADDRESS                       \
-  --reward-cycle $NEXT_REWARD_CYCLE                       \
+  --reward-cycle $REWARD_CYCLE                       \
   --config /home/{{ svc_user }}/signer/signer-config.toml \
   --period 1                                              \
   --method agg-commit                                     \
   --max-amount $MAX_AMOUNT_USTX                           \
   --auth-id $AUTH_ID
-
-
 
 echo "Note that CLI max-amount is in microstacks (uSTX), not stacks."
 echo "lockstacks.com UI max-amount is in stacks, not uSTX."

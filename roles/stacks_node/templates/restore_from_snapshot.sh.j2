@@ -17,7 +17,7 @@ fix_permissions
 echo "Deleting old chain data from /home/{{ svc_user }}/node/xenon"
 rm -rfv /home/{{ svc_user }}/node/xenon/*
 {% elif stacks_network == "mainnet" %}
-echo "Deleting old chain data from /home/{{ svc_user }}/node/xenon"
+echo "Deleting old chain data from /home/{{ svc_user }}/node/mainnet"
 rm -rfv /home/{{ svc_user }}/node/mainnet/*
 {% endif %}
 

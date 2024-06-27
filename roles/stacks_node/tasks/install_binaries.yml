@@ -1,0 +1,47 @@
+- name: Download binary archive
+  get_url:
+    url: "https://github.com/stacks-network/stacks-core/releases/download/{{ stacks_version }}/linux-glibc-x64.zip"
+    dest: '/tmp/stacks-binaries_{{ stacks_version }}.zip'
+    mode: '0644'
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Create directory for extracted binaries
+  file:
+    path: "/tmp/stacks-binaries_{{ stacks_version }}"
+    state: directory
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Extract binary archive
+  unarchive:
+    src: '/tmp/stacks-binaries_{{ stacks_version }}.zip'
+    dest: '/tmp/stacks-binaries_{{ stacks_version }}'
+    remote_src: true
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Install binaries
+  copy:
+    src: '/tmp/stacks-binaries_{{ stacks_version }}/{{ item }}'
+    dest: '/usr/local/bin/{{ item }}'
+    remote_src: true
+  become: true
+  loop:
+    - 'stacks-node'
+    - 'stacks-signer'
+
+- name: Clean up downloaded binaries
+  file:
+    path: "/tmp/stacks-binaries_{{ stacks_version }}"
+    state: absent
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Clean up downloaded archive
+  file:
+    path: "/tmp/stacks-binaries_{{ stacks_version }}.zip"
+    state: absent
+  become: true
+  become_user: "{{ svc_user }}"
+
