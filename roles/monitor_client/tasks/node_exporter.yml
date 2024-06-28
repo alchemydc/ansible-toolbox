@@ -17,7 +17,7 @@
   file:
     path: '{{ item }}'
     state: directory
-    mode: '0750'
+    mode: '0755'
     owner: "node_exporter"
     group: "node_exporter"
   loop:
