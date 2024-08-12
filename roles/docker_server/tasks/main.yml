@@ -66,9 +66,9 @@
     append: yes
   loop: "{{ admin_users }}"
 
-- name: Install docker-compose
-  import_tasks: compose.yml
-  tags: docker_compose
+#- name: Install docker-compose
+#  import_tasks: compose.yml
+#  tags: docker_compose
 
 # docker-compose v2 not functional w/ ansible as of nov 2023
 # ref: https://github.com/ansible-collections/community.docker/issues/216

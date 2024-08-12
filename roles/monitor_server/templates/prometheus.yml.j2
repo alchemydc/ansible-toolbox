@@ -22,9 +22,9 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-          - 'agoric-snapshot:44660'
-          - 'agoric-relayer-0:44660'
-          - 'agoric-relayer-1:44660'
+          #- 'agoric-snapshot:44660'
+          #- 'agoric-relayer-0:44660'
+          #- 'agoric-relayer-1:44660'
           - 'agoric-main-0:44660'
           - 'agoric-main-1:44660'
           - 'agoric-emerynet-main-0:45660'
@@ -40,7 +40,7 @@ scrape_configs:
     metrics_path: /debug/metrics/prometheus
     static_configs:
       - targets:
-          - 'celo-baklava-validator:6060'
+          #- 'celo-baklava-validator:6060'
           - 'celo-v0-alpha:6060'
           - 'celo-v0-bravo:6060'
           - 'celo-v1-alpha:6060'
@@ -60,7 +60,7 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-          - 'rocketpool-mainnet:9103'
+          #- 'rocketpool-mainnet:9103'
 {% for monitored_host in monitored_hosts %}
           - '{{ monitored_host }}:9100'
 {% endfor %}
@@ -88,7 +88,7 @@ scrape_configs:
   - job_name: 'federate'
     scrape_interval: 30s
 
-    honor_labels: true
+    #honor_labels: true
     metrics_path: '/federate'
 
     params:
@@ -105,5 +105,6 @@ scrape_configs:
     static_configs:
       - targets:
         - 'rocketpool-mainnet:9091'
+        - 'rocketpool-signer:9091'
         #- 'source-prometheus-2:9090'
         #- 'source-prometheus-3:9090'

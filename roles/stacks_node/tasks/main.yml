@@ -142,6 +142,16 @@
   become_user: "{{ svc_user }}"
   tags: generate_stacking_signature
 
+- name: Deploy vote.sh from template
+  template:
+    src: vote.sh.j2
+    dest: /home/{{ svc_user }}/vote.sh
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0700
+  become: true
+  become_user: "{{ svc_user }}"
+
 - name: Update sudoers to permit {{ svc_user }} to start/stop stacks services
   community.general.sudoers:
     name: allow-stacks-start-stop

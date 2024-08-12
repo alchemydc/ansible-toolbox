@@ -1,0 +1,17 @@
+#!/bin/bash
+set -ex
+
+VOTE_VALUE="yes"
+SIP_NUMBER="25"
+
+PATH_TO_CONFIG="/home/{{ svc_user }}/signer/signer-config.toml"
+STACKS_SIGNER="/usr/local/bin/stacks-signer"
+PUBLIC_KEY={{ stacks_mainnet_public_key }}
+
+echo "Generating a signature"
+SIGNATURE=$($STACKS_SIGNER generate-vote --sip $SIP_NUMBER --vote $VOTE_VALUE -c $PATH_TO_CONFIG)
+
+echo "Generated signature $SIGNATURE"
+
+echo "Verifying signature"
+$STACKS_SIGNER  verify-vote --sip $SIP_NUMBER --vote $VOTE_VALUE -p $PUBLIC_KEY -s $SIGNATURE
