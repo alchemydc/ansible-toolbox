@@ -62,4 +62,4 @@
 
    # Since Time Machine will fill the target with as many backups as there is space for before removing old ones it is a good idea to set a reasonable advertised limit.
    # Note according to vfs_fruit(8) that this only works as intended when the share is used solely as a Time Machine target.
-   fruit:time machine max size = 1T
+   fruit:time machine max size = {{ timemachine_quota }}

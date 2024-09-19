@@ -14,8 +14,8 @@ sudo systemctl stop stacks-signer
 fix_permissions
 
 {% if stacks_network == "testnet" %}
-echo "Deleting old chain data from /home/{{ svc_user }}/node/xenon"
-rm -rfv /home/{{ svc_user }}/node/xenon/*
+echo "Deleting old chain data from /home/{{ svc_user }}/node/krypton"
+rm -rfv /home/{{ svc_user }}/node/krypton/*
 {% elif stacks_network == "mainnet" %}
 echo "Deleting old chain data from /home/{{ svc_user }}/node/mainnet"
 rm -rfv /home/{{ svc_user }}/node/mainnet/*

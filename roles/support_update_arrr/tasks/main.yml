@@ -13,7 +13,7 @@
     - ghcr.io/hotio/readarr
     - lscr.io/linuxserver/lidarr
     - lscr.io/linuxserver/jackett
-    - lscr.io/linuxserver/overserr
+    - ghcr.io/hotio/overseerr
   register: docker_pull_result
   become: true
 
@@ -39,7 +39,7 @@
     - plex
     - radarr
     - readarr
-    - lidarr
+    #- lidarr
     - jackett
     - overseerr
   when: docker_restart_required is defined

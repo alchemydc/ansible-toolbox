@@ -1,47 +1,108 @@
-- name: Download binary archive
+- name: Install dependencies via apt
+  apt: 
+    name: 
+      - unzip
+    state: present
+    update_cache: yes
+  become: true
+
+# Download and install the Stacks node and signer binaries 
+# these used to be bundled together in a release, but they have been separated now for a few releases
+# first we download the node binary archive, extract it, and install the node binary
+- name: Download node binary archive
   get_url:
-    url: "https://github.com/stacks-network/stacks-core/releases/download/{{ stacks_version }}/linux-glibc-x64.zip"
-    dest: '/tmp/stacks-binaries_{{ stacks_version }}.zip'
+    url: "https://github.com/stacks-network/stacks-core/releases/download/{{ stacks_node_version }}/linux-glibc-x64.zip"
+    dest: '/tmp/stacks_node_binaries_{{ stacks_node_version }}.zip'
     mode: '0644'
   become: true
   become_user: "{{ svc_user }}"
 
-- name: Create directory for extracted binaries
+- name: Create directory for extracted node binaries
   file:
-    path: "/tmp/stacks-binaries_{{ stacks_version }}"
+    path: "/tmp/stacks_node_binaries_{{ stacks_node_version }}"
     state: directory
   become: true
   become_user: "{{ svc_user }}"
 
-- name: Extract binary archive
+- name: Extract stacks node binary archive
   unarchive:
-    src: '/tmp/stacks-binaries_{{ stacks_version }}.zip'
-    dest: '/tmp/stacks-binaries_{{ stacks_version }}'
+    src: '/tmp/stacks_node_binaries_{{ stacks_node_version }}.zip'
+    dest: '/tmp/stacks_node_binaries_{{ stacks_node_version }}'
     remote_src: true
   become: true
   become_user: "{{ svc_user }}"
 
-- name: Install binaries
+- name: Install stacks node binaries
   copy:
-    src: '/tmp/stacks-binaries_{{ stacks_version }}/{{ item }}'
+    src: '/tmp/stacks_node_binaries_{{ stacks_node_version }}/{{ item }}'
     dest: '/usr/local/bin/{{ item }}'
+    mode: '0755'
     remote_src: true
   become: true
   loop:
     - 'stacks-node'
+    #- 'stacks-signer'
+
+- name: Clean up downloaded stacks node binaries
+  file:
+    path: "/tmp/stacks_node_binaries_{{ stacks_node_version }}"
+    state: absent
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Clean up downloaded stacks node archive
+  file:
+    path: "/tmp/stacks_node_binaries_{{ stacks_node_version }}.zip"
+    state: absent
+  become: true
+  become_user: "{{ svc_user }}"
+
+
+# Download and install the Stacks signer binary
+- name: Download signer binary archive
+  get_url:
+    url: "https://github.com/stacks-network/stacks-core/releases/download/{{ stacks_signer_version }}/linux-glibc-x64.zip"
+    dest: '/tmp/stacks_signer_binaries_{{ stacks_signer_version }}.zip'
+    mode: '0644'
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Create directory for extracted signer binaries
+  file:
+    path: "/tmp/stacks_signer_binaries_{{ stacks_signer_version }}"
+    state: directory
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Extract stacks signer archive
+  unarchive:
+    src: '/tmp/stacks_signer_binaries_{{ stacks_signer_version }}.zip'
+    dest: '/tmp/stacks_signer_binaries_{{ stacks_signer_version }}'
+    remote_src: true
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Install stacks signer binaries
+  copy:
+    src: '/tmp/stacks_signer_binaries_{{ stacks_signer_version }}/{{ item }}'
+    dest: '/usr/local/bin/{{ item }}'
+    mode: '0755'
+    remote_src: true
+  become: true
+  loop:
+    #- 'stacks-node'
     - 'stacks-signer'
 
-- name: Clean up downloaded binaries
+- name: Clean up downloaded stacks signer binaries
   file:
-    path: "/tmp/stacks-binaries_{{ stacks_version }}"
+    path: "/tmp/stacks_signer_binaries_{{ stacks_signer_version }}"
     state: absent
   become: true
   become_user: "{{ svc_user }}"
 
-- name: Clean up downloaded archive
+- name: Clean up downloaded stacks signer archive
   file:
-    path: "/tmp/stacks-binaries_{{ stacks_version }}.zip"
+    path: "/tmp/stacks_signer_binaries_{{ stacks_signer_version }}.zip"
     state: absent
   become: true
   become_user: "{{ svc_user }}"
-

@@ -17,3 +17,5 @@ timemachine_path: "/mnt/timemachine"
 # list with following key/values:
 # username: username
 # samba_password: cleartext samba password
+
+timemachine_quota: "2T"

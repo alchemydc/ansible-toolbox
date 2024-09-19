@@ -1,11 +1,11 @@
 #!/bin/bash
 set -ex
 
-if [ -d "/home/{{ svc_user }}/node/xenon/chainstate" ] || [ -d "/home/{{ svc_user }}/node/mainnet/chainstate" ]; then
+if [ -d "/home/{{ svc_user }}/node/krypton/chainstate" ] || [ -d "/home/{{ svc_user }}/node/mainnet/chainstate" ]; then
     echo "Setting permissions on chainstate directory for {{ svc_user }}"
     {% if stacks_network == "testnet" %}
     echo "Setting perms on testnet data"
-    /usr/bin/chown -Rc {{ svc_user }}:{{ svc_user }} /home/{{ svc_user }}/node/xenon
+    /usr/bin/chown -Rc {{ svc_user }}:{{ svc_user }} /home/{{ svc_user }}/node/krypton
     {% elif stacks_network == "mainnet" %}
     echo "Setting perms on mainnet data"
     /usr/bin/chown -Rc {{ svc_user }}:{{ svc_user }} /home/{{ svc_user }}/node/mainnet

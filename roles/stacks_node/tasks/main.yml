@@ -164,8 +164,8 @@
   template:
     src: set_stacks_chainstate_perms.sh.j2
     dest: "/home/{{ svc_user }}/set_stacks_chainstate_perms.sh"
-    owner: "root"
-    group: "root"
+    owner: "stacks"
+    group: "stacks"
     mode: 0744
   become: true
 

@@ -16,7 +16,10 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-. "$HOME/.cargo/env"
+# only source the cargo env if it exists
+if [ -f "$HOME/.cargo/env" ];
+  then . "$HOME/.cargo/env"
+fi
 
 # helpful aliases
 alias ll='ls -alF'
