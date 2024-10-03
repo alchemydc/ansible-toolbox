@@ -33,7 +33,7 @@
     dest: /etc/systemd/system/bitwarden.service
     owner: root
     group: root
-    mode: '0755'
+    mode: '0644'
   notify: restart bitwarden
 
 - name: Create bitwarden data dir

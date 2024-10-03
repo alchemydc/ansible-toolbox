@@ -1,5 +1,7 @@
 # ref: https://www.antoneliasson.se/journal/time-machine-compatible-samba-on-debian-buster/
 # ref: https://wiki.samba.org/index.php/Configure_Samba_to_Work_Better_with_Mac_OS_X
+# time machine fails now on OSX sequoia, works on previous versions
+# ref: https://discussions.apple.com/thread/255762044?sortBy=rank&page=2
 
 # Global Settings
 [global]
@@ -25,7 +27,6 @@
    # the relevant VFS modules need to be enabled using the vfs objects parameter. fruit is the module that implements the protocol features.
    # It depends on streams_xattr for storing the alternate data streams in extended attributes, so that also needs to be loaded.
    vfs objects = catia fruit streams_xattr
-
    # store OS X metadata as a stream in a hidden file .DS_Store
    fruit:metadata = stream
 
@@ -62,4 +63,4 @@
 
    # Since Time Machine will fill the target with as many backups as there is space for before removing old ones it is a good idea to set a reasonable advertised limit.
    # Note according to vfs_fruit(8) that this only works as intended when the share is used solely as a Time Machine target.
-   fruit:time machine max size = {{ timemachine_quota }}
+   # fruit:time machine max size = {{ timemachine_quota }}

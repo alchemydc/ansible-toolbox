@@ -7,8 +7,15 @@
      - lsb-release
      - jq
      - acl            # required for ansible to become unpriv'd user to run tasks successfully
+     - apt-transport-https
     state: present
     update_cache: true
+  become: true
+
+- name: Update installed packages via apt
+  apt:
+    upgrade: full
+    #update_cache: true
   become: true
 
 - name: Ensure /etc/apt/keyrings dir exists
@@ -22,7 +29,8 @@
 
 - name: Add nodeset signing key to apt keyring securely
   get_url: 
-    url: https://packagecloud.io/nodeset/hyperdrive/gpgkey
+    #url: https://packagecloud.io/nodeset/hyperdrive/gpgkey
+    url: https://packagecloud.io/nodeset/hyperdrive-beta/gpgkey
     dest: /etc/apt/keyrings/hyperdrive.asc  
     mode: '0644'
     force: true
@@ -31,7 +39,8 @@
 - name: Add nodeset repository to apt
   apt_repository:
     filename: nodeset
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/hyperdrive.asc] https://packagecloud.io/nodeset/hyperdrive/any/ any main"
+    #repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/hyperdrive.asc] https://packagecloud.io/nodeset/hyperdrive/any/ any main"
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/hyperdrive.asc] https://packagecloud.io/nodeset/hyperdrive-beta/any/ any main"
     state: present
     update_cache: true
   become: true

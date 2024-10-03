@@ -20,11 +20,15 @@ ExecStart=/usr/bin/docker run \
   -e SMTP_HOST={{ smarthost_ip }} \
   -e SMTP_FROM={{ smtp_from }} \
   -e SMTP_SECURITY=off \
-  -e WEBSOCKET_ENABLED=false \
   -e SIGNUPS_ALLOWED={{ signups_allowed }} \
   -e SIGNUPS_VERIFY={{ signups_verify }} \
   -e IP_HEADER=CF-Connecting-IP \
   -p 8080:8080 \
+{% if bitwarden_push_installation_id is defined and bitwarden_push_installation_key is defined %}
+  -e PUSH_ENABLED=true \
+  -e PUSH_INSTALLATION_ID={{ bitwarden_push_installation_id }} \
+  -e PUSH_INSTALLATION_KEY={{ bitwarden_push_installation_key }} \
+{% endif %}
   vaultwarden/server:{{ bitwarden_version }}
 ExecStop=/usr/bin/docker stop bitwarden
 
@@ -32,3 +36,4 @@ ExecStop=/usr/bin/docker stop bitwarden
 WantedBy=default.target
 
 # -e ADMIN_TOKEN={{ bitwarden_admin_token }} \    # disabled by default
+
