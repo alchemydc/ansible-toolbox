@@ -22,28 +22,33 @@ else
 fi
 
 # Get auth ID from user
-echo "Please enter an integer auth ID (nonce) that has not been previously used for a stacking TX:"
-read AUTH_ID
+#echo "Please enter an integer auth ID (nonce) that has not been previously used for a stacking TX:"
+#read AUTH_ID
+
+# generate a random 256 bit integer for auth ID
+# requires python3 which is installed elsewhere in the playbook
+AUTH_ID=$(python3 -c 'import secrets; print(secrets.randbits(128))')
 
 # Check if the input is an integer
-if [[ $AUTH_ID =~ ^[0-9]+$ ]]; then
-    echo "Using Auth ID: $AUTH_ID"
-else
-    echo "Error: Auth ID input is not an integer."
-    exit 1
-fi
+#if [[ $AUTH_ID =~ ^[0-9]+$ ]]; then
+#    echo "Using Auth ID: $AUTH_ID"
+#else
+#    echo "Error: Auth ID input is not an integer."
+#    exit 1
+#fi
 
 # Get max-amount from user
-echo "Please enter max-amount in microstacks (uSTX) eg 9900000000000 :"
-read MAX_AMOUNT_USTX
+#echo "Please enter max-amount in microstacks (uSTX) eg 9900000000000 :"
+#read MAX_AMOUNT_USTX
+MAX_AMOUNT_USTX=9900000000000
 
 # Check if the input is an integer
-if [[ $MAX_AMOUNT_USTX =~ ^[0-9]+$ ]]; then
-    echo "using max-amount: $MAX_AMOUNT_USTX uSTX"
-else
-    echo "Error: max-amount input is not an integer."
-    exit 1
-fi
+#if [[ $MAX_AMOUNT_USTX =~ ^[0-9]+$ ]]; then
+#    echo "using max-amount: $MAX_AMOUNT_USTX uSTX"
+#else
+#    echo "Error: max-amount input is not an integer."
+#    exit 1
+#fi
 
 # calculate max-amount in stacks
 MAX_AMOUNT_STX=$(($MAX_AMOUNT_USTX / 1000000))

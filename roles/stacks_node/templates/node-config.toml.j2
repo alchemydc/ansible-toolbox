@@ -63,7 +63,7 @@ peer_port = 8333
 # Set your auth token, which the signer uses
 # This should match the auth_password field of your signer config
 [connection_options]
-block_proposal_token = "{{ stacks_http_auth_token }}"
+auth_token = "{{ stacks_http_auth_token }}"
 # do not try to connect to p2p peers with non routable IP's
 private_neighbors = false
 num_clients = 5 # inbound p2p connections
@@ -90,8 +90,6 @@ read_only_call_limit_runtime = 1000000000
 [[events_observer]]
 # This endpoint is where your signer will communicate with your Stacks node
 endpoint = "127.0.0.1:30000"
-retry_count = 255
-include_data_events = false
 events_keys = ["stackerdb", "block_proposal", "burn_blocks"]
 
 {% if stacks_network == "testnet" %}
