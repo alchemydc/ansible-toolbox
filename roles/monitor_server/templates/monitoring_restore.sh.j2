@@ -5,7 +5,6 @@ PATH=$PATH:/usr/local/bin:/usr/bin
 
 TEMP_DIR="{{ monitor_user_dir }}/tmp"
 TIMESTAMP=$(date +%d%m%Y_%H%M)
-#GRAFANA_BACKUP_FILENAME="{{ monitor_user_dir }}/restore/bitwarden_backup_$TIMESTAMP.tbz"
 GRAFANA_DB="{{ monitor_user_dir }}/grafana/grafana.db"
 #PROM_BACKUP="prometheus_backup.tbz"
 LOCAL_BACKUP_DIR={{ monitor_user_dir }}/local_backups
@@ -14,11 +13,11 @@ mkdir -vp $LOCAL_BACKUP_DIR
 
 # find the latest backup in the bucket
 echo "Finding the latest backup in the bucket"
-LATEST_BACKUP=$(rclone lsf remote:{{ monitoring_backup_bucket }} | tail -n 1)
+LATEST_BACKUP=$(rclone lsf --format 'tsp' remote:{{ monitoring_backup_bucket }} | sort -nr | head -n 1 | cut -d ';' -f 3)
 
 echo "Stopping monitoring stack to restore the monitoring data"
 cd {{ monitor_user_dir }}/docker
-docker-compose down
+docker compose down
 sleep 3
 
 #echo "Backing up the local grafana.db"
@@ -29,7 +28,10 @@ cp $GRAFANA_DB $LOCAL_BACKUP_DIR/grafana_$TIMESTAMP.db
 
 echo "Downloading the grafana.db backup to restore from persistent storage"
 #rclone copy remote:{{ monitoring_backup_bucket }}/$GRAFANA_DB_BACKUP {{ monitor_user_dir }}/grafana/grafana.db
+#rclone copy remote:{{ monitoring_backup_bucket }}/$LATEST_BACKUP {{ monitor_user_dir }}/grafana/
 rclone copy remote:{{ monitoring_backup_bucket }}/$LATEST_BACKUP {{ monitor_user_dir }}/grafana/
+echo "Renaming downloaded backup to grafana.db"
+mv {{ monitor_user_dir }}/grafana/$LATEST_BACKUP {{ monitor_user_dir }}/grafana/grafana.db
 
 #echo "Downloading $PROM_BACKUP to restore from persistent storage"
 #rclone copy remote:{{ monitoring_backup_bucket }}/$PROM_BACKUP {{ monitor_user_dir }}/tmp/$PROM_BACKUP
@@ -40,5 +42,5 @@ rclone copy remote:{{ monitoring_backup_bucket }}/$LATEST_BACKUP {{ monitor_user
 # Restart the services
 echo "Restarting monitoring stack"
 cd {{ monitor_user_dir }}/docker
-docker-compose up -d
+docker compose up -d
 

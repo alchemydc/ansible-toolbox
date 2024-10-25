@@ -27,6 +27,7 @@
     - "{{ monitor_user_dir }}/docker"
     - "{{ monitor_user_dir }}/loki"
     - "{{ monitor_user_dir }}/grafana"
+    # promtail is now deployed as part of the `monitor_client` role
     #- "{{ monitor_user_dir }}/promtail"
     - "{{ monitor_user_dir }}/prometheus"
     - "{{ monitor_user_dir }}/prometheus/data"
@@ -48,6 +49,7 @@
     group: "{{ monitor_user }}"
     mode: 0640
 
+# promtail is now deployed as part of the `monitor_client` role
 #- name: Copy promtail config to monitor promtail dir
 #  template:
 #    src: promtail-config.yml.j2
@@ -73,12 +75,12 @@
     mode: 0640
 
 - name: Tear down existing monitoring stack
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ monitor_user_dir }}/docker"
     state: absent
 
 - name: Start monitoring stack
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ monitor_user_dir }}/docker"
     state: present
   register: monitor_compose_up_output

@@ -17,7 +17,7 @@ GRAFANA_BACKUP_FILENAME="{{ monitor_user_dir }}/tmp/grafana_$TIMESTAMP.db"
 
 echo "Stopping monitoring stack to backup the monitoring data"
 cd {{ monitor_user_dir }}/docker
-docker-compose down
+docker compose down
 
 sleep 3
 
@@ -33,7 +33,7 @@ cp {{ monitor_user_dir }}/grafana/grafana.db $GRAFANA_BACKUP_FILENAME
 # Restart the service
 echo "Restarting monitoring stack"
 cd {{ monitor_user_dir }}/docker
-docker-compose up -d
+docker compose up -d
 
 echo "Copying the grafana DB to bucket {{ monitoring_backup_bucket }}"
 rclone --gcs-bucket-policy-only copy $GRAFANA_BACKUP_FILENAME remote:{{ monitoring_backup_bucket }}
