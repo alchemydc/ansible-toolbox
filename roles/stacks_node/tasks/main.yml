@@ -1,3 +1,7 @@
+- name: Configure firewall
+  include_tasks: configure_firewall.yml
+  tags: stacks_firewall
+
 - name: Install acl via apt
 # needed for running tasks as svc_user properly
 # curl just because

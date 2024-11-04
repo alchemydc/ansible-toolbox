@@ -13,3 +13,7 @@
     enabled: yes
     daemon_reload: yes
   become: true
+
+- name: reload iptables
+  shell: "/usr/sbin/iptables-restore < /etc/iptables.conf"
+  become: true

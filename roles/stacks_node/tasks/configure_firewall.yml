@@ -1,0 +1,14 @@
+---
+- name: debug facts to get public network interface
+  debug:
+    msg: "ansible_default_ipv4.interface: {{ ansible_default_ipv4.interface }}"
+
+- name: Create /etc/iptables.conf from template
+  template:
+    src: iptables.conf.j2
+    dest: /etc/iptables.conf
+    owner: root
+    group: root
+    mode: '600'
+  notify:
+    - reload iptables

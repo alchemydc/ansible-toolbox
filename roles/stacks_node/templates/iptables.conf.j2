@@ -1,0 +1,54 @@
+# iptables template v1.4
+*filter
+#:INPUT DROP
+# default is DROP but we want to log and drop
+:INPUT ACCEPT
+:FORWARD ACCEPT
+:OUTPUT ACCEPT
+:LOGANDDROP - [0:0]
+# permit loopback traffic
+-A INPUT -i lo -j ACCEPT
+
+# permit rate limited ICMP echoes
+-A INPUT -p icmp -m icmp --icmp-type 8 -m hashlimit --hashlimit-upto 5/sec --hashlimit-burst 5 --hashlimit-mode srcip --hashlimit-name icmp-echo-drop -j ACCEPT
+
+# permit established connections
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# permit SSH from anywhere [consider disabling this once wireguard mgt iface is burned in]
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+
+# permit stacks p2p tcp traffic inbound from anywhere on {{ stacks_mainnet_p2p_port }}
+-A INPUT -p tcp -m state --state NEW -m tcp --dport {{ stacks_mainnet_p2p_port }} -j ACCEPT
+
+# permit bitcoin p2p tcp traffic inbound from anywhere
+-A INPUT -p tcp -m state --state NEW -m tcp --dport {{ bitcoin_mainnet_p2p_port }} -j ACCEPT
+
+# actively reject connections to RFC1918 addresses on the public interface
+-A OUTPUT -o {{ ansible_default_ipv4.interface }} -d 10.0.0.0/8 -j REJECT
+-A OUTPUT -o {{ ansible_default_ipv4.interface }} -d 172.16.0.0/12 -j ACCEPT
+-A OUTPUT -o {{ ansible_default_ipv4.interface }} -d 192.168.0.0/16 -j REJECT
+
+# log and drop everything else
+-A INPUT -j LOGANDDROP
+-A LOGANDDROP -m limit --limit 1/sec -j LOG --log-prefix "IPT_" --log-level 7
+-A LOGANDDROP -j DROP
+
+# actively reject connections to RFC1918 addresses on the public interface
+-A FORWARD -o {{ ansible_default_ipv4.interface }} -d 10.0.0.0/8 -j REJECT
+-A FORWARD -o {{ ansible_default_ipv4.interface }} -d 172.16.0.0/12 -j REJECT
+-A FORWARD -o {{ ansible_default_ipv4.interface }} -d 192.168.0.0/16 -j REJECT
+
+COMMIT
+*raw
+:PREROUTING ACCEPT
+:OUTPUT ACCEPT
+-A PREROUTING -i fwbr+ -j CT --zone 1
+COMMIT
+*nat
+:PREROUTING ACCEPT
+:INPUT ACCEPT
+:OUTPUT ACCEPT
+:POSTROUTING ACCEPT
+
+COMMIT

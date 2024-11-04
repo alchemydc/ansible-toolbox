@@ -1,11 +1,11 @@
 [node]
 working_dir = "/home/{{ svc_user }}/node" # needs to be on a volume with 500GB-1TB of available storage
-#rpc_bind = "127.0.0.1:20443"  #must be accessible by your signer
-rpc_bind = "0.0.0.0:20443"  #must be accessible by your signer. 
+rpc_bind = "127.0.0.1:20443"  #must be accessible by your signer
+#rpc_bind = "0.0.0.0:20443"  #must be accessible by your signer. 
 prometheus_bind = "0.0.0.0:9153"
 
 {% if stacks_network == "testnet" %}
-p2p_bind = "0.0.0.0:{{ stacks_testnet_port }}"  #must be exposed to the internet (TCP only per Stacks team)
+p2p_bind = "0.0.0.0:{{ stacks_testnet_p2p_port }}"  #must be exposed to the internet (TCP only per Stacks team)
 # This is the node that your node will use to begin syncing chain state
 bootstrap_node = "029266faff4c8e0ca4f934f34996a96af481df94a89b0c9bd515f3536a95682ddc@seed.testnet.hiro.so:30444"
 
@@ -35,7 +35,7 @@ pox_prepare_length = 100
 pox_reward_length = 900
 
 {% elif stacks_network == "mainnet" %}
-p2p_bind = "0.0.0.0:{{ stacks_mainnet_port }}"  #must be exposed to the internet (TCP only per Stacks team)
+p2p_bind = "0.0.0.0:{{ stacks_mainnet_p2p_port }}"  #must be exposed to the internet (TCP only per Stacks team)
 #p2p_address = "{{ stacks_mainnet_p2p_address }}"
 
 # This is the node that your node will use to begin syncing chain state
@@ -47,13 +47,14 @@ stacker = true
 chain = "bitcoin"
 mode = "mainnet"
 
-# peer_host = "bitcoind.stacks.co"
-# username = "blockstack"
-# password = "blockstacksystem"
-# rpc_port = 8332
-# peer_port = 8333
+#peer_host = "bitcoind.stacks.co"
+#username = "blockstack"
+#password = "blockstacksystem"
+#rpc_port = 8332
+#peer_port = 8333
 
-peer_host = "bitcoin-mainnet"
+#peer_host = "bitcoin-mainnet"
+peer_host = "localhost"
 username = "{{ bitcoin_rpc_username }}"
 password = "{{ bitcoin_rpc_password }}"
 rpc_port = 8332

@@ -31,6 +31,7 @@
 
 - name: Configure proxmox repos
   import_tasks: configure_proxmox_repos.yml
+  tags: 'proxmox_repos'
 
 - name: Update and upgrade the machine
   apt:
