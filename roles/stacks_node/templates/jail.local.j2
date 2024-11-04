@@ -1,0 +1,13 @@
+# /etc/fail2ban/jail.local
+[DEFAULT]
+default_backend = systemd
+logtarget = SYSTEMD-JOURNAL
+
+# Ban IP for 10 minutes
+bantime = 600
+
+# Check logs every 10 seconds
+findtime = 600
+
+# Ban after 5 failed attempts
+maxretry = 5

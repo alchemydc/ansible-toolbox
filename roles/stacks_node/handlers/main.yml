@@ -17,3 +17,11 @@
 - name: reload iptables
   shell: "/usr/sbin/iptables-restore < /etc/iptables.conf"
   become: true
+
+- name: restart fail2ban
+  systemd:
+    name: fail2ban
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+  become: true

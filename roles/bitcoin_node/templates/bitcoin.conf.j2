@@ -242,6 +242,9 @@ listen=1
 # limit does not apply to connections manually added via -addnode
 # or the addnode RPC, which have a separate limit of 8.
 #maxconnections=<n>
+# setting maxconnections breaks the connection from the stacks node for some reason
+#maxconnections={{ bitcoin_max_peers }}
+# ref: https://github.com/bitcoin/bitcoin/blob/master/doc/reduce-traffic.md
 
 # Maximum per-connection receive buffer, <n>*1000 bytes (default: 5000)
 #maxreceivebuffer=<n>
@@ -262,6 +265,7 @@ listen=1
 # base while uppercase is 1024 base
 #maxuploadtarget=<n>
 maxuploadtarget=144M
+# ref: https://github.com/bitcoin/bitcoin/blob/master/doc/reduce-traffic.md
 
 # Use NAT-PMP to map the listening port (default: 0)
 #natpmp=1
@@ -292,6 +296,7 @@ maxuploadtarget=144M
 # are unlikely to get incoming connections. Not relevant for I2P
 # (see doc/i2p.md).
 #port=<port>
+port={{ bitcoin_mainnet_p2p_port }}
 
 # Connect through SOCKS5 proxy, set -noproxy to disable (default:
 # disabled)
@@ -642,7 +647,8 @@ rpcauth={{ bitcoin_rpc_username }}:{{ bitcoin_rpcauth_hash }}
 # IPv6. This option can be specified multiple times (default:
 # 127.0.0.1 and ::1 i.e., localhost)
 #rpcbind=<addr>[:port]
-rpcbind=0.0.0.0
+#rpcbind=0.0.0.0
+rpcbind=127.0.0.1
 
 # Location of the auth cookie. Relative paths will be prefixed by a
 # net-specific datadir location. (default: data dir)

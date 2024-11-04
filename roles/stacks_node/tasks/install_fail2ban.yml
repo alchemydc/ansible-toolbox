@@ -1,0 +1,41 @@
+- name: install fail2ban and required dependencies
+  apt:
+    name:
+      - fail2ban
+      - python3-systemd
+    state: present
+  become: true
+
+- name: Set logtarget to SYSTEMD-JOURNAL in /etc/fail2ban/fail2ban.conf
+  lineinfile:
+    path: /etc/fail2ban/fail2ban.conf
+    regex: '^logtarget = /var/log/fail2ban.log'
+    line: 'logtarget = SYSTEMD-JOURNAL'
+  become: true
+  notify: restart fail2ban
+
+- name: Disable ipv6 in /etc/fail2ban/fail2ban.conf
+  lineinfile:
+    path: /etc/fail2ban/fail2ban.conf
+    regex: '^#allowipv6'
+    line: 'allowipv6 = no'
+  become: true
+  notify: restart fail2ban
+
+- name: Configure fail2ban
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart fail2ban
+
+- name: Enable and start fail2ban
+  systemd:
+    name: fail2ban
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true

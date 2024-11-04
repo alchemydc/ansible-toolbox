@@ -8,3 +8,4 @@ bitcoin_binary_url: "https://bitcoincore.org/bin/bitcoin-core-{{ bitcoin_version
 bitcoin_rpc_username: "{{ vault_bitcoin_rpc_username }}"
 bitcoin_rpc_password: "{{ vault_bitcoin_rpc_password }}"
 bitcoin_rpcauth_hash: "{{ vault_bitcoin_rpcauth_hash }}"
+bitcoin_max_peers: 10

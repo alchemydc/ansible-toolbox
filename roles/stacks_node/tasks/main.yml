@@ -2,6 +2,10 @@
   include_tasks: configure_firewall.yml
   tags: stacks_firewall
 
+- name: Install and configure fail2ban
+  include_tasks: install_fail2ban.yml
+  tags: fail2ban
+
 - name: Install acl via apt
 # needed for running tasks as svc_user properly
 # curl just because
