@@ -12,6 +12,11 @@
 # permit rate limited ICMP echoes
 -A INPUT -p icmp -m icmp --icmp-type 8 -m hashlimit --hashlimit-upto 5/sec --hashlimit-burst 5 --hashlimit-mode srcip --hashlimit-name icmp-echo-drop -j ACCEPT
 
+# block banned IPs
+{% for banned_ip in stacks_banned_ips %}
+-A INPUT -s {{ banned_ip }} -j REJECT
+{% endfor %}
+
 # permit established connections
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
@@ -22,7 +27,7 @@
 -A INPUT -p tcp -m state --state NEW -m tcp --dport {{ stacks_mainnet_p2p_port }} -j ACCEPT
 
 # permit bitcoin p2p tcp traffic inbound from anywhere
--A INPUT -p tcp -m state --state NEW -m tcp --dport {{ bitcoin_mainnet_p2p_port }} -j ACCEPT
+#-A INPUT -p tcp -m state --state NEW -m tcp --dport {{ bitcoin_mainnet_p2p_port }} -j ACCEPT
 
 # actively reject connections to RFC1918 addresses on the public interface
 -A OUTPUT -o {{ ansible_default_ipv4.interface }} -d 10.0.0.0/8 -j REJECT

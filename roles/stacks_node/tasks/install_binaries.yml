@@ -42,6 +42,7 @@
   loop:
     - 'stacks-node'
     #- 'stacks-signer'
+  notify: restart stacks-node
 
 - name: Clean up downloaded stacks node binaries
   file:
@@ -92,6 +93,7 @@
   loop:
     #- 'stacks-node'
     - 'stacks-signer'
+  notify: restart stacks-signer
 
 - name: Clean up downloaded stacks signer binaries
   file:
