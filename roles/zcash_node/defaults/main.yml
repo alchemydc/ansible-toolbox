@@ -1,0 +1,4 @@
+svc_user: "zcash"
+zebra_install_type: "source"
+zebra_repo: "https://github.com/ZcashFoundation/zebra"
+zebra_tag: " v2.0.1"

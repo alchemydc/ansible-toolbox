@@ -80,6 +80,8 @@
       tags: bitcoin_node
     - role: nodeset_server
       tags: nodeset_server
+    - role: zcash_node
+      tags: zcash_node
       
   handlers:
       - name: restart sshd

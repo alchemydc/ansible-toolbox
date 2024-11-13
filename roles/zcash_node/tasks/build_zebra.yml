@@ -1,0 +1,36 @@
+- name: Install dependencies
+  include_tasks: install_deps.yml
+
+- name: Install from source
+  block:
+    - name: Clone repo
+      git:
+        repo: '{{ zebra_repo }}'
+        dest: '/home/{{ svc_user }}/zebra'
+        version: '{{ zebra_tag }}'
+        update: yes
+        force: yes
+        depth: 1
+
+    - name: Build and install zebra
+      command: '{{ item }}'
+      args:
+        chdir: '/home/{{ svc_user }}/zebra'
+      with_items:
+        - 'cargo build --release --bin zebrad'
+      environment:
+        PATH: '/home/{{ svc_user }}/.cargo/bin::/usr/local/bin:/usr/bin:/bin:'
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Copy built zebrad binary to /usr/local/bin
+  copy:
+    src: '/home/{{ svc_user }}/zebra/target/release/zebrad'
+    dest: '/usr/local/bin/zebrad'
+    mode: '0755'
+    owner: '{{ svc_user }}'
+    group: '{{ svc_user }}'
+    remote_src: true
+  become: true
+  notify: restart zebrad
+

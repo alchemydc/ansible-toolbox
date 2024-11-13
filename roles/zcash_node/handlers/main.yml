@@ -1,0 +1,7 @@
+- name: restart zebrad
+  systemd:
+    name: zebrad
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+  become: true
