@@ -2,3 +2,4 @@ svc_user: "zcash"
 zebra_install_type: "source"
 zebra_repo: "https://github.com/ZcashFoundation/zebra"
 zebra_tag: " v2.0.1"
+metrics_host_port: "0.0.0.0:9999" # expose metrics on all interfaces on tcp/9999

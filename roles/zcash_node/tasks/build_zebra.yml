@@ -17,7 +17,7 @@
       args:
         chdir: '/home/{{ svc_user }}/zebra'
       with_items:
-        - 'cargo build --release --bin zebrad'
+        - 'cargo build --release --features prometheus --bin zebrad'
       environment:
         PATH: '/home/{{ svc_user }}/.cargo/bin::/usr/local/bin:/usr/bin:/bin:'
   become: true
