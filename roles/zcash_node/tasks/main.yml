@@ -17,8 +17,17 @@
     shell: /bin/bash
     createhome: yes
     home: "/home/{{ svc_user }}"
-    #uid: "{{ svc_uid }}"
+    uid: "{{ svc_uid }}"
+    group: "{{ svc_uid }}"
   become: true
+
+- name: Add "{{ svc_user }}" to docker group
+  user:
+    name: "{{ svc_user }}"
+    groups: docker
+    append: yes
+  become: true
+  when: zebra_install_type == "docker"
 
 - name: Deploy .profile from template
   template:
@@ -47,16 +56,6 @@
   #  zebra_repo: "{{ zebra_repo }}"
   #  zebra_tag: "{{ zebra_tag }}"
 
-- name: Deploy zebrad.service from template
-  template:
-    src: zebrad.service.j2
-    dest: /etc/systemd/system/zebrad.service
-    owner: root
-    group: root
-    mode: 0644
-  become: true
-  notify: restart zebrad
-
 - name: Generate zebrad config
   command: "zebrad generate -o /home/{{ svc_user }}/.config/zebrad.toml"
   become: true
@@ -66,12 +65,48 @@
   lineinfile:
     path: "/home/{{ svc_user }}/.config/zebrad.toml"
     insertafter: '^\[metrics\]'
-    line: 'endpoint_addr = "{{ metrics_host_port }}"'
+    line: 'endpoint_addr = "{{ metrics_endpoint_addr }}:{{ metrics_endpoint_port }}"'
     owner: "{{ svc_user }}"
     group: "{{ svc_user }}"
     mode: '0600'
   become: true
   become_user: "{{ svc_user }}"
+
+- name: Add docker-specific cache config to zebrad.toml
+  lineinfile:
+    path: "/home/{{ svc_user }}/.config/zebrad.toml"
+    insertafter: '^\[state\]'
+    regexp: '^cache_dir\s*=.*'  # Match any existing cache_dir line
+    line: 'cache_dir = "/var/cache/zebrad-cache"'
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: '0600'
+  become: true
+  become_user: "{{ svc_user }}"
+  when: zebra_install_type == "docker"
+
+- name: Add docker-specific rpc config to zebrad.toml
+  lineinfile:
+    path: "/home/{{ svc_user }}/.config/zebrad.toml"
+    insertafter: '^\[rpc\]'
+    regexp: '^cookie_dir\s*=.*'  # Match any existing cookie_dir line
+    line: 'cookie_dir = "/var/cache/zebrad-cache"'
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: '0600'
+  become: true
+  become_user: "{{ svc_user }}"
+  when: zebra_install_type == "docker"
+
+- name: Deploy zebrad.service from template
+  template:
+    src: zebrad.service.j2
+    dest: /etc/systemd/system/zebrad.service
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart zebrad
 
 - name: Enable and start zebrad
   systemd:

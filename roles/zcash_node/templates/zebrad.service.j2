@@ -1,22 +1,60 @@
 [Unit]
 Description=Zebra Zcash Node
 After=network.target
+{% if zebra_install_type == "docker" %}
+After=docker.service
+Requires=docker.service
+{% endif %}
 StartLimitBurst=3
 StartLimitIntervalSec=300
+# do not check for zebrad in /usr/local/bin if using docker
+{% if zebra_install_type != "docker" %}
 ConditionFileIsExecutable=/usr/local/bin/zebrad
+{% endif %}
 ConditionPathExists=/home/{{ svc_user }}/.cache/zebra
 ConditionFileNotEmpty=/home/{{ svc_user }}/.config/zebrad.toml
 
 [Service]
+# binary is in /usr/local/bin
+{% if zebra_install_type != "docker" %}
 ExecStart=/usr/local/bin/zebrad start
+TimeoutStartSec=300
+{% endif %}
+# if using docker
+{% if zebra_install_type == "docker" %}
+ExecStart=docker run --rm --name zebrad \
+  --stop-timeout 300 \
+  -v /home/{{ svc_user }}/.cache/zebra:/var/cache/zebrad-cache \
+  -v /home/{{ svc_user }}/.config/zebrad.toml:/etc/zebrad/zebrad.toml \
+  -p 8233:8233 \
+  -p 8232:8232 \
+  -u {{ svc_uid }} \
+  --group-add {{ svc_uid }} \
+  -e ZEBRA_CONF_PATH=/etc/zebrad/zebrad.toml \
+  -e NETWORK={{ zebra_network }} \
+  -e ZEBRA_LISTEN_ADDR={{ zebra_listen_addr }} \
+  -e ZEBRA_CACHED_STATE_DIR=/var/cache/zebrad-cache \
+  -e LIGHTWALLETD_DATA_DIR=/var/cache/lwd-cache \
+  -e METRICS_ENDPOINT_ADDR="{{ metrics_endpoint_addr }}" \
+  -e METRICS_ENDPOINT_PORT="{{ metrics_endpoint_port }}" \
+  -e RPC_LISTEN_ADDR="{{ zebra_rpc_addr }}" \
+  -e RPC_LISTEN_PORT="{{ zebra_rpc_port }}" \
+  zfnd/zebra:{{ zebra_tag }}
+# note that these env vars seem to be lower in precedence than those in the config file
+ExecStop=/usr/bin/docker stop zebrad
+# Set TimeoutStartSec to give docker time to pull images etc
+TimeoutStopSec=300
+{% endif %}
+
 User={{ svc_user }}
 Group={{ svc_user }}
 WorkingDirectory=/home/{{ svc_user }}/.cache/zebra
 Type=simple
 Restart=no
-TimeoutStopSec=900
-# KillSignal=SIGTERM    # do not use -- can lead to chainstate corruption
-KillSignal=SIGINT
+TimeoutStopSec=300
+# generally shouldn't use, but may be required for docker -- can lead to chainstate corruption
+#KillSignal=SIGTERM
+#KillSignal=SIGINT
 SendSIGKILL=no
 
 # Provide a private /tmp and /var/tmp.
