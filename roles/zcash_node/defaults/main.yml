@@ -1,7 +1,7 @@
 svc_user: "zcash"
 svc_uid: 1004
-#zebra_install_type: "source"
-zebra_install_type: "docker"
+zebra_install_type: "source"
+#zebra_install_type: "docker"
 zebra_repo: "https://github.com/ZcashFoundation/zebra"
 zebra_tag: "v2.0.1"
 zebra_network: "mainnet"
@@ -11,4 +11,5 @@ zebra_rpc_addr: "127.0.0.1"
 zebra_rpc_port: 8232
 metrics_endpoint_addr: "0.0.0.0"
 metrics_endpoint_port: 9999
+zebra_max_peers: 5
 
