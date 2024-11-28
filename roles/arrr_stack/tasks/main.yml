@@ -131,8 +131,8 @@
 - name: Deploy transmission
   import_tasks: transmission.yml
 
-- name: Deploy lidarr
-  import_tasks: lidarr.yml  
+#- name: Deploy lidarr
+#  import_tasks: lidarr.yml  
 
 - name: Deploy jackett
   import_tasks: jackett.yml

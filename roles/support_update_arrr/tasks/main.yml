@@ -3,7 +3,7 @@
   loop:
     - lscr.io/linuxserver/calibre-web
     - ghcr.io/hotio/prowlarr
-    - linuxserver/wireguard
+    #- linuxserver/wireguard
     - lscr.io/linuxserver/calibre
     - traefik
     - lscr.io/linuxserver/deluge
@@ -14,6 +14,7 @@
     - lscr.io/linuxserver/lidarr
     - lscr.io/linuxserver/jackett
     - ghcr.io/hotio/overseerr
+    - qmcgaw/gluetun
   register: docker_pull_result
   become: true
 
