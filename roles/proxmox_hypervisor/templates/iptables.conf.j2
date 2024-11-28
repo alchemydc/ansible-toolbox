@@ -99,7 +99,7 @@ COMMIT
 
 # agoric port forwards
 # permit agoric emerynet p2p to the agoric_emerynet_validator_host on agoric_emerynet_validator_port
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ agoric_emerynet_validator_port }} -j DNAT --to-destination {{ agoric_emerynet_validator_host }}:{{ agoric_emerynet_validator_port }}
+#-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ agoric_emerynet_validator_port }} -j DNAT --to-destination {{ agoric_emerynet_validator_host }}:{{ agoric_emerynet_validator_port }}
 
 # rocketpool testnet port forwards
 # permit p2p traffic to the rocketpool testnet workload

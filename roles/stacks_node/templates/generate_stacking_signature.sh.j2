@@ -27,7 +27,8 @@ fi
 
 # generate a random 256 bit integer for auth ID
 # requires python3 which is installed elsewhere in the playbook
-AUTH_ID=$(python3 -c 'import secrets; print(secrets.randbits(128))')
+#AUTH_ID=$(python3 -c 'import secrets; print(secrets.randbits(128))')
+AUTH_ID=$(python3 -c 'import secrets; print(secrets.randbits(32))')
 
 # Check if the input is an integer
 #if [[ $AUTH_ID =~ ^[0-9]+$ ]]; then
@@ -52,6 +53,8 @@ MAX_AMOUNT_USTX=9900000000000
 
 # calculate max-amount in stacks
 MAX_AMOUNT_STX=$(($MAX_AMOUNT_USTX / 1000000))
+
+echo "Using AUTH_ID: $AUTH_ID"
 
 /usr/local/bin/stacks-signer generate-stacking-signature  \
   --pox-address $STACKS_POX_ADDRESS                       \
