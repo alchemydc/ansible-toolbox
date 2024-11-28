@@ -15,7 +15,7 @@ ExecStart=/usr/bin/docker run \
     --name="wireguard" \
     --hostname="wireguard" \
     --network="proxy" \
-    --volume /home/{{ svc_user }}/wireguard/config:/config \
+    --volume /home/{{ svc_user }}/wireguard/config/wg0.conf:/gluetun/wireguard/wg0.conf \
     --publish 9091:9091 \
     --publish 7878:7878 \
     --publish 8989:8989 \
@@ -29,16 +29,18 @@ ExecStart=/usr/bin/docker run \
     --publish 8183:8083 \
     --env PUID={{ svc_uid }} \
     --env PGID={{ svc_uid }} \
+    --env VPN_SERVICE_PROVIDER=custom \
+    --env VPN_TYPE=wireguard \
+    --env VPN_PORT_FORWARDING=on \
+    --env VPN_PORT_FORWARDING_PROVIDER={{ vpn_provider }} \
     --cap-add=NET_ADMIN \
     --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
-    linuxserver/wireguard
+    qmcgaw/gluetun
 
 ExecStop=/usr/bin/docker stop wireguard
 
 [Install]
 WantedBy=default.target
-
-
 
 ## ports
 # * tcp/7878: radarr
