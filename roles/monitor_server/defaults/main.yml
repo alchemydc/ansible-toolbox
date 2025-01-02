@@ -1,0 +1,2 @@
+# retain logs in loki for 7 days
+loki_retention_period: 168h

@@ -15,13 +15,16 @@ common:
 schema_config:
   configs:
     - from: 2020-10-24
-      #store: boltdb-shipper
       store: tsdb
       object_store: filesystem
       schema: v13
       index:
         prefix: index_
         period: 24h
+
+table_manager:
+  retention_deletes_enabled: true
+  retention_period: {{ loki_retention_period }}  # retain logs for this period 
 
 storage_config:
   filesystem:
