@@ -13,9 +13,11 @@
 -A INPUT -p icmp -m icmp --icmp-type 8 -m hashlimit --hashlimit-upto 5/sec --hashlimit-burst 5 --hashlimit-mode srcip --hashlimit-name icmp-echo-drop -j ACCEPT
 
 # block banned IPs
+{% if stacks_banned_ips is defined %}
 {% for banned_ip in stacks_banned_ips %}
 -A INPUT -s {{ banned_ip }} -j REJECT
 {% endfor %}
+{% endif %}
 
 # permit established connections
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
