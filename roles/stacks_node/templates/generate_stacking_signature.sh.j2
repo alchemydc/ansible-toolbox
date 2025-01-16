@@ -56,6 +56,9 @@ MAX_AMOUNT_STX=$(($MAX_AMOUNT_USTX / 1000000))
 
 echo "Using AUTH_ID: $AUTH_ID"
 
+# other methods are 
+# stack-stx, stack-extend, agg-commit, agg-increase, stack-increase
+
 /usr/local/bin/stacks-signer generate-stacking-signature  \
   --pox-address $STACKS_POX_ADDRESS                       \
   --reward-cycle $REWARD_CYCLE                       \
@@ -63,7 +66,8 @@ echo "Using AUTH_ID: $AUTH_ID"
   --period 1                                              \
   --method agg-commit                                     \
   --max-amount $MAX_AMOUNT_USTX                           \
-  --auth-id $AUTH_ID
+  --auth-id $AUTH_ID                                      \
+  --json
 
 echo "Note that CLI max-amount is in microstacks (uSTX), not stacks."
 echo "lockstacks.com UI max-amount is in stacks, not uSTX."

@@ -36,3 +36,6 @@ auth_password = "{{ stacks_http_auth_token }}"
 # The IP address and port where prometheus metrics can be accessed.
 #metrics_endpoint = "0.0.0.0:9154"
 metrics_endpoint = "127.0.0.1:9154"
+
+# configures your signer to allow tenure extensions after 2 minutes of idle time
+tenure_idle_timeout_secs = 120
