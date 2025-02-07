@@ -127,3 +127,12 @@
     state: started
     daemon_reload: yes
   become: true
+
+- name: Install lightwalletd
+  include_tasks: install_lightwalletd.yml
+  when: install_lightwalletd == true
+  #vars:
+  #  svc_user: "{{ svc_user }}"
+  #  lightwalletd_install_type: "{{ lightwalletd_install_type }}"
+  #  lightwalletd_tag: "{{ lightwalletd_tag }}"
+

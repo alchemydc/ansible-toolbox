@@ -1,0 +1,44 @@
+- name: Create cache directory for lightwalletd
+  file:
+    path: "/home/{{ svc_user }}/.cache/lightwalletd"
+    state: directory
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: '0755'
+  become: true
+
+- name: Enable RPC listener in zebrad.toml to support lightwalletd
+  lineinfile:
+    path: "/home/{{ svc_user }}/.config/zebrad.toml"
+    insertafter: '^\[rpc\]'
+    line: 'listen_addr = "{{ zebra_rpc_addr }}:{{ zebra_rpc_port }}"'
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: '0600'
+  become: true
+  become_user: "{{ svc_user }}"
+  when: install_lightwalletd == true
+  notify: restart zebrad
+
+- name: Disable cookie auth in zebrad.toml to support lightwalletd
+  lineinfile:
+    path: "/home/{{ svc_user }}/.config/zebrad.toml"
+    insertafter: '^\[rpc\]'
+    line: 'enable_cookie_auth = false'
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: '0600'
+  become: true
+  become_user: "{{ svc_user }}"
+  when: install_lightwalletd == true
+  notify: restart zebrad
+
+- name: Deploy lightwalletd.service from template
+  template:
+    src: lightwalletd.service.j2
+    dest: /etc/systemd/system/lightwalletd.service
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart lightwalletd

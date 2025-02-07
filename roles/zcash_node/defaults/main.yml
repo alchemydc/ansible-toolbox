@@ -2,15 +2,24 @@ svc_user: "zcash"
 svc_uid: 1004
 zebra_install_type: "source"
 #zebra_install_type: "docker"
+install_lightwalletd: true
+lightwalletd_install_type: "docker"
 zebra_repo: "https://github.com/ZcashFoundation/zebra"
 #zebra_tag: "v2.0.1"
-zebra_tag: "v2.1.0"
+#zebra_tag: "v2.1.0"
+zebra_tag: "v2.2.0"
 zebra_network: "mainnet"
 zebra_listen_addr: "0.0.0.0"
 zebra_listen_port: 8233
 zebra_rpc_addr: "127.0.0.1"
 zebra_rpc_port: 8232
+# note that the rpcuser and rpcpassword are sent by lightwalletd but are not not checked by zebra presently
+zebra_rpcuser: "rpcuser" 
+zebra_rpcpassword: "rpcpassword"
 metrics_endpoint_addr: "0.0.0.0"
 metrics_endpoint_port: 9999
 zebra_max_peers: 5
+lightwalletd_grpc_bind_addr: "0.0.0.0"
+lightwalletd_grpc_bind_port: 9067
+lightwalletd_tag: "v0.4.17"
 

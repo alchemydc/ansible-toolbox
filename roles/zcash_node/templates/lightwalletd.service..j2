@@ -1,0 +1,74 @@
+[Unit]
+Description=Zcash Lightwalletd Node
+After=network.target
+{% if lightwalletd_install_type == "docker" %}
+After=docker.service
+Requires=docker.service
+{% endif %}
+StartLimitBurst=3
+StartLimitIntervalSec=300
+# do not check for lightwalletd in {{ svc_user }}/go/bin if using docker
+{% if lightwalletd_install_type != "docker" %}
+ConditionFileIsExecutable=/home/{{ svc_user }}/go/bin/lightwalletd
+{% endif %}
+ConditionPathExists=/home/{{ svc_user }}/.cache/lightwalletd
+
+[Service]
+# binary is in /home/{{ svc_user }}/go/bin
+{% if lightwalletd_install_type != "docker" %}
+ExecStart=/home/{{ svc_user }}/go/bin/lightwalletd \
+  --no-tls-very-insecure \
+  --data-dir /home/{{ svc_user }}/.cache/lightwalletd \
+TimeoutStartSec=300
+{% endif %}
+# if using docker
+{% if lightwalletd_install_type == "docker" %}
+ExecStart=docker run --rm --name lightwalletd \
+  --stop-timeout 300 \
+  -v /home/{{ svc_user }}/.cache/lightwallet:/srv/lightwalletd/db_volume \
+  -p {{ lightwalletd_grpc_bind_port }}:{{ lightwalletd_grpc_bind_port }} \
+  -u {{ svc_uid }} \
+  --group-add {{ svc_uid }} \
+  -e LIGHTWALLETD_DATA_DIR=/var/cache/lwd-cache \
+  -e METRICS_ENDPOINT_ADDR="{{ metrics_endpoint_addr }}" \
+  -e METRICS_ENDPOINT_PORT="{{ metrics_endpoint_port }}" \
+  -e RPC_LISTEN_ADDR="{{ zebra_rpc_addr }}" \
+  -e RPC_LISTEN_PORT="{{ zebra_rpc_port }}" \
+  electriccoinco/lightwalletd/:{{ lightwalletd_tag }} \
+  --grpc-bind-addr {{ lightwalletd_grpc_bind_addr }}:{{ lightwalletd_grpc_bind_port }} \
+  --no-tls-very-insecure \
+  --rpchost {{ zebra_rpc_addr }} \
+  --rpcport {{ zebra_rpc_port }} \
+  --rpcuser rpcuser \
+  --rpcpassword rpcpass
+ExecStop=/usr/bin/docker stop lightwalletd
+# Set TimeoutStartSec to give docker time to pull images etc
+TimeoutStopSec=300
+{% endif %}
+
+User={{ svc_user }}
+Group={{ svc_user }}
+WorkingDirectory=/home/{{ svc_user }}/.cache/lightwalletd
+Type=simple
+Restart=no
+TimeoutStopSec=300
+# generally shouldn't use, but may be required for docker -- can lead to chainstate corruption
+#KillSignal=SIGTERM
+#KillSignal=SIGINT
+SendSIGKILL=no
+
+# Provide a private /tmp and /var/tmp.
+PrivateTmp=true
+# Mount /usr, /boot/ and /etc read-only for the process.
+ProtectSystem=full
+# Deny access to /home, /root and /run/user
+# ProtectHome=true
+# Disallow the process and all of its children to gain
+# new privileges through execve().
+NoNewPrivileges=true
+# Use a new /dev namespace only populated with API pseudo devices
+# such as /dev/null, /dev/zero and /dev/random.
+PrivateDevices=true
+
+[Install]
+WantedBy=multi-user.target
