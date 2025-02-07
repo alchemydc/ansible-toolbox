@@ -1,5 +1,5 @@
 # Zcash Node
-This role will create a Zcash [Zebra]https://github.com/ZcashFoundation/zebra) node.
+This role will create a Zcash [Zebra](https://github.com/ZcashFoundation/zebra) node.
 
 Presently this role is sufficient to build Zebra from source, (or Docker) run it from systemd, and sync mainnet to tip.
 
