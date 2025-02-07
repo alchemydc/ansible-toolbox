@@ -26,19 +26,11 @@ ExecStart=docker run --rm --name zebrad \
   --stop-timeout 300 \
   -v /home/{{ svc_user }}/.cache/zebra:/var/cache/zebrad-cache \
   -v /home/{{ svc_user }}/.config/zebrad.toml:/etc/zebrad/zebrad.toml \
-  -p 8233:8233 \
-  -p 8232:8232 \
+  -p {{ zebra_listen_port }}:{{ zebra_listen_port }} \
+  -p {{ zebra_rpc_port }}:{{ zebra_rpc_port }} \
   -u {{ svc_uid }} \
   --group-add {{ svc_uid }} \
   -e ZEBRA_CONF_PATH=/etc/zebrad/zebrad.toml \
-  -e NETWORK={{ zebra_network }} \
-  -e ZEBRA_LISTEN_ADDR={{ zebra_listen_addr }} \
-  -e ZEBRA_CACHED_STATE_DIR=/var/cache/zebrad-cache \
-  -e LIGHTWALLETD_DATA_DIR=/var/cache/lwd-cache \
-  -e METRICS_ENDPOINT_ADDR="{{ metrics_endpoint_addr }}" \
-  -e METRICS_ENDPOINT_PORT="{{ metrics_endpoint_port }}" \
-  -e RPC_LISTEN_ADDR="{{ zebra_rpc_addr }}" \
-  -e RPC_LISTEN_PORT="{{ zebra_rpc_port }}" \
   zfnd/zebra:{{ zebra_tag }}
 # note that these env vars seem to be lower in precedence than those in the config file
 ExecStop=/usr/bin/docker stop zebrad

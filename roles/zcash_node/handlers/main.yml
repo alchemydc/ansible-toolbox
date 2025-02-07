@@ -5,3 +5,12 @@
     enabled: yes
     daemon_reload: yes
   become: true
+
+- name: restart lightwalletd
+  systemd:
+    name: lightwalletd
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+  become: true
+

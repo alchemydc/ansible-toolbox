@@ -17,7 +17,6 @@
     mode: '0600'
   become: true
   become_user: "{{ svc_user }}"
-  when: install_lightwalletd == true
   notify: restart zebrad
 
 - name: Disable cookie auth in zebrad.toml to support lightwalletd
@@ -30,7 +29,6 @@
     mode: '0600'
   become: true
   become_user: "{{ svc_user }}"
-  when: install_lightwalletd == true
   notify: restart zebrad
 
 - name: Deploy lightwalletd.service from template
@@ -42,3 +40,11 @@
     mode: 0644
   become: true
   notify: restart lightwalletd
+
+- name: Enable and start lightwalletd
+  systemd:
+    name: "lightwalletd"
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true

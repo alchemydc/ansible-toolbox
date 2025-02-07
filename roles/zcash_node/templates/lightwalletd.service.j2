@@ -23,24 +23,23 @@ TimeoutStartSec=300
 {% endif %}
 # if using docker
 {% if lightwalletd_install_type == "docker" %}
-ExecStart=docker run --rm --name lightwalletd \
+ExecStart=docker run --rm --network="host" --name lightwalletd \
   --stop-timeout 300 \
-  -v /home/{{ svc_user }}/.cache/lightwallet:/srv/lightwalletd/db_volume \
+  -v {{ lightwallet_cache_dir }}:/var/lib/lightwalletd/db \
   -p {{ lightwalletd_grpc_bind_port }}:{{ lightwalletd_grpc_bind_port }} \
   -u {{ svc_uid }} \
   --group-add {{ svc_uid }} \
-  -e LIGHTWALLETD_DATA_DIR=/var/cache/lwd-cache \
-  -e METRICS_ENDPOINT_ADDR="{{ metrics_endpoint_addr }}" \
-  -e METRICS_ENDPOINT_PORT="{{ metrics_endpoint_port }}" \
+  -e LIGHTWALLETD_DATA_DIR=/var/lib/lightwalletd/db \
   -e RPC_LISTEN_ADDR="{{ zebra_rpc_addr }}" \
   -e RPC_LISTEN_PORT="{{ zebra_rpc_port }}" \
-  electriccoinco/lightwalletd/:{{ lightwalletd_tag }} \
+  electriccoinco/lightwalletd:{{ lightwalletd_tag }} \
   --grpc-bind-addr {{ lightwalletd_grpc_bind_addr }}:{{ lightwalletd_grpc_bind_port }} \
   --no-tls-very-insecure \
   --rpchost {{ zebra_rpc_addr }} \
   --rpcport {{ zebra_rpc_port }} \
   --rpcuser rpcuser \
-  --rpcpassword rpcpass
+  --rpcpassword rpcpass \
+  --log-file /dev/stdout
 ExecStop=/usr/bin/docker stop lightwalletd
 # Set TimeoutStartSec to give docker time to pull images etc
 TimeoutStopSec=300
@@ -72,3 +71,6 @@ PrivateDevices=true
 
 [Install]
 WantedBy=multi-user.target
+
+
+
