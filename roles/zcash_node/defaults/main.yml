@@ -24,4 +24,4 @@ zebra_max_peers: 5
 lightwalletd_grpc_bind_addr: "0.0.0.0"
 lightwalletd_grpc_bind_port: 9067
 lightwalletd_tag: "v0.4.17"
-
+lightwalletd_log_level: 7   # default == 4, max == 7

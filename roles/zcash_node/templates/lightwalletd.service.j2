@@ -17,8 +17,14 @@ ConditionPathExists=/home/{{ svc_user }}/.cache/lightwalletd
 # binary is in /home/{{ svc_user }}/go/bin
 {% if lightwalletd_install_type != "docker" %}
 ExecStart=/home/{{ svc_user }}/go/bin/lightwalletd \
+  --grpc-bind-addr {{ lightwalletd_grpc_bind_addr }}:{{ lightwalletd_grpc_bind_port }} \
   --no-tls-very-insecure \
-  --data-dir /home/{{ svc_user }}/.cache/lightwalletd \
+  --rpchost {{ zebra_rpc_addr }} \
+  --rpcport {{ zebra_rpc_port }} \
+  --rpcuser rpcuser \
+  --rpcpassword rpcpass \
+  --log-file /dev/stdout \
+  --log-level {{ lightwalletd_log_level }}
 TimeoutStartSec=300
 {% endif %}
 # if using docker
@@ -39,7 +45,8 @@ ExecStart=docker run --rm --network="host" --name lightwalletd \
   --rpcport {{ zebra_rpc_port }} \
   --rpcuser rpcuser \
   --rpcpassword rpcpass \
-  --log-file /dev/stdout
+  --log-file /dev/stdout \
+  --log-level {{ lightwalletd_log_level }}
 ExecStop=/usr/bin/docker stop lightwalletd
 # Set TimeoutStartSec to give docker time to pull images etc
 TimeoutStopSec=300

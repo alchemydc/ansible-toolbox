@@ -72,34 +72,12 @@ COMMIT
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination {{ docker_ingress_host }}:80
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination {{ docker_ingress_host }}:443
 
-# permit ssh on port 1099 from anywhere to the sdk-pokt workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 1099 -j DNAT --to-destination {{ pokt_host }}:22
-
 # permit pokt p2p on port 55656 from anywhere to the sdk-pokt workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 55656 -j DNAT --to-destination {{ pokt_host }}:55656
 
-# permit celo baklava p2p from anywhere to the baklava-validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_baklava_validator_port }} -j DNAT --to-destination {{ celo_baklava_validator_host }}:{{ celo_baklava_validator_port }}
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_baklava_validator_port }} -j DNAT --to-destination {{ celo_baklava_validator_host }}:{{ celo_baklava_validator_port }}
-# permit celo v0-alpha p2p from anywhere to the v0-alpha validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v0_alpha_validator_port }} -j DNAT --to-destination {{ celo_v0_alpha_validator_host }}:{{ celo_v0_alpha_validator_port }}
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v0_alpha_validator_port }}  -j DNAT --to-destination {{ celo_v0_alpha_validator_host }}:{{ celo_v0_alpha_validator_port }}
-# permit celo v0 p2p from anywhere to the v0-bravo validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v0_bravo_validator_port }} -j DNAT --to-destination {{ celo_v0_bravo_validator_host }}:{{ celo_v0_bravo_validator_port }}
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v0_bravo_validator_port }} -j DNAT --to-destination {{ celo_v0_bravo_validator_host }}:{{ celo_v0_bravo_validator_port }}
-# permit celo v1 alpha p2p from anywhere to the v1-alpha validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v1_alpha_validator_port }} -j DNAT --to-destination {{ celo_v1_alpha_validator_host }}:{{ celo_v1_alpha_validator_port }}
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v1_alpha_validator_port }} -j DNAT --to-destination {{ celo_v1_alpha_validator_host }}:{{ celo_v1_alpha_validator_port }}
-# permit celo v1-bravo p2p from anywhere to the v1-bravo validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v1_bravo_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v1_bravo_validator_port }}
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v1_bravo_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v1_bravo_validator_port }}
-# permit celo v2-alpha p2p from anywhere to the v2-alpha validator workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_v2_alpha_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v2_alpha_validator_port }}
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_v2_alpha_validator_port }} -j DNAT --to-destination {{ celo_v1_bravo_validator_host }}:{{ celo_v2_alpha_validator_port }}
-
-# agoric port forwards
-# permit agoric emerynet p2p to the agoric_emerynet_validator_host on agoric_emerynet_validator_port
-#-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ agoric_emerynet_validator_port }} -j DNAT --to-destination {{ agoric_emerynet_validator_host }}:{{ agoric_emerynet_validator_port }}
+# permit celo-public-rpc p2p from anywhere to the celo-public-rpc workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_public_rpc_p2p_port }} -j DNAT --to-destination {{ celo_public_rpc_host }}:{{ celo_public_rpc_p2p_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_public_rpc_p2p_port }} -j DNAT --to-destination {{ celo_public_rpc_host }}:{{ celo_public_rpc_p2p_port }}
 
 # rocketpool testnet port forwards
 # permit p2p traffic to the rocketpool testnet workload
@@ -131,21 +109,8 @@ COMMIT
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ rp_failover_cl_p2p_port }} -j DNAT --to-destination {{ rp_failover_host }}:{{ rp_failover_cl_p2p_port }}
 -A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ rp_failover_cl_p2p_port }} -j DNAT --to-destination {{ rp_failover_host }}:{{ rp_failover_cl_p2p_port }}
 
-
-# quil port forwards
-#-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ quil_port }} -j DNAT --to-destination {{ quil_host }}:{{ quil_port }}
-
-# Eigenlayer port forwards
-# unclear if these are TCP, UDP or both
-# permitting just TCP for now
-#-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ eigenlayer_retrieval_port }} -j DNAT --to-destination {{ eigenlayer_host }}:{{ eigenlayer_retrieval_port }}
-{% for allowed_source in eigenlayer_dispersal_allowed_sources %}
-#-A PREROUTING -s {{ allowed_source }} -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ eigenlayer_dispersal_port }} -j DNAT --to-destination {{ eigenlayer_host }}:{{ eigenlayer_dispersal_port }}
-{% endfor %}
-
 # stacks port forwards
-#-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ stacks_testnet_port }} -j DNAT --to-destination {{ stacks_testnet_host }}:{{ stacks_testnet_port }}
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ stacks_mainnet_port }} -j DNAT --to-destination {{ stacks_mainnet_host }}:{{ stacks_mainnet_port }}
+#-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ stacks_mainnet_p2p_port }} -j DNAT --to-destination {{ stacks_mainnet_host }}:{{ stacks_mainnet_p2p_port }}
 
 # SNAT's for outbound traffic
 # SNAT traffic from private subnet guests
