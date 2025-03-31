@@ -75,9 +75,14 @@ COMMIT
 # permit pokt p2p on port 55656 from anywhere to the sdk-pokt workload
 -A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport 55656 -j DNAT --to-destination {{ pokt_host }}:55656
 
-# permit celo-public-rpc p2p from anywhere to the celo-public-rpc workload
--A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_public_rpc_p2p_port }} -j DNAT --to-destination {{ celo_public_rpc_host }}:{{ celo_public_rpc_p2p_port }}
--A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_public_rpc_p2p_port }} -j DNAT --to-destination {{ celo_public_rpc_host }}:{{ celo_public_rpc_p2p_port }}
+# celo L2 RPC port forwards
+# permit celo-public-rpc op-geth p2p from anywhere to the celo-public-rpc workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_op_geth_p2p_port }} -j DNAT --to-destination {{ celo_public_rpc_host }}:{{ celo_op_geth_p2p_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_op_geth_p2p_port }} -j DNAT --to-destination {{ celo_public_rpc_host }}:{{ celo_op_geth_p2p_port }}
+
+# permit celo-public-rpc op-node p2p from anywhere to the celo-public-rpc workload
+-A PREROUTING -d {{ public_ip }}/32 -p tcp -m tcp --dport {{ celo_op_node_p2p_port }} -j DNAT --to-destination {{ celo_public_rpc_host }}:{{ celo_op_node_p2p_port }}
+-A PREROUTING -d {{ public_ip }}/32 -p udp -m udp --dport {{ celo_op_node_p2p_port }} -j DNAT --to-destination {{ celo_public_rpc_host }}:{{ celo_op_node_p2p_port }}
 
 # rocketpool testnet port forwards
 # permit p2p traffic to the rocketpool testnet workload
