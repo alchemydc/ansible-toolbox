@@ -15,6 +15,7 @@
     - lscr.io/linuxserver/jackett
     - ghcr.io/hotio/overseerr
     - qmcgaw/gluetun
+    - ghcr.io/hotio/sonarr
   register: docker_pull_result
   become: true
 
@@ -43,6 +44,7 @@
     #- lidarr
     - jackett
     - overseerr
+    - sonarr
   when: docker_restart_required is defined
   become: true
 
