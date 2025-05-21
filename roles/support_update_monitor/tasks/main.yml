@@ -13,7 +13,7 @@
   loop: "{{ docker_pull_result.results }}"
 
 - name: Tear down existing monitoring stack
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ monitor_user_dir }}/docker"
     state: absent
   when: docker_restart_required is defined
@@ -21,7 +21,7 @@
   become_user: "{{ monitor_user }}"
 
 - name: Start monitoring stack
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ monitor_user_dir }}/docker"
     state: present
   when: docker_restart_required is defined

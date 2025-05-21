@@ -5,7 +5,7 @@ networks:
       com.docker.network.driver.mtu: {{ sdn_mtu }}
 services:
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:{{ loki_tag }}
     container_name: loki
     volumes:
       - {{ monitor_user_dir }}/loki:/etc/loki
@@ -66,7 +66,7 @@ services:
        - {{ monitor_user_dir }}/prometheus/data:/prometheus
        - /etc/hosts:/etc/hosts:ro
      #command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
-     command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time=90d
+     command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time={{ prometheus_retention_period }}
      restart: unless-stopped
      networks:
        - monitoring

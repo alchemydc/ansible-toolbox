@@ -1,2 +1,6 @@
 # retain logs in loki for 7 days
-loki_retention_period: 168h
+loki_retention_period: "168h"
+loki_tag: "3.4" # working around a bug in 3.5 ref: https://github.com/grafana/loki/issues/17371
+
+# retain prometheus metrics for 90 days
+prometheus_retention_period: "90d"
