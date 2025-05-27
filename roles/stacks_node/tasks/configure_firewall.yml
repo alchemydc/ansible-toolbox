@@ -3,12 +3,39 @@
   debug:
     msg: "ansible_default_ipv4.interface: {{ ansible_default_ipv4.interface }}"
 
-- name: Create /etc/iptables.conf from template
-  template:
-    src: iptables.conf.j2
-    dest: /etc/iptables.conf
+- name: Install iptables-persistent and netfilter-persistent packages
+  apt:
+    name:
+      - netfilter-persistent
+      - iptables-persistent
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Ensure /etc/iptables directory exists
+  file:
+    path: /etc/iptables
+    state: directory
     owner: root
     group: root
-    mode: '600'
+    mode: '0755'
+  become: true
+
+- name: Create /etc/iptables/rules.v4 from template
+  template:
+    src: iptables.conf.j2
+    dest: /etc/iptables/rules.v4
+    owner: root
+    group: root
+    mode: '644'
   notify:
-    - reload iptables
+    - restart netfilter-persistent
+  become: true
+
+- name: Start netfilter-persistent service
+  systemd:
+    name: netfilter-persistent
+    state: started
+    enabled: yes
+  become: true
+
