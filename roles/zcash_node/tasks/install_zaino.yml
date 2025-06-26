@@ -1,0 +1,56 @@
+- name: Clone zaino repository
+  git:
+    repo: "{{ zaino_repo }}"
+    dest: "{{ zaino_repo_dest }}"
+    version: "{{ zaino_tag }}"
+    update: yes
+  register: git_clone
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Build zaino docker image from source
+  docker_image:
+    name: "local/zaino"
+    tag: "{{ zaino_tag }}"
+    source: build
+    build:
+      path: "{{ zaino_repo_dest }}"
+  when: git_clone.changed
+  become: true
+
+- name: Create cache directory for zaino
+  file:
+    path: "/home/{{ svc_user }}/.cache/zaino"
+    state: directory
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: '0755'
+  become: true
+
+- name: Deploy zindexer.toml from template
+  template:
+    src: zindexer.toml.j2
+    dest: /home/{{ svc_user }}/.config/zindexer.toml
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: 0600
+  become: true
+  become_user: "{{ svc_user }}"
+
+- name: Deploy zaino.service from template
+  template:
+    src: zaino.service.j2
+    dest: /etc/systemd/system/zaino.service
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart zaino
+
+- name: Enable and start zaino
+  systemd:
+    name: "zaino"
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: true

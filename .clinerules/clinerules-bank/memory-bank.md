@@ -114,3 +114,6 @@ Note: When triggered by **update memory bank**, I MUST review every memory bank 
 
 REMEMBER: After every memory reset, I begin completely fresh. The Memory Bank is my only link to previous work. It must be maintained with precision and clarity, as my effectiveness depends entirely on its accuracy.
 
+## Suggested Improvements
+
+- If the user denies creation of `projectbrief.md` but claims it exists, always attempt to read the file before halting memory bank workflows.

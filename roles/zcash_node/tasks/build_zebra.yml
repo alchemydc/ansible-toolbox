@@ -9,8 +9,8 @@
         dest: '/home/{{ svc_user }}/zebra'
         version: '{{ zebra_tag }}'
         update: yes
-        force: yes
         depth: 1
+      register: git_clone
 
     - name: Build and install zebra
       command: '{{ item }}'
@@ -20,6 +20,9 @@
         - 'cargo build --release --features prometheus --bin zebrad'
       environment:
         PATH: '/home/{{ svc_user }}/.cargo/bin::/usr/local/bin:/usr/bin:/bin:'
+      when: git_clone.changed
+      register: build_result
+
   become: true
   become_user: "{{ svc_user }}"
 
@@ -31,6 +34,6 @@
     owner: '{{ svc_user }}'
     group: '{{ svc_user }}'
     remote_src: true
+  when: build_result.changed
   become: true
   notify: restart zebrad
-

@@ -1,0 +1,32 @@
+# Configuration for Zaino
+
+# Backend:
+backend = "fetch"
+
+# JsonRPC server config:
+enable_json_server = false
+json_rpc_listen_address = "{{ zaino_json_rpc_listen_address }}"
+enable_cookie_auth = false
+
+# gRPC server config:
+grpc_listen_address = "{{ zaino_grpc_bind_addr }}:{{ zaino_grpc_bind_port }}"
+grpc_tls = false
+
+# JsonRPC client config:
+validator_listen_address = "{{ zaino_validator_listen_address }}"
+validator_cookie_auth = {{ zaino_validator_cookie_auth | lower }}
+{% if zaino_validator_user %}
+validator_user = "{{ zaino_validator_user }}"
+{% endif %}
+{% if zaino_validator_password %}
+validator_password = "{{ zaino_validator_password }}"
+{% endif %}
+
+# Database paths:
+zaino_db_path = "{{ zaino_db_path }}"
+
+# Network:
+network = "{{ zaino_network }}"
+
+# Logging:
+# (Zaino uses RUST_LOG, set via systemd or docker env if needed)

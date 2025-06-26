@@ -1,0 +1,31 @@
+[Unit]
+Description=Zaino Indexer Service
+After=network.target
+After=docker.service
+Requires=docker.service
+StartLimitBurst=3
+StartLimitIntervalSec=300
+ConditionPathExists=/home/{{ svc_user }}/.cache/zaino
+
+[Service]
+ExecStart=/usr/bin/docker run --rm --network="host" --name zaino \
+  -v /home/{{ svc_user }}/.cache/zaino:/home/zaino/.cache/zaino \
+  -v /home/{{ svc_user }}/.config/zindexer.toml:/home/zaino/zindexer.toml:ro \
+  -u {{ svc_uid }} \
+  local/zaino:{{ zaino_tag }} \
+  zainod --config /home/zaino/zindexer.toml
+ExecStop=/usr/bin/docker stop zaino
+User={{ svc_user }}
+Group={{ svc_user }}
+WorkingDirectory=/home/{{ svc_user }}/.cache/zaino
+Type=simple
+Restart=no
+TimeoutStopSec=300
+SendSIGKILL=no
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+PrivateDevices=true
+
+[Install]
+WantedBy=multi-user.target

@@ -17,7 +17,7 @@ Tracks what works, what's left to build, current status, known issues, and the e
 [Describe the current overall status of the project.]
 
 ### Known Issues
-- [List any known issues or bugs.]
+- The `zaino` Docker image build fails because it requires Docker BuildKit, which is not enabled by default in the Ansible `docker_image` module.
 
 ### Evolution of Project Decisions
 - [Document how and why major decisions have changed over time.]

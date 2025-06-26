@@ -8,13 +8,13 @@ Tracks current work focus, recent changes, next steps, active decisions, importa
 ---
 
 ### Current Focus
-[Describe the current area of work or focus.]
+- Troubleshooting the Docker build for the `zaino` indexer.
 
 ### Recent Changes
-- [List recent changes made to the project.]
+- The `zaino` Docker build is failing with an error indicating that BuildKit is required.
 
 ### Next Steps
-- [List the next steps planned for the project.]
+- Modify the `docker_image` task in `roles/zcash_node/tasks/install_zaino.yml` to enable BuildKit. This can be done by adding an `environment` variable to the task: `DOCKER_BUILDKIT=1`.
 
 ### Active Decisions & Considerations
 - [Document key decisions and considerations.]
@@ -23,7 +23,7 @@ Tracks current work focus, recent changes, next steps, active decisions, importa
 - [Note important patterns, conventions, or preferences.]
 
 ### Learnings & Insights
-- [Capture important learnings and insights.]
+- The `zaino` `Dockerfile` uses modern Docker features that depend on the BuildKit engine.
 
 ---
 

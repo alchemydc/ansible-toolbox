@@ -26,3 +26,25 @@ lightwalletd_grpc_bind_addr: "0.0.0.0"
 lightwalletd_grpc_bind_port: 9067
 lightwalletd_tag: "v0.4.17"
 lightwalletd_log_level: 7   # default == 4, max == 7
+
+# Indexer selection
+#zcash_indexer: "lightwalletd"  # or "zaino"
+zcash_indexer: "zaino"
+
+# Zaino variables
+zaino_install_type: "docker"
+zaino_tag: "v0.1.2-rc3"
+zaino_grpc_bind_addr: "0.0.0.0"
+zaino_grpc_bind_port: 8137
+zaino_json_rpc_listen_address: "127.0.0.1:8237"
+zaino_network: "Mainnet"
+zaino_validator_listen_address: "127.0.0.1:18232"
+zaino_validator_cookie_auth: false
+zaino_validator_user: ""
+zaino_validator_password: ""
+zaino_db_path: "/home/{{ svc_user }}/.cache/zaino"
+zaino_log_level: "info"
+
+# Zaino build from source
+zaino_repo: "https://github.com/zingolabs/zaino.git"
+zaino_repo_dest: "/home/{{ svc_user }}/zaino"
