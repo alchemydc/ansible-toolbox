@@ -117,3 +117,9 @@ REMEMBER: After every memory reset, I begin completely fresh. The Memory Bank is
 ## Suggested Improvements
 
 - If the user denies creation of `projectbrief.md` but claims it exists, always attempt to read the file before halting memory bank workflows.
+
+- When troubleshooting or updating Ansible automation, always verify the correct and current module usage by consulting the official Ansible documentation for the specific module version in use. If a module is deprecated or superseded (e.g., `docker_image` vs `docker_image_build`), document the migration path and update playbooks accordingly.
+
+- Encourage explicit documentation of module usage patterns and known pitfalls in the memory bank, especially for modules with similar names or overlapping functionality.
+
+- When user feedback identifies a documentation or usage gap, update the memory bank and .clinerules to reflect the new best practice or lesson learned.

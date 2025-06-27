@@ -11,7 +11,7 @@ ConditionPathExists=/home/{{ svc_user }}/.cache/zaino
 ExecStart=/usr/bin/docker run --rm --network="host" --name zaino \
   -v /home/{{ svc_user }}/.cache/zaino:/home/zaino/.cache/zaino \
   -v /home/{{ svc_user }}/.config/zindexer.toml:/home/zaino/zindexer.toml:ro \
-  -u {{ svc_uid }} \
+  -u 10003:10003 \
   local/zaino:{{ zaino_tag }} \
   zainod --config /home/zaino/zindexer.toml
 ExecStop=/usr/bin/docker stop zaino

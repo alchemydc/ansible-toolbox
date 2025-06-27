@@ -9,12 +9,10 @@
   become_user: "{{ svc_user }}"
 
 - name: Build zaino docker image from source
-  docker_image:
+  community.docker.docker_image_build:
     name: "local/zaino"
     tag: "{{ zaino_tag }}"
-    source: build
-    build:
-      path: "{{ zaino_repo_dest }}"
+    path: "{{ zaino_repo_dest }}"
   when: git_clone.changed
   become: true
 
@@ -33,7 +31,7 @@
     dest: /home/{{ svc_user }}/.config/zindexer.toml
     owner: "{{ svc_user }}"
     group: "{{ svc_user }}"
-    mode: 0600
+    mode: 0644
   become: true
   become_user: "{{ svc_user }}"
 

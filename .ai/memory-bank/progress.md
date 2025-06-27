@@ -8,16 +8,18 @@ Tracks what works, what's left to build, current status, known issues, and the e
 ---
 
 ### What Works
-- [List features or components that are working.]
+- The `zaino` Docker image builds successfully using the `community.docker.docker_image_build` module.
+- The container starts and runs with the correct UID/GID mapping for the `zaino` user.
 
 ### What's Left to Build
 - [List features or components that still need to be built.]
 
 ### Current Status
-[Describe the current overall status of the project.]
+The container now builds and runs, but runtime permission and SSL errors persist. SSL appears to be a hard requirement for `zaino`, complicating both local testing and production deployments with external SSL termination.
 
 ### Known Issues
-- The `zaino` Docker image build fails because it requires Docker BuildKit, which is not enabled by default in the Ansible `docker_image` module.
+- The `zaino` container experiences runtime permission errors, which were partially addressed by setting the correct user.
+- The `zaino` container exits with SSL-related errors, as it seems to require SSL even for local/testing deployments.
 
 ### Evolution of Project Decisions
 - [Document how and why major decisions have changed over time.]

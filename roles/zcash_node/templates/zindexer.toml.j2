@@ -13,14 +13,8 @@ grpc_listen_address = "{{ zaino_grpc_bind_addr }}:{{ zaino_grpc_bind_port }}"
 grpc_tls = false
 
 # JsonRPC client config:
-validator_listen_address = "{{ zaino_validator_listen_address }}"
-validator_cookie_auth = {{ zaino_validator_cookie_auth | lower }}
-{% if zaino_validator_user %}
-validator_user = "{{ zaino_validator_user }}"
-{% endif %}
-{% if zaino_validator_password %}
-validator_password = "{{ zaino_validator_password }}"
-{% endif %}
+validator_listen_address = "{{ zebra_rpc_addr }}:{{ zebra_rpc_port }}"
+validator_cookie_auth = false
 
 # Database paths:
 zaino_db_path = "{{ zaino_db_path }}"
