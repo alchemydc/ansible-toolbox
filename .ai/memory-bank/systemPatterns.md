@@ -17,7 +17,7 @@ Documents system architecture, key technical decisions, design patterns, compone
 ### Design Patterns
 - Configuration is managed via Jinja2 templates and mounted into containers.
 - Service deployment is handled by systemd unit templates.
-- Security and network features (like TLS) are enforced at the application build level, not just via configuration.
+- Security and network features (like TLS) are enforced at the application build level, not just via configuration.  This is not desirable and should be fixed upstream.
 ### Component Relationships
 - [Describe relationships between major components.]
 

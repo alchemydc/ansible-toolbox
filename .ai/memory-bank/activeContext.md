@@ -10,6 +10,9 @@ Tracks current work focus, recent changes, next steps, active decisions, importa
 ### Current Focus
 - Resolved runtime permission issues with the `zaino` container.
 - Investigated persistent SSL/TLS errors when running `zaino` in a dev environment, even with `grpc_tls = false` set in the config.
+- Tested both `zingodevops/zaino:v0.1.2-rc3` and `zingodevops/zaino:v0.1.2-rc3-no-tls` Docker images; both have the same hash and both fail with TLS errors at startup.
+- Observed error: `ConfigError("TLS required when connecting to external addresses.")` and related warnings about missing TLS config.
+- Raised issue with Zaino team: https://github.com/zingolabs/zaino/issues/265
 - Determined that disabling TLS enforcement requires a custom build of `zaino` with the `disable_tls_unencrypted_traffic_mode` feature.
 ### Recent Changes
 - The `zaino` Docker image now builds successfully using the `community.docker.docker_image_build` module.

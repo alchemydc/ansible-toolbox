@@ -8,7 +8,9 @@ zebra_repo: "https://github.com/ZcashFoundation/zebra"
 #zebra_tag: "v2.0.1"
 #zebra_tag: "v2.1.0"
 #zebra_tag: "v2.2.0"
-zebra_tag: "v2.3.0"
+#zebra_tag: "v2.3.0"
+#zebra_tag: "v2.4.0"
+zebra_tag: "main"
 zebra_cache_dir: "/home/{{ svc_user }}/.cache/zebra"
 lightwallet_cache_dir: "/home/{{ svc_user }}/.cache/lightwalletd"
 zebra_network: "Mainnet"
@@ -32,8 +34,11 @@ lightwalletd_log_level: 7   # default == 4, max == 7
 zcash_indexer: "zaino"
 
 # Zaino variables
-zaino_install_type: "docker"
-zaino_tag: "v0.1.2-rc3"
+zaino_build_from_source: false   # If true, build zaino from source; if false, pull image
+zaino_use_tls: false              # If false, use the "no-tls" image
+zaino_image: "zingodevops/zaino"
+zaino_image_no_tls: "zingodevops/zaino:v0.1.2-rc3-no-tls"
+zaino_image_tag: "v0.1.2-rc3"
 zaino_grpc_bind_addr: "0.0.0.0"
 zaino_grpc_bind_port: 8137
 zaino_json_rpc_listen_address: "127.0.0.1:8237"

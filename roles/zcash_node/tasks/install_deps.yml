@@ -12,6 +12,7 @@
       #- "pkg-config"
       #- "libssl-dev"
       - "libclang-dev"
+      - "protobuf-compiler"
     state: present
   become: true
 

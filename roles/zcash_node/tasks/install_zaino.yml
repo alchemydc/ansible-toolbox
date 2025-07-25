@@ -1,19 +1,42 @@
+- name: Pull zaino Docker image (with TLS)
+  community.docker.docker_image:
+    name: "{{ zaino_image }}"
+    tag: "{{ zaino_image_tag }}"
+    source: pull
+  when:
+    - not zaino_build_from_source
+    - zaino_use_tls
+  become: true
+
+- name: Pull zaino Docker image (no TLS)
+  community.docker.docker_image:
+    name: "{{ zaino_image_no_tls.split(':')[0] }}"
+    tag: "{{ zaino_image_no_tls.split(':')[1] }}"
+    source: pull
+  when:
+    - not zaino_build_from_source
+    - not zaino_use_tls
+  become: true
+
 - name: Clone zaino repository
   git:
     repo: "{{ zaino_repo }}"
     dest: "{{ zaino_repo_dest }}"
-    version: "{{ zaino_tag }}"
+    version: "{{ zaino_image_tag }}"
     update: yes
   register: git_clone
   become: true
   become_user: "{{ svc_user }}"
+  when: zaino_build_from_source
 
 - name: Build zaino docker image from source
   community.docker.docker_image_build:
     name: "local/zaino"
-    tag: "{{ zaino_tag }}"
+    tag: "{{ zaino_image_tag }}"
     path: "{{ zaino_repo_dest }}"
-  when: git_clone.changed
+  when:
+    - zaino_build_from_source
+    - git_clone.changed
   become: true
 
 - name: Create cache directory for zaino

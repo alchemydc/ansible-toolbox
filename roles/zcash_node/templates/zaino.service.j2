@@ -12,7 +12,13 @@ ExecStart=/usr/bin/docker run --rm --network="host" --name zaino \
   -v /home/{{ svc_user }}/.cache/zaino:/home/zaino/.cache/zaino \
   -v /home/{{ svc_user }}/.config/zindexer.toml:/home/zaino/zindexer.toml:ro \
   -u 10003:10003 \
-  local/zaino:{{ zaino_tag }} \
+  {% if zaino_build_from_source %}
+    local/zaino:{{ zaino_image_tag }} \
+  {% elif not zaino_use_tls %}
+    {{ zaino_image_no_tls }} \
+  {% else %}
+    {{ zaino_image }}:{{ zaino_image_tag }} \
+  {% endif %}
   zainod --config /home/zaino/zindexer.toml
 ExecStop=/usr/bin/docker stop zaino
 User={{ svc_user }}
