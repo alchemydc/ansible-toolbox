@@ -9,3 +9,4 @@ etc_hosts
 *.vault
 roles/canto_validator/
 .DS_Store
+.ansible

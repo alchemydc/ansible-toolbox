@@ -1,0 +1,46 @@
+- name: Ensure keyrings directory exists
+  ansible.builtin.file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Download Cloudflare GPG key
+  ansible.builtin.get_url:
+    url: "{{ cloudflared_key_url }}"
+    dest: "{{ cloudflared_key_path }}"
+    mode: "0644"
+    validate_certs: yes
+
+- name: Add Cloudflare APT repository for cloudflared
+  ansible.builtin.apt_repository:
+    repo: "{{ cloudflared_repo }}"
+    filename: "{{ cloudflared_repo_filename }}"
+    state: present
+
+- name: Install cloudflared
+  ansible.builtin.apt:
+    name: "{{ cloudflared_package_name }}"
+    state: "{{ cloudflared_state }}"
+    update_cache: yes
+    cache_valid_time: 3600
+
+- block:
+    - name: Ensure ping_group_range allows cloudflared to send ICMP
+      ansible.builtin.sysctl:
+        name: net.ipv4.ping_group_range
+        value: "{{ cloudflared_ping_group_range }}"
+        sysctl_set: true
+        state: present
+        reload: true
+        sysctl_file: /etc/sysctl.d/99-cloudflared.conf
+      notify: Restart cloudflared
+  rescue:
+    - name: Fallback ping_group_range for ICMP (0 65535)
+      ansible.builtin.sysctl:
+        name: net.ipv4.ping_group_range
+        value: "0 65535"
+        sysctl_set: true
+        state: present
+        reload: true
+        sysctl_file: /etc/sysctl.d/99-cloudflared.conf
+      notify: Restart cloudflared

@@ -82,6 +82,9 @@
       tags: nodeset_server
     - role: zcash_node
       tags: zcash_node
+    - role: cloudflared
+      tags: cloudflared
+      become: true
       
   handlers:
       - name: restart sshd
@@ -245,10 +248,3 @@
           daemon_reload: yes
           state: restarted
         become: true
-     
-
-      
-
-      
-
-

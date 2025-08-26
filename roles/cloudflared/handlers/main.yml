@@ -1,0 +1,4 @@
+- name: Restart cloudflared
+  ansible.builtin.service:
+    name: cloudflared
+    state: restarted

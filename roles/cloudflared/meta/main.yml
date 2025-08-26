@@ -1,0 +1,13 @@
+galaxy_info:
+  author: alchemydc
+  description: Install Cloudflare cloudflared via APT using keyrings
+  license: MIT
+  min_ansible_version: "2.12"
+  role_name: cloudflared
+  namespace: alchemydc
+  platforms:
+    - name: Debian
+      versions: ["bullseye", "bookworm"]
+    - name: Ubuntu
+      versions: ["focal", "jammy", "noble"]
+dependencies: []
