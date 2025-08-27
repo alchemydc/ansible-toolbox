@@ -18,4 +18,5 @@ timemachine_path: "/mnt/timemachine"
 # username: username
 # samba_password: cleartext samba password
 
-timemachine_quota: "2T"
+# Quota for Time Machine backups (used for both Samba and ZFS refquota synchronization)
+timemachine_quota: "3T"

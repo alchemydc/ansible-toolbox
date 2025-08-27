@@ -14,6 +14,11 @@ Documents technologies used, development setup, technical constraints, dependenc
 - Rust (Zaino is implemented in Rust)
 ### Development Setup
 - Ansible roles manage service and configuration templates.
+- Time Machine server role sets `timemachine_quota` (default: 3T) for both Samba and ZFS quota synchronization.
+- Samba configuration uses `server role = standalone server`; smbd is explicitly enabled and started via systemd.
+- samba-ad-dc is stopped and masked; nmbd is disabled with service_facts guard; winbind management is removed.
+- Handler and notify logic only restart smbd.
+- Operator step: ZFS `refquota` must be set manually on Proxmox to match `timemachine_quota`.
 - Zaino is run as a Docker container, started via a systemd service template.
 - The Zaino configuration is templated at `roles/zcash_node/templates/zindexer.toml.j2` and mounted into the container.
 - For local development or testing without TLS, a custom Docker image must be built with the `disable_tls_unencrypted_traffic_mode` feature enabled.
@@ -26,6 +31,7 @@ Documents technologies used, development setup, technical constraints, dependenc
 - Ansible roles and templates
 - Rust toolchain (for custom Zaino builds)
 ### Tool Usage Patterns
+- Use Ansible to manage Samba configuration, service state, and quota variables for Time Machine backups.
 - Use Ansible to manage Docker containers and configuration files.
 - Zaino configuration is managed via Jinja2 template and mounted into the container.
 - If running without TLS is required, fork the Zaino repo and build the Docker image with the `disable_tls_unencrypted_traffic_mode` feature.

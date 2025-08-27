@@ -8,6 +8,7 @@
    workgroup = WORKGROUP
    server string = %h Samba Server
    security = user
+   server role = standalone server
 
    logging = systemd
    log file = /dev/null
@@ -16,7 +17,6 @@
    # do not sync smb passwords with unix passwords
    unix password sync = no
    pam password change = no
-   map to guest = Bad User
 
    # Apple extensions ("AAPL") run under SMB2/3 protocol, make that the minimum (probably shouldn't be running SMB1 anyway...) - defaults to SMB2_2 in Samba 4.11+:
    server min protocol = SMB3_00
@@ -40,8 +40,8 @@
    # sets the finder icon
    fruit:model = MacSamba
 
-   # The fruit module needs to be told where to store the alternate data streams. Use 'stream' for better compatibility.
-   fruit:resource = stream
+   # The fruit module needs to be told where to store the alternate data streams. Use 'xattr' for ZFS compatibility.
+   fruit:resource = xattr
 
    # To tell fruit to reverse the encoding of the aforementioned illegal characters using the catia module, the following parameter must be set:
    fruit:encoding = native
@@ -55,6 +55,9 @@
    fruit:zero_file_id = yes
    fruit:wipe_intentionally_left_blank_rfork = yes
    fruit:delete_empty_adfiles = yes
+
+   # Improve Time Machine stability
+   fruit:locking = none
 
    # Preserve macOS ACL semantics
    acl_xattr:ignore system acls = yes

@@ -1,3 +1,7 @@
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
+
 - name: Update installed packages via APT
   apt:
     upgrade: yes
@@ -26,7 +30,7 @@
     owner: root
     group: root
     mode: '0644'
-  notify: restart samba
+  notify: restart smbd
   become: true
 
 - name: Create samba users
@@ -68,10 +72,33 @@
     enabled: no
   become: true
 
-- name: Start Samba service via systemd
-  systemd:
+
+- name: Disable nmbd (NetBIOS disabled)
+  ansible.builtin.systemd:
+    name: nmbd
+    state: stopped
+    enabled: no
+  when: "'nmbd.service' in ansible_facts.services"
+  become: true
+
+
+
+- name: Mask Samba AD DC service
+  ansible.builtin.systemd:
+    name: samba-ad-dc
+    masked: yes
+  when: "'samba-ad-dc.service' in ansible_facts.services"
+  become: true
+
+- name: Ensure smbd enabled and running
+  ansible.builtin.systemd:
     name: smbd
     state: started
     enabled: yes
   become: true
 
+- name: Ensure samba-ad-dc package is absent
+  ansible.builtin.apt:
+    name: samba-ad-dc
+    state: absent
+  become: true
