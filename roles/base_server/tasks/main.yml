@@ -137,14 +137,17 @@
 #    masked: true
 #  when: ansible_facts['distribution_release'] == "bookworm"
 
+# had previously been disabling ipv6 to work around some issues with proxmox sdn and ipv6
+# but going to leave it enabled now with proxmox 9 and see if the issues are resolved.
 # disable ipv6
-- name: Disable ipv6
-  import_tasks: disable_ipv6.yml
-  tags: "disable_ipv6"
+#- name: Disable ipv6
+#  import_tasks: disable_ipv6.yml
+#  tags: "disable_ipv6"
 
+# smarthost role needs to be reworked now that SendGrid no longer has a free plan :(
 # configure smarthost
-- name: Configure smarthost
-  import_tasks: configure_smarthost.yml
-  tags: "configure_smarthost"
-  become: true
-  when: ansible_virtualization_role == "guest"
+#- name: Configure smarthost
+#  import_tasks: configure_smarthost.yml
+#  tags: "configure_smarthost"
+#  become: true
+#  when: ansible_virtualization_role == "guest"
