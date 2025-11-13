@@ -64,7 +64,7 @@ Tracks current work focus, recent changes, next steps, active decisions, importa
 
 ### Recent Changes
 - The `zaino` Docker image now builds successfully using the `community.docker.docker_image_build` module.
-- The `zaino.service.j2` template has been updated to run the container with the correct user and group ID (10003).
+- The `zaino` service template has been updated to run the container with the correct user and group ID (10003).
 - The container now starts, but runtime permission and SSL errors persist.
 
 ### Next Steps
@@ -86,6 +86,28 @@ Tracks current work focus, recent changes, next steps, active decisions, importa
 - `zaino` requires SSL/TLS to run unless built with the `disable_tls_unencrypted_traffic_mode` feature.
 - The official Docker image does not include this feature, so TLS enforcement cannot be disabled at runtime via config alone.
 - This complicates both local testing and production deployments with external SSL termination.
+
+---
+
+## Recent work: Proxmox 9 (Debian 13 / trixie) repo & inventory updates (2025-11-13)
+
+### Summary of actions
+- Implemented safer Proxmox community repo handling in `roles/base_server/tasks/configure_proxmox_repos.yml`:
+  - Remove enterprise repo artifacts (both `.list` and `.sources`) before enabling community repo.
+  - Download Proxmox signing key from `https://enterprise.proxmox.com/debian/proxmox-release-{{ proxmox_distro }}.gpg` into `/usr/share/keyrings/proxmox-archive-keyring.gpg`.
+  - Create `pve-community.sources` (new `.sources` syntax) on hosts with `proxmox_distro` >= `trixie`; use legacy `.list` for older distros.
+  - Use `Signed-By` / `signed-by` pattern to avoid global apt-key usage.
+- Fixed inventory warnings:
+  - Replaced invalid inventory variable keys (e.g. `sdn:mtu` → `sdn_mtu`) where present.
+  - Resolved group/host name collision by renaming host entry or group where appropriate.
+  - Normalized group names to avoid characters that Ansible warns about (hyphens replaced with underscores where applied).
+- Decision: centralize Proxmox repo management in `base_server` and make `proxmox_hypervisor` repo tasks opt-in via `manage_proxmox_repos` variable.
+- Confirmed `base_server` role applies cleanly on Proxmox 9 host (zd1) when repo/key changes are present.
+
+### Next steps
+- Audit `roles/proxmox_hypervisor` to mark repo tasks as opt-in (`manage_proxmox_repos: false` by default) and avoid duplicate repo changes.
+- Run a full dry-run and staged apply on a dev/staging proxmox node to verify pveservice and pvesm operations.
+- Update Memory Bank `progress.md` and `systemPatterns.md` with the above decisions and the signing-key URL (done in companion files).
 
 ---
 
