@@ -64,17 +64,16 @@
   command: "hostnamectl set-hostname {{ inventory_hostname }}"
   tags: set_hostname
 
-#- name: Configure baseline iptables rules
+#- name: Configure PVE firewall
 #  import_tasks: configure_firewall.yml
-#  become: true
 #  tags:
 #    - proxmox_firewall
-#
-#- name: Configure Wireguard
-#  import_tasks: configure_wireguard.yml
-#  tags:
-#    - wireguard
-#
+
+- name: Configure Wireguard
+  import_tasks: configure_wireguard.yml
+  tags:
+    - wireguard
+
 #- name: Configure /etc/hosts
 #  template:
 #    backup: yes

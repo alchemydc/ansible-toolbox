@@ -1,13 +1,44 @@
 ---
-- name: Deploy dynamic wireguard config to /etc/wireguard/wg0.conf
-  ansible.builtin.template:
-    src: "wg0.conf.j2"
-    dest: "/etc/wireguard/wg0.conf"
-    owner: "root"
-    group: "root"
-    mode: "0600"
-  notify:
-    - restart wireguard
+- name: Deploy and restart wireguard safely
+  block:
+    - name: Deploy dynamic wireguard config to /etc/wireguard/wg0.conf
+      ansible.builtin.template:
+        src: "wg0.conf.j2"
+        dest: "/etc/wireguard/wg0.conf"
+        owner: "root"
+        group: "root"
+        mode: "0600"
+        backup: yes
+      register: wg_tpl
+      notify:
+        - restart proxmox_wireguard
+        - wait for wireguard connection
+
+    - name: Flush handlers to restart wireguard now
+      meta: flush_handlers
+      when: wg_tpl.changed
+
+  rescue:
+    - name: Restore previous /etc/wireguard/wg0.conf from backup
+      copy:
+        src: "{{ wg_tpl.backup_path }}"
+        dest: /etc/wireguard/wg0.conf
+        owner: root
+        group: root
+        mode: '0600'
+      become: true
+      when: wg_tpl.backup_path is defined
+
+    - name: Restart wg-quick@wg0 to apply rollback
+      service:
+        name: wg-quick@wg0
+        state: restarted
+      become: true
+
+    - name: Fail with actionable message
+      fail:
+        msg: "Wireguard restart failed; original config restored from backup ({{ wg_tpl.backup_path | default('N/A') }}). Manual inspection required."
+
   tags: "wireguard"
 
 - name: Start wireguard and enable on boot
