@@ -99,22 +99,22 @@
   loop: "{{ swap_devices }}"
   tags: "swap"
   when: swap_devices is defined
-#
-#- name: Configure sysctl
-#  import_tasks: configure_sysctl.yml
-#  tags: "proxmox_sysctl"
-#
-# # this task ensures that each proxmox hypervisor has a ZFS dataset called 'vmdata', created on the defined zfs_pool
-# # note that proxmox clustering requires that the underlying pool and dataset names be the same on each node
-#- name: Configure ZFS
-#  import_tasks: configure_zfs.yml
-#  tags: "zfs"
-#
-#- name: Disable sleep on lid close # yes pmox runs on laptops, good for quorum
-#  lineinfile:
-#    path: /etc/systemd/logind.conf
-#    regex: '^#HandleLidSwitch=suspend'
-#    line: 'HandleLidSwitch=ignore'
-#    state: present
-#  tags: "disable_sleep"
-#
+
+- name: Configure sysctl
+  import_tasks: configure_sysctl.yml
+  tags: "proxmox_sysctl"
+
+# this task ensures that each proxmox hypervisor has a ZFS dataset called 'vmdata', created on the defined zfs_pool
+# note that proxmox clustering requires that the underlying pool and dataset names be the same on each node
+- name: Configure ZFS
+  import_tasks: configure_zfs.yml
+  tags: "zfs"
+
+- name: Disable sleep on lid close # yes pmox runs on laptops, good for quorum
+  lineinfile:
+    path: /etc/systemd/logind.conf
+    regex: '^#HandleLidSwitch=suspend'
+    line: 'HandleLidSwitch=ignore'
+    state: present
+  tags: "disable_sleep"
+
