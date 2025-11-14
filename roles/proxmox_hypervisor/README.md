@@ -5,10 +5,11 @@ Configures Proxmox VE hosts with networking, firewall, storage, and VPN setup.
 ## Features
 
 - **Proxmox Repository Management** - Automatic trixie+ support with `.sources` format
-- **Wireguard VPN** - Data-driven, cluster-wide mesh network
+- **Wireguard VPN** - Data-driven, cluster-wide mesh network with safe restart & rollback
 - **nftables Firewall** - Modern Proxmox 9 firewall integration with dynamic NAT rules
 - **ZFS Management** - Dataset and quota configuration
 - **System Configuration** - Hostname, sysctl, swap setup
+- **Swap Management** - Idempotent multi-disk swap partition creation
 
 ## Requirements
 
@@ -104,12 +105,45 @@ Verify Wireguard on host:
 ssh zd1 wg show wg0
 ```
 
+## Recent Changes
+
+### Wireguard Handler
+- Moved from playbook level to role-level with proper scoping
+- Implements safe restart with automatic rollback on failure
+- Backs up config before restart; restores if connectivity lost
+- Handler: `restart proxmox_wireguard` (unique name to avoid conflicts)
+
+### Wireguard Template
+- Removed hardcoded naming conventions
+- Endpoint resolution: explicit config → `<peer>_public_ip` variable → no endpoint
+- Works with any peer naming scheme
+
+### Swap Configuration
+- Now idempotent: checks for existing swap before creating
+- Detects swap by `fstype: linux-swap` instead of hardcoding partition names
+- Dynamic partition numbering per disk
+- Multi-disk support with per-disk scoping
+- No longer runs on every playbook execution
+
+## System Configuration
+
+### sysctl Settings (BGP EVPN & VXLAN)
+
+This role disables reverse path filtering (`rp_filter=0`) and enables IP forwarding (`ip_forward=1`):
+
+- **rp_filter=0** - EVPN routes traffic asymmetrically (in one interface, out another). Strict RPF mode drops these packets; disabled globally.
+- **ip_forward=1** - Required to route between VXLAN tunnel interfaces and physical NICs. Essential for inter-VNET communication.
+
+These settings are required for BGP EVPN SDN to function properly in Proxmox 9+.
+
 ## Notes
 
 - Private keys are **encrypted**. Use `--ask-vault-pass` or set `ANSIBLE_VAULT_PASSWORD_FILE`
-- Old per-host Wireguard templates archived; now using single dynamic `wg0.conf.j2`
+- Wireguard template is naming-scheme agnostic; uses explicit endpoints first, then inventory variables
 - Firewall rules require Proxmox API credentials (configure in playbook)
 - Network changes use `serial: 1` for safety; test on staging first
+- Wireguard config corruption no longer leaves host unreachable (auto-rollback on failed restart)
+- sysctl parameters for BGP EVPN are applied automatically; documented in configure_sysctl.yml
 
 ## License
 

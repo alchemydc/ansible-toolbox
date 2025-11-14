@@ -64,10 +64,10 @@
   command: "hostnamectl set-hostname {{ inventory_hostname }}"
   tags: set_hostname
 
-#- name: Configure PVE firewall
-#  import_tasks: configure_firewall.yml
-#  tags:
-#    - proxmox_firewall
+- name: Configure PVE firewall
+  import_tasks: configure_firewall.yml
+  tags:
+    - proxmox_firewall
 
 - name: Configure Wireguard
   import_tasks: configure_wireguard.yml
