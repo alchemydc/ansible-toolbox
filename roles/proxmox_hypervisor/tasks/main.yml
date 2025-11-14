@@ -43,7 +43,6 @@
     - restart networking (ifupdown-safe)
   tags: "interfaces"
 
-#
 #- name: Configure USB network interfaces
 #  template:
 #    src: usb-network.rules.j2
@@ -56,16 +55,15 @@
 #  tags: "usb_nic"
 #  when: usb_nic_mac is defined
 #
-#- name: Debug hostname
-#  debug:
-#    msg: "inventory_hostname: {{ inventory_hostname }}"
-#  tags: set_hostname
-#
-#- name: Configure hostname
-#  command: "hostnamectl set-hostname {{ inventory_hostname }}"
-#  become: true
-#  tags: set_hostname
-#
+- name: Debug hostname
+  debug:
+    msg: "inventory_hostname: {{ inventory_hostname }}"
+  tags: set_hostname
+
+- name: Configure hostname
+  command: "hostnamectl set-hostname {{ inventory_hostname }}"
+  tags: set_hostname
+
 #- name: Configure baseline iptables rules
 #  import_tasks: configure_firewall.yml
 #  become: true
