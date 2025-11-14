@@ -1,3 +1,9 @@
+# BGP EVPN and VXLAN routing require these kernel parameters:
+# - rp_filter=0: EVPN uses asymmetric routing (traffic in one iface, out another).
+#   Strict RPF would drop these packets. Disabled globally for all interfaces.
+# - ip_forward=1: Required to route between VXLAN tunnels and physical NICs.
+#   Without it, inter-VNET communication fails.
+
 - name: Disable rp_filter by default via sysctl ansible module
   sysctl:
     name: net.ipv4.conf.default.rp_filter
