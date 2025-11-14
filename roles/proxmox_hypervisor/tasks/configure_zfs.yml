@@ -1,28 +1,37 @@
+---
 - name: Enumerate ZFS datasets
-  command: 'zfs list'
+  command: 'zfs list -H -o name'
   register: zfs_list_result
+  changed_when: false
 
 - name: Create vmdata ZFS dataset
   command: "zfs create {{ zfs_pool }}/vmdata"
-  when:
-    - not zfs_list_result.stdout is search("{{ zfs_pool }}/vmdata")
+  when: "(zfs_pool + '/vmdata') not in zfs_list_result.stdout_lines"
+
+- name: Check if atime is already disabled
+  command: "zfs get -H -o value atime {{ zfs_pool }}"
+  register: zfs_atime_check
+  changed_when: false
+
+- name: Disable atime on zfs pool
+  command: "zfs set atime=off {{ zfs_pool }}"
+  when: zfs_atime_check.stdout != 'off'
 
 - name: Rescan ZFS volumes
   command: 'pvesm scan zfs'
+  changed_when: false
 
 - name: Enumerate PVE storage
   command: 'pvesm list vmdata'
   register: pvesm_list_vmdata_result
-  ignore_errors: true
+  failed_when: false
+  changed_when: false
   
 - name: Create vmdata PVE storage
   command: "pvesm add zfspool vmdata -pool {{ zfs_pool }}/vmdata -sparse"
-  when:
-    - pvesm_list_vmdata_result.stderr is search("storage 'vmdata' does not exist")
+  when: pvesm_list_vmdata_result.rc != 0
 
-- name: Disable atime on zfs volume
-  command: "zfs set atime=off {{ zfs_pool }}"
-
-- name: Accelerate migration across cluster nodes
-  shell: 'echo "migration: type=insecure" > /etc/pve/datacenter.cfg'
-  # can't use the lineinfile module b/c this is a cluster fs
+#- name: Accelerate migration across cluster nodes
+#  shell: 'echo "migration: type=insecure" > /etc/pve/datacenter.cfg'
+  # Note: lineinfile won't work on cluster filesystem; using shell instead
+  # WARNING: insecure migration disables encryption between nodes - the interconnect is already encrypted so this is acceptable in most scenarios
