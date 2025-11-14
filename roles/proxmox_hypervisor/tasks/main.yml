@@ -74,16 +74,16 @@
   tags:
     - wireguard
 
-#- name: Configure /etc/hosts
-#  template:
-#    backup: yes
-#    src: hosts.j2
-#    dest: /etc/hosts
-#    owner: root
-#    group: root
-#    mode: '644'
-#  tags:
-#    - 'proxmox_hosts'
+- name: Configure /etc/hosts
+  template:
+    backup: yes
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: '644'
+  tags:
+    - 'proxmox_hosts'
 #
 #- name: Copy restart_services.sh helper script to home dir
 #  copy:
