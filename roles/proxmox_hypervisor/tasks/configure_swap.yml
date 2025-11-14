@@ -13,7 +13,7 @@
 
 - name: Check if swap partition already exists on {{ item }}
   set_fact:
-    has_swap: "{{ swap_device_info.partitions | selectattr('fstype', 'equalto', 'linux-swap') | list | length > 0 }}"
+    has_swap: "{{ swap_device_info.partitions | selectattr('name', 'equalto', 'swap') | list | length > 0 }}"
 
 - name: Debug swap detection for {{ item }}
   debug:
@@ -44,25 +44,25 @@
     swap_part_path: "{{ item }}p{{ next_part_num }}"
   when: not has_swap
 
-- name: Create swap filesystem on {{ swap_part_path }}
+- name: Create swap filesystem
   filesystem:
     fstype: swap
     dev: "{{ swap_part_path }}"
   when: not has_swap
 
-- name: Get UUID for swap partition {{ swap_part_path }}
+- name: Get UUID for swap partition
   command: "blkid -s UUID -o value {{ swap_part_path }}"
   register: swap_uuid
   changed_when: false
   when: not has_swap
 
-- name: Add {{ swap_part_path }} to /etc/fstab
+- name: Add swap partition to /etc/fstab
   lineinfile:
     path: '/etc/fstab'
     line: "UUID={{ swap_uuid.stdout }}   none            swap    sw              0       0"
     state: present
   when: not has_swap
 
-- name: Enable swap on {{ swap_part_path }}
+- name: Enable swap partition
   command: "swapon {{ swap_part_path }}"
   when: not has_swap
