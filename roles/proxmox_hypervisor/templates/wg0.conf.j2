@@ -16,7 +16,7 @@ ListenPort = {{ wireguard_peers[inventory_hostname].listen_port | default(wiregu
 PublicKey = {{ peer_config.public_key }}
 {% if peer_config.endpoint is defined %}
 Endpoint = {{ peer_config.endpoint }}
-{% elif peer_name.startswith('zd') and vars.get(peer_name + '_public_ip') %}
+{% elif vars.get(peer_name + '_public_ip') %}
 Endpoint = {{ vars[peer_name + '_public_ip'] }}:{{ wireguard_port }}
 {% endif %}
 AllowedIPs = {{ peer_config.address }}/32

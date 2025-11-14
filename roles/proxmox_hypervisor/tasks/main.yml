@@ -84,21 +84,21 @@
     mode: '644'
   tags:
     - 'proxmox_hosts'
-#
-#- name: Copy restart_services.sh helper script to home dir
-#  copy:
-#    src: restart_pve_services.sh
-#    dest: "/root/restart_pve_services.sh"
-#    owner: "root"
-#    group: "root"
-#    mode: '0740'
-#
+
+- name: Copy restart_services.sh helper script to root's home dir
+  copy:
+    src: restart_pve_services.sh
+    dest: "/root/restart_pve_services.sh"
+    owner: "root"
+    group: "root"
+    mode: '0740'
+
 ## note: the following task will create a swap partition on each of the swap_devices disks, using the remaining space on the disk after the 3 default partitions (bios boot, EFI, and ZFS)
-#- name: Configure swap
-#  include_tasks: configure_swap.yml
-#  loop: "{{ swap_devices }}"
-#  tags: "swap"
-#  when: swap_devices is defined
+- name: Configure swap
+  include_tasks: configure_swap.yml
+  loop: "{{ swap_devices }}"
+  tags: "swap"
+  when: swap_devices is defined
 #
 #- name: Configure sysctl
 #  import_tasks: configure_sysctl.yml

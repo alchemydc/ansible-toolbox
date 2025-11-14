@@ -1,52 +1,68 @@
+---
 # Proxmox kills LXC's that OOM without remorse, which is pretty uncool.
 # This task uses any remaining space on the SSD's to create swap partitions
 # since swap on ZFS is non-performant.
 # Tested on hetzner AX41 and AX51 and AX102 NVME SSD's configured with ZFS as proxmox root, but in theory should work 
 # on any Proxmox ZFS/root installs with free space *after* the 3 default partitions (bios boot, EFI, and ZFS)
 
-- name: Read device information from the swap device
-  parted: "device={{ item }} unit=MiB"
+- name: Read device information for {{ item }}
+  parted:
+    device: "{{ item }}"
+    unit: MiB
   register: swap_device_info
 
-- name: Debug the device info
+- name: Check if swap partition already exists on {{ item }}
+  set_fact:
+    has_swap: "{{ swap_device_info.partitions | selectattr('fstype', 'equalto', 'linux-swap') | list | length > 0 }}"
+
+- name: Debug swap detection for {{ item }}
   debug:
-    msg: "swap_device_info: {{ swap_device_info.partitions }}"
-    #msg: "nvme0n1_info.partitions[2]: {{ nvme0n1_info.partitions[2] }}"
+    msg: "Device {{ item }}: Has swap={{ has_swap }}, Partitions={{ swap_device_info.partitions | length }}"
+    verbosity: 1
 
-    # "msg": "nvme0n1_info.partitions[0]: {'num': 1, 'begin': 0.02, 'end': 1.0, 'size': 0.98, 'fstype': '', 'name': '', 'flags': ['bios_grub'], 'unit': 'mib'}"
-    # "msg": "nvme0n1_info.partitions[1]: {'num': 2, 'begin': 1.0, 'end': 513.0, 'size': 512.0, 'fstype': 'fat32', 'name': '', 'flags': ['boot', 'esp'], 'unit': 'mib'}"
-    # "msg": "nvme0n1_info.partitions[2]: {'num': 3, 'begin': 513.0, 'end': 460800.0, 'size': 460287.0, 'fstype': 'zfs', 'name': '', 'flags': [], 'unit': 'mib'}"
+- name: Calculate next partition number for {{ item }}
+  set_fact:
+    next_part_num: "{{ (swap_device_info.partitions | map(attribute='num') | max) + 1 }}"
+    last_part_end: "{{ (swap_device_info.partitions | last).end }}"
+  when: not has_swap
 
-- name: Partition the swap device
+- name: Create swap partition on {{ item }}
   parted:
-    device: " {{ item }} "
+    device: "{{ item }}"
     fs_type: linux-swap
     label: gpt
     name: swap
-    number: 4
+    number: "{{ next_part_num }}"
     part_end: "100%"
-    part_start: "{{ swap_device_info.partitions[2].end + 1}}MiB" 
+    part_start: "{{ last_part_end | int + 1 }}MiB"
     state: present
+  when: not has_swap
+  register: partition_created
 
-- name: Create swap filesystems on swap device
+- name: Determine swap partition path for {{ item }}
+  set_fact:
+    swap_part_path: "{{ item }}p{{ next_part_num }}"
+  when: not has_swap
+
+- name: Create swap filesystem on {{ swap_part_path }}
   filesystem:
     fstype: swap
-    dev: "{{ item }}p4"
+    dev: "{{ swap_part_path }}"
+  when: not has_swap
 
-- name: Get blkid for swap partition
-  command: "blkid -s UUID -o value {{ item }}p4"
-  register: swap_blkid
+- name: Get UUID for swap partition {{ swap_part_path }}
+  command: "blkid -s UUID -o value {{ swap_part_path }}"
+  register: swap_uuid
+  changed_when: false
+  when: not has_swap
 
-- name: Debug the swap blkid
-  debug:
-    msg: "{{ item }} swap blkid: {{ swap_blkid.stdout }}"
-
-- name: Write swap partition entry to /etc/fstab
+- name: Add {{ swap_part_path }} to /etc/fstab
   lineinfile:
     path: '/etc/fstab'
-    line: 'UUID={{ swap_blkid.stdout }}   none            swap    sw              0       0'
+    line: "UUID={{ swap_uuid.stdout }}   none            swap    sw              0       0"
     state: present
+  when: not has_swap
 
-- name: Enable swap partitions
-  command: 'swapon -a'
-
+- name: Enable swap on {{ swap_part_path }}
+  command: "swapon {{ swap_part_path }}"
+  when: not has_swap
