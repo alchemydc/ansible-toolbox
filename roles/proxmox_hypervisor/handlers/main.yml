@@ -4,3 +4,42 @@
     state: restarted
     enabled: yes
 
+- name: restart networking (ifupdown-safe)
+  block:
+    - name: Restart ifupdown networking
+      service:
+        name: networking
+        state: restarted
+      become: true
+      when: "'networking.service' in ansible_facts.services"
+
+    - name: Pause briefly to let network restart
+      pause:
+        seconds: 5
+
+    - name: Wait for SSH to come back
+      wait_for_connection:
+        delay: 2
+        timeout: 60
+
+  rescue:
+    - name: Restore previous /etc/network/interfaces from backup
+      copy:
+        src: "{{ net_tpl.backup_path }}"
+        dest: /etc/network/interfaces
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
+
+    - name: Restart networking to apply rollback
+      service:
+        name: networking
+        state: restarted
+      become: true
+      when: "'networking.service' in ansible_facts.services"
+
+    - name: Fail with actionable message
+      fail:
+        msg: "Network restart failed; original file restored from backup ({{ net_tpl.backup_path }}). Manual inspection required."
+      become: true

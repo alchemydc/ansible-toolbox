@@ -1,24 +1,3 @@
-#- name: Debug admin_users
-#  debug:
-#    msg: "admin_users item: {{ item }}"
-#  loop: "{{ admin_users }}"
-
-#- name: debug virtualization
-#  debug:
-#    msg: "ansible_virtualization_role: {{ ansible_virtualization_role }},  ansible_virtualization_tech_guest: {{ ansible_virtualization_tech_guest }}, ansible_virtualization_tech_host: {{ ansible_virtualization_tech_host }}"
-#  tags: debug_virt
-
-#- name: Show debug data
-#  debug: var=hostvars
-
-#- name: Show available facts
-  #debug: var=ansible_facts
-  #debug: var=ansible_facts['distribution_release']
-
-#- name: Debug cloud_provider
-#  debug:
-#    msg: "cloud_provider: {{ cloud_provider }}"
-
 - name: Deploy hosts file
   copy:
     src: etc_hosts.vault

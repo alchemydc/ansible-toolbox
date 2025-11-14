@@ -1,14 +1,94 @@
-- name: Ensure enterprise repo file is not present
+- name: Define proxmox distro ordering
+  set_fact:
+    proxmox_distro_order:
+      - bookworm
+      - trixie
+      - future
+  when: (manage_proxmox_repos | default(true))
+
+- name: Remove enterprise apt list file if present
   file:
     path: /etc/apt/sources.list.d/pve-enterprise.list
     state: absent
+  when: >
+    (manage_proxmox_repos | default(true))
+    and ((ansible_virtualization_role is not defined) or (ansible_virtualization_role == "host"))
 
-- name: Ensure ceph enterprise repo file is not present
+- name: Remove enterprise apt sources file if present
+  file:
+    path: /etc/apt/sources.list.d/pve-enterprise.sources
+    state: absent
+  when: >
+    (manage_proxmox_repos | default(true))
+    and ((ansible_virtualization_role is not defined) or (ansible_virtualization_role == "host"))
+
+- name: Remove ceph enterprise apt list file if present
   file:
     path: /etc/apt/sources.list.d/ceph.list
     state: absent
+  when: >
+    (manage_proxmox_repos | default(true))
+    and ((ansible_virtualization_role is not defined) or (ansible_virtualization_role == "host"))
 
-- name: Enable proxmox community repo
+- name: Remove ceph enterprise apt sources file if present
+  file:
+    path: /etc/apt/sources.list.d/ceph.sources
+    state: absent
+  when: >
+    (manage_proxmox_repos | default(true))
+    and ((ansible_virtualization_role is not defined) or (ansible_virtualization_role == "host"))
+
+- name: Remove any enterprise.proxmox.com lines from /etc/apt/sources.list
+  lineinfile:
+    path: /etc/apt/sources.list
+    regexp: '.*enterprise\.proxmox\.com.*'
+    state: absent
+    backrefs: no
+  when: >
+    (manage_proxmox_repos | default(true))
+    and ((ansible_virtualization_role is not defined) or (ansible_virtualization_role == "host"))
+
+- name: Download Proxmox archive GPG key for {{ proxmox_distro }}
+  get_url:
+    url: "https://enterprise.proxmox.com/debian/proxmox-release-{{ proxmox_distro }}.gpg"
+    dest: /usr/share/keyrings/proxmox-archive-keyring.gpg
+    mode: '0644'
+  when: >
+    (manage_proxmox_repos | default(true))
+    and ((ansible_virtualization_role is not defined) or (ansible_virtualization_role == "host"))
+
+- name: Enable proxmox community source (new .sources syntax) for trixie+
+  copy:
+    dest: /etc/apt/sources.list.d/pve-community.sources
+    owner: root
+    mode: '0644'
+    content: |
+      Types: deb
+      URIs: http://download.proxmox.com/debian/pve
+      Suites: {{ proxmox_distro }}
+      Components: pve-no-subscription
+      Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+  when: >
+    (manage_proxmox_repos | default(true))
+    and (proxmox_distro is defined)
+    and (proxmox_distro in proxmox_distro_order)
+    and (proxmox_distro_order.index(proxmox_distro) >= proxmox_distro_order.index('trixie'))
+    and ((ansible_virtualization_role is not defined) or (ansible_virtualization_role == "host"))
+
+- name: Enable proxmox community repo (legacy .list) for older distros
   apt_repository:
-    repo: "deb [arch=amd64] http://download.proxmox.com/debian/pve {{ proxmox_distro }} pve-no-subscription"
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/proxmox-archive-keyring.gpg] http://download.proxmox.com/debian/pve {{ proxmox_distro }} pve-no-subscription"
     state: present
+  when: >
+    (manage_proxmox_repos | default(true))
+    and (proxmox_distro is defined)
+    and (proxmox_distro in proxmox_distro_order)
+    and (proxmox_distro_order.index(proxmox_distro) < proxmox_distro_order.index('trixie'))
+    and ((ansible_virtualization_role is not defined) or (ansible_virtualization_role == "host"))
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  when: >
+    (manage_proxmox_repos | default(true))
+    and ((ansible_virtualization_role is not defined) or (ansible_virtualization_role == "host"))

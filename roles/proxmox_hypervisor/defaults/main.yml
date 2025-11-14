@@ -1,0 +1,8 @@
+# Defaults for roles/proxmox_hypervisor
+# Set to false if another role (e.g. base_server) manages Proxmox apt repositories centrally.
+manage_proxmox_repos: true
+
+# Note:
+# - Do not set proxmox_distro here unless you want to force a specific suite.
+#   By default, the tasks will expect `proxmox_distro` to be provided (inventory/group_vars/host_vars)
+#   or determined elsewhere. Override as needed.

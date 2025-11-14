@@ -12,7 +12,9 @@
       - htop
       - sudo
       - wireguard
-      - libpve-network-perl
+      #- libpve-network-perl
+      # libpve-network-perl is installed by default since proxmox 8.1
+      # frr-pythontools is required for bgp evpn
       - frr-pythontools
       - vim
       - parted
@@ -25,6 +27,9 @@
     upgrade: dist
     update_cache: true
 
+- name: Gather service facts
+  service_facts:
+
 - name: Configure networking
   template:
     backup: yes
@@ -33,83 +38,86 @@
     owner: root
     group: root
     mode: '644'
+  register: net_tpl
   notify:
-    - restart networking
+    - restart networking (ifupdown-safe)
   tags: "interfaces"
 
-- name: Configure USB network interfaces
-  template:
-    src: usb-network.rules.j2
-    dest: /etc/udev/rules.d/80-usb-network.rules
-    owner: root
-    group: root
-    mode: '644'
-  notify:
-    - restart udev
-  tags: "usb_nic"
-  when: usb_nic_mac is defined
-
-- name: Debug hostname
-  debug:
-    msg: "inventory_hostname: {{ inventory_hostname }}"
-  tags: set_hostname
-
-- name: Configure hostname
-  command: "hostnamectl set-hostname {{ inventory_hostname }}"
-  become: true
-  tags: set_hostname
-
-- name: Configure baseline iptables rules
-  import_tasks: configure_firewall.yml
-  become: true
-  tags:
-    - proxmox_firewall
-
-- name: Configure Wireguard
-  import_tasks: configure_wireguard.yml
-  tags:
-    - wireguard
-
-- name: Configure /etc/hosts
-  template:
-    backup: yes
-    src: hosts.j2
-    dest: /etc/hosts
-    owner: root
-    group: root
-    mode: '644'
-  tags:
-    - 'proxmox_hosts'
-
-- name: Copy restart_services.sh helper script to home dir
-  copy:
-    src: restart_pve_services.sh
-    dest: "/root/restart_pve_services.sh"
-    owner: "root"
-    group: "root"
-    mode: '0740'
-
-# note: the following task will create a swap partition on each of the swap_devices disks, using the remaining space on the disk after the 3 default partitions (bios boot, EFI, and ZFS)
-- name: Configure swap
-  include_tasks: configure_swap.yml
-  loop: "{{ swap_devices }}"
-  tags: "swap"
-  when: swap_devices is defined
-
-- name: Configure sysctl
-  import_tasks: configure_sysctl.yml
-  tags: "proxmox_sysctl"
-
- # this task ensures that each proxmox hypervisor has a ZFS dataset called 'vmdata', created on the defined zfs_pool
- # note that proxmox clustering requires that the underlying pool and dataset names be the same on each node
-- name: Configure ZFS
-  import_tasks: configure_zfs.yml
-  tags: "zfs"
-
-- name: Disable sleep on lid close # yes pmox runs on laptops, good for quorum
-  lineinfile:
-    path: /etc/systemd/logind.conf
-    regex: '^#HandleLidSwitch=suspend'
-    line: 'HandleLidSwitch=ignore'
-    state: present
-  tags: "disable_sleep"
+#
+#- name: Configure USB network interfaces
+#  template:
+#    src: usb-network.rules.j2
+#    dest: /etc/udev/rules.d/80-usb-network.rules
+#    owner: root
+#    group: root
+#    mode: '644'
+#  notify:
+#    - restart udev
+#  tags: "usb_nic"
+#  when: usb_nic_mac is defined
+#
+#- name: Debug hostname
+#  debug:
+#    msg: "inventory_hostname: {{ inventory_hostname }}"
+#  tags: set_hostname
+#
+#- name: Configure hostname
+#  command: "hostnamectl set-hostname {{ inventory_hostname }}"
+#  become: true
+#  tags: set_hostname
+#
+#- name: Configure baseline iptables rules
+#  import_tasks: configure_firewall.yml
+#  become: true
+#  tags:
+#    - proxmox_firewall
+#
+#- name: Configure Wireguard
+#  import_tasks: configure_wireguard.yml
+#  tags:
+#    - wireguard
+#
+#- name: Configure /etc/hosts
+#  template:
+#    backup: yes
+#    src: hosts.j2
+#    dest: /etc/hosts
+#    owner: root
+#    group: root
+#    mode: '644'
+#  tags:
+#    - 'proxmox_hosts'
+#
+#- name: Copy restart_services.sh helper script to home dir
+#  copy:
+#    src: restart_pve_services.sh
+#    dest: "/root/restart_pve_services.sh"
+#    owner: "root"
+#    group: "root"
+#    mode: '0740'
+#
+## note: the following task will create a swap partition on each of the swap_devices disks, using the remaining space on the disk after the 3 default partitions (bios boot, EFI, and ZFS)
+#- name: Configure swap
+#  include_tasks: configure_swap.yml
+#  loop: "{{ swap_devices }}"
+#  tags: "swap"
+#  when: swap_devices is defined
+#
+#- name: Configure sysctl
+#  import_tasks: configure_sysctl.yml
+#  tags: "proxmox_sysctl"
+#
+# # this task ensures that each proxmox hypervisor has a ZFS dataset called 'vmdata', created on the defined zfs_pool
+# # note that proxmox clustering requires that the underlying pool and dataset names be the same on each node
+#- name: Configure ZFS
+#  import_tasks: configure_zfs.yml
+#  tags: "zfs"
+#
+#- name: Disable sleep on lid close # yes pmox runs on laptops, good for quorum
+#  lineinfile:
+#    path: /etc/systemd/logind.conf
+#    regex: '^#HandleLidSwitch=suspend'
+#    line: 'HandleLidSwitch=ignore'
+#    state: present
+#  tags: "disable_sleep"
+#

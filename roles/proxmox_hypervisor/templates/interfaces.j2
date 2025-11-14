@@ -15,7 +15,7 @@ iface lo inet loopback
 #iface lo inet6 loopback
 
 auto {{ public_iface }}
-iface {{ public_iface }} inet manual
+iface {{ public_iface }} inet static
   address {{ public_ip }}/{{ public_cidr_mask }}
   gateway {{ public_gateway }}
   post-up echo 1 > /proc/sys/net/ipv4/ip_forward
@@ -23,8 +23,7 @@ iface {{ public_iface }} inet manual
 auto {{ public_bridge }}
 iface {{ public_bridge }} inet static
 	address {{ public_ip }}/{{ public_cidr_mask }}
-	gateway {{ public_gateway }}
-	bridge-ports {{ public_iface }}
+	bridge-ports none
 	bridge-stp off
 	bridge-fd 0
 
@@ -41,9 +40,10 @@ auto {{ private_bridge }}
 	bridge-stp off
 	bridge-fd 0
 
+# iptables needs refactoring to be more proxmox native
 # restore any rules that we want to persist across reboots
-pre-up iptables-restore < /etc/iptables.conf
-pre-up ip6tables-restore < /etc/ip6tables.conf
+#pre-up iptables-restore < /etc/iptables.conf
+#pre-up ip6tables-restore < /etc/ip6tables.conf
 # NAT and masquerading moved to /etc/iptables.conf 
 
 # include SDN config etc.
