@@ -7,7 +7,7 @@ Tracks what works, what's left to build, current status, known issues, and the e
 
 ---
 
-## Recent Progress (2025-11-13)
+## Recent Progress (2025-11-18)
 
 ### What Works
 - `base_server` role now handles Proxmox repository/key management robustly on Proxmox 9 (trixie):
@@ -18,41 +18,49 @@ Tracks what works, what's left to build, current status, known issues, and the e
 
 - `proxmox_hypervisor` role now includes standalone repo management and safer networking:
   - Added `manage_proxmox_repos: true` in `roles/proxmox_hypervisor/defaults/main.yml` to enable repo management by default when the role runs standalone.
-  - `roles/proxmox_hypervisor/tasks/configure_proxmox_repos.yml` refactored to mirror `base_server` logic:
-    - Defines `proxmox_distro_order` and supports trixie+ `.sources` format.
-    - Removes enterprise repo artifacts (both `.list` and `.sources`) and any `enterprise.proxmox.com` lines from `/etc/apt/sources.list`.
-    - Downloads the Proxmox archive GPG key into `/usr/share/keyrings/proxmox-archive-keyring.gpg` and uses `Signed-By` where applicable.
-    - Task execution is guarded by `manage_proxmox_repos` and permits standalone operation or opt-out when centralized.
-  - Implemented an ifupdown-only safe networking handler in `roles/proxmox_hypervisor/handlers/main.yml`:
-    - Handler restarts `networking` (if present), pauses, waits for SSH via `wait_for_connection`, and on failure restores the template backup using `net_tpl.backup_path`.
-  - Updated `roles/proxmox_hypervisor/tasks/main.yml` to gather service_facts, register the networking template as `net_tpl`, and notify the new handler.
+  - `roles/proxmox_hypervisor/tasks/configure_proxmox_repos.yml` refactored to mirror `base_server` logic.
 
-- Inventory and linting improvements:
-  - Invalid inventory variable keys were corrected (e.g. `sdn:mtu` → `sdn_mtu`).
-  - Group/host name collisions and problematic characters addressed where applied.
+- Firewall migration to native nftables completed:
+  - Centralized filtering and IP sets in `group_vars/proxmox/firewall.yml`.
+  - Cluster-wide DNAT rules moved into `group_vars/proxmox/firewall.yml` (cluster scope).
+  - Template `roles/proxmox_hypervisor/templates/nftables.conf.j2` generates `/etc/nftables.conf` and includes both FILTER (inet) and NAT (ip) tables.
+  - `roles/proxmox_hypervisor/tasks/configure_firewall.yml` now installs/enables `nftables`, deploys `/etc/nftables.conf`, masks Proxmox/pve firewall services, and validates the configuration with `nft -c -f`.
+  - Handler updated to reload `nftables` via systemd.
+  - DNAT examples were activated cluster-wide; SNAT rules already rendered correctly.
+
+- Alternatives adjusted to prefer nft wrappers:
+  - The system now documents preferring `*-nft` wrappers for `iptables`, `ip6tables`, `arptables`, and `ebtables`.
+  - This avoids loading legacy iptables kernel modules (xt_* families) and ensures the nft backend is used by default.
+
+### Current Status (as of 2025-11-18)
+- **Firewall:** Migrated from iptables to nftables; centralized rules in `group_vars/proxmox/firewall.yml`; NAT rules in `roles/proxmox_hypervisor/templates/nftables.conf.j2`.
+  - DNAT rules: declared cluster-wide and rendered by the template.
+  - SNAT rules: implemented and rendering correctly.
+  - Services `proxmox-firewall`, `pve-firewall`, and `netfilter-persistent` are disabled/masked by tasks to avoid auto-start via dependencies.
+  - Validation: deployed config validated with `nft -c -f /etc/nftables.conf` on hosts.
+- **Alternatives:** Documentation updated to recommend the following commands on hosts where alternatives are managed:
+  - `update-alternatives --set iptables /usr/sbin/iptables-nft`
+  - `update-alternatives --set ip6tables /usr/sbin/ip6tables-nft`
+  - `update-alternatives --set arptables /usr/sbin/arptables-nft`
+  - `update-alternatives --set ebtables /usr/sbin/ebtables-nft`
+  - Verification: `update-alternatives --display iptables` and `lsmod | grep -E 'xt_|iptable_'` (should not show xt_* iptables modules when nft wrappers are active).
 
 ### What's Left to Build / Verify
-- Run a full dry-run and staged apply on a development/staging Proxmox node:
-  - Validate pvesm, pve-cluster, pveproxy, and other PVE service operations.
-  - Verify ZFS dataset and pvesm add operations succeed as expected.
-- Verify `proxmox_hypervisor` repo task behavior and idempotence across:
-  - Older distros (bookworm) and newer distros (trixie+)
-  - Hosts with `ansible_virtualization_role` defined as `host` and hosts where it is undefined
-- Recreate or recover `roles/base_server/files/etc_hosts.vault` if required by deployments
-- Make SDN-related helper package installation configurable (`libpve-network-perl`, `frr-pythontools`) to avoid unnecessary installs or failures on newer Proxmox installs
-- Update `systemPatterns.md` and `activeContext.md` with the new standalone proxmox_hypervisor decisions and networking handler pattern
-- Expand automated inventory validation tests and add staged verification playbooks
-
-### Current Status
-- Repo/key workflow implemented and tested in dry-run context for `base_server`.
-- `proxmox_hypervisor` updated to support standalone repo management; defaults and refactor completed.
-- Networking handler moved into role handlers and the networking template task now registers its backup for rollback.
-- Next actions require a staging run (dry-run with `--check --diff`) and verification across distro variants.
+- Firewall idempotency and verification:
+  - Run playbook 2-3x on a staging node to confirm no duplicate rules are created.
+  - Verify DNAT rules appear in `/etc/nftables.conf` and are active with `nft list ruleset`.
+  - Confirm no legacy iptables kernel modules are loaded after switching alternatives.
+- Monitoring and rollout:
+  - Test cluster for 24-48 hours after deployment to confirm no lockouts or service regressions.
+  - Roll out to production with `serial: 1` once staging verification passes.
+- Documentation:
+  - Add migration notes and alternatives guidance to `roles/proxmox_hypervisor/README.md` (done separately).
+  - Record verification steps and results in Memory Bank after testing completes.
 
 ### Known Issues / Notes
-- The repo refactor assumes `proxmox_distro` will be provided via inventory or extra-vars; if not, set it in group_vars/host_vars or via `-e`.
-- .gitignore contains an entry for `etc_hosts*.vault` — if you intend to commit an encrypted hosts file, update `.gitignore` accordingly or manage the file via an external secrets store.
-- Be conservative with network changes: use `serial: 1`, `--check --diff` first, and test rollback behavior on staging.
+- The repo refactor assumes `proxmox_distro` may be provided via inventory or extra-vars; document this in README and playbook wrapper if not present.
+- Be conservative with network/firewall changes: use `serial: 1`, `--check --diff` first, and ensure OOB access is available for recovery.
+- Firewall rules require Proxmox API credentials for some operations; configure `proxmox_api_token_*` or `proxmox_api_password` securely in vault.
 
 ---
 

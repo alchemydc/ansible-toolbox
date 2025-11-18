@@ -64,7 +64,10 @@
   command: "hostnamectl set-hostname {{ inventory_hostname }}"
   tags: set_hostname
 
-- name: Configure PVE firewall
+- name: Configure firewall
+# note that this does not use the native proxmox-firewall (nftables) or pve-firewall (iptables) abstractions
+# but instead uses raw nftables rules applied via systemd service unit
+# the proxmox-firewall does not support DNAT rules and is thus unsuitable for our use case at this time (proxmox 9)
   import_tasks: configure_firewall.yml
   tags:
     - proxmox_firewall

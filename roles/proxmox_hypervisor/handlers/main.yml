@@ -44,6 +44,8 @@
         msg: "Network restart failed; original file restored from backup ({{ net_tpl.backup_path }}). Manual inspection required."
       become: true
 
-- name: Reload proxmox-firewall
-  ansible.builtin.command: "proxmox-firewall restart"
-  listen: "Reload proxmox-firewall"
+- name: Reload nftables
+  ansible.builtin.systemd:
+    name: nftables
+    state: reloaded
+  become: true

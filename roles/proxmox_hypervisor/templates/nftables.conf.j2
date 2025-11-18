@@ -1,0 +1,93 @@
+#!/usr/sbin/nft -f
+# Ansible-managed nftables configuration for Proxmox
+# Generated from: group_vars/proxmox/firewall.yml
+# Host: {{ inventory_hostname }}
+# DO NOT EDIT MANUALLY
+
+flush ruleset
+
+# ============================================================================
+# FILTER TABLE - IP sets and filtering rules
+# ============================================================================
+table inet filter {
+  
+  # Define IP sets
+{% if nftables_ipsets is defined %}
+{% for set_name, cidrs in nftables_ipsets.items() %}
+  set {{ set_name }} {
+    type ipv4_addr
+    flags interval
+    elements = { {{ cidrs | join(', ') }} }
+  }
+{% endfor %}
+{% endif %}
+
+  # INPUT chain
+  chain input {
+    type filter hook input priority filter; policy {{ nftables_input_policy | default('drop') }};
+    
+    # Connection tracking
+    ct state invalid drop
+    ct state established,related accept
+    
+    # Custom input rules
+{% if nftables_input_rules is defined %}
+{% for rule_item in nftables_input_rules %}
+    # {{ rule_item.comment }}
+    {{ rule_item.rule }}
+{% endfor %}
+{% endif %}
+  }
+
+  # FORWARD chain
+  chain forward {
+    type filter hook forward priority filter; policy {{ nftables_forward_policy | default('accept') }};
+  }
+
+  # OUTPUT chain
+  chain output {
+    type filter hook output priority filter; policy {{ nftables_output_policy | default('accept') }};
+  }
+}
+
+# ============================================================================
+# NAT TABLE - DNAT and SNAT rules
+# ============================================================================
+table ip nat {
+  
+  # PREROUTING chain (DNAT - port forwarding)
+  chain prerouting {
+    type nat hook prerouting priority dstnat; policy accept;
+    
+{% if nftables_dnat_rules is defined and nftables_dnat_rules | length > 0 %}
+    # DNAT rules (port forwarding to workloads)
+{% for dnat in nftables_dnat_rules %}
+    # {{ dnat.name }}
+    {{ dnat.protocol }} dport {{ dnat.host_port }} dnat to {{ dnat.workload_ip }}:{{ dnat.workload_port }}
+{% endfor %}
+{% endif %}
+  }
+
+  # POSTROUTING chain (SNAT - masquerading for outbound traffic)
+  chain postrouting {
+    type nat hook postrouting priority srcnat; policy accept;
+    
+    # SNAT rules using existing variable names
+{% if private_subnet is defined and public_bridge is defined and public_ip is defined %}
+    # SNAT traffic from private subnet guests
+    ip saddr {{ private_subnet }} oifname "{{ public_bridge }}" snat to {{ public_ip }}
+{% endif %}
+
+{% if admin_net is defined and public_bridge is defined and public_ip is defined %}
+    # SNAT traffic from private admin hosts
+    ip saddr {{ admin_net }} oifname "{{ public_bridge }}" snat to {{ public_ip }}
+{% endif %}
+
+{% if anycast_subnets is defined and public_bridge is defined and public_ip is defined %}
+    # SNAT traffic from SDN subnet guests
+{% for anycast_subnet in anycast_subnets %}
+    ip saddr {{ anycast_subnet }} oifname "{{ public_bridge }}" snat to {{ public_ip }}
+{% endfor %}
+{% endif %}
+  }
+}

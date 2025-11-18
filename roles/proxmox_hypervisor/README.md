@@ -68,6 +68,42 @@ Deploy with:
 ansible-playbook main.yml -i inventory.yml -t proxmox_firewall
 ```
 
+### Firewall variables
+
+Example and expected formats for `group_vars/proxmox/firewall.yml`:
+
+```yaml
+# nftables_ipsets: dict mapping set_name -> list of CIDRs (strings)
+nftables_ipsets:
+  admin_network:
+    - "10.10.10.0/24"
+
+# nftables_input_rules: list of rule objects:
+nftables_input_rules:
+  - comment: "Allow loopback"
+    rule: "iifname lo accept"
+
+# nftables_dnat_rules: list of DNAT mappings (cluster-wide)
+nftables_dnat_rules:
+  - name: "HTTP to ingress"
+    protocol: "tcp"
+    host_port: 80
+    workload_ip: "{{ docker_ingress_host }}"
+    workload_port: 80
+
+# Policies: "accept" | "drop" etc.
+nftables_input_policy: "drop"
+nftables_forward_policy: "accept"
+nftables_output_policy: "accept"
+```
+
+Notes:
+- IP set references in rules use `@set_name` (e.g. `ip saddr @admin_network accept`).
+- `workload_ip` may be a templated inventory variable and will be rendered by the template.
+- Keep rule fragments valid for insertion into an `inet filter` chain.
+
+The repo config programmatically sets host alternatives to prefer the *-nft wrapper binaries (see `roles/proxmox_hypervisor/tasks/configure_firewall.yml`) so legacy iptables kernel modules are not loaded by default.
+
 ## Variables
 
 ### Key Defaults

@@ -1,78 +1,136 @@
-# uses nftables backend which is default in proxmox 8.3+
-# needs API token on cluster with sufficient privileges
-#
-# Correct API Role Privileges
-#
-# SDN.Allocate: This allows managing the SDN configuration, which includes creating, modifying, and removing firewall rules, IP sets, and aliases.
-# SDN.Audit: This allows viewing the SDN configuration, which the Ansible module needs to check the current state (idempotency).
-# Sys.Audit: This allows viewing the node's configuration, specifically to check what the current firewall_backend is.
-# Sys.Modify: This allows modifying the node's configuration, specifically to set the firewall_backend to nftables.
 ---
-#- name: Apply cluster-wide IP sets via Proxmox API
-#  community.proxmox.proxmox_firewall:
-#    api_user: "{{ proxmox_api_user | default('root@pam') }}"
-#    api_token_id: "{{ proxmox_api_token_id | default(omit) }}"
-#    api_token_secret: "{{ proxmox_api_token_secret | default(omit) }}"
-#    api_host: "{{ inventory_hostname }}"
-#    level: "cluster"
-#    state: "present"
-#    update: true
-#    ip_sets: "{{ pve_cluster_ipsets | default([]) }}"
-#  delegate_to: localhost
-#  run_once: true
-#  become: false
-#  tags: "proxmox_firewall"
+# Native nftables firewall configuration for Proxmox cluster
+# Replaces Proxmox firewall API and iptables-based approaches
+#
+# Expected variables (from group_vars/proxmox/firewall.yml)
+# - nftables_ipsets: dict mapping set_name -> list of CIDRs (strings)
+#   Example:
+#     nftables_ipsets:
+#       admin_network:
+#         - "10.10.10.0/24"
+#
+# - nftables_input_rules: list of rule objects with keys:
+#     - comment: human-friendly description (string)
+#     - rule: nft expression fragment (string) e.g. 'iifname lo accept' or 'ip saddr @admin_network accept'
+#   Example:
+#     nftables_input_rules:
+#       - comment: "Allow loopback"
+#         rule: "iifname lo accept"
+#
+# - nftables_dnat_rules: list of DNAT mappings (cluster-wide). Each item:
+#     - name: unique name (string)
+#     - protocol: "tcp" | "udp" (string)
+#     - host_port: integer (host-facing port)
+#     - workload_ip: IP or inventory var (string)
+#     - workload_port: integer (destination port on workload)
+#   Example:
+#     nftables_dnat_rules:
+#       - name: "HTTP to ingress"
+#         protocol: "tcp"
+#         host_port: 80
+#         workload_ip: "{{ docker_ingress_host }}"
+#         workload_port: 80
+#
+# - nftables_input_policy / nftables_forward_policy / nftables_output_policy:
+#     string values: "accept" | "drop" etc.
+#   Example:
+#     nftables_input_policy: "drop"
+#
+# Notes:
+# - ipset references in rules use the '@set_name' syntax (e.g. 'ip saddr @admin_network accept').
+# - DNAT workload_ip may reference inventory/group vars (templated strings) and will be rendered into the template.
+# - Keep rule expressions minimal fragments that are valid inside an nftables 'inet filter' chain.
+# - Validate final rendered config with: `nft -c -f /etc/nftables.conf` (the template task uses this).
+#
+- name: Gather service facts to check which services exist
+  ansible.builtin.service_facts:
+  tags: firewall
 
-- name: Apply cluster-wide aliases via Proxmox API
-  community.proxmox.proxmox_firewall:
-    api_user: "{{ proxmox_api_user | default('root@pam') }}"
-    api_token_id: "{{ proxmox_api_token_id | default(omit) }}"
-    api_token_secret: "{{ proxmox_api_token_secret | default(omit) }}"
-    api_host: "{{ inventory_hostname }}"
-    level: "cluster"
-    state: "present"
-    update: true
-    aliases: "{{ pve_cluster_aliases | default([]) }}"
-  delegate_to: localhost
-  run_once: true
-  become: false
-  tags: "proxmox_firewall"
-  when: pve_cluster_aliases is defined and pve_cluster_aliases | length > 0
+- name: Disable and mask Proxmox firewall service if present
+  ansible.builtin.systemd:
+    name: proxmox-firewall
+    enabled: no
+    masked: yes
+    state: stopped
+  become: true
+  when: "'proxmox-firewall.service' in ansible_facts.services"
+  failed_when: false
+  tags: firewall
 
-- name: Apply cluster-wide filtering rules via Proxmox API
-  community.proxmox.proxmox_firewall:
-    api_user: "{{ proxmox_api_user | default('root@pam') }}"
-    api_token_id: "{{ proxmox_api_token_id | default(omit) }}"
-    api_token_secret: "{{ proxmox_api_token_secret | default(omit) }}"
-    api_host: "{{ inventory_hostname }}"
-    level: "cluster"
-    state: "present"
-    update: true
-    rules: "{{ pve_cluster_rules | default([]) }}"
-  delegate_to: localhost
-  run_once: true
-  become: false
-  tags: "proxmox_firewall"
+- name: Disable and mask pve-firewall service if present
+  ansible.builtin.systemd:
+    name: pve-firewall
+    enabled: no
+    masked: yes
+    state: stopped
+  become: true
+  when: "'pve-firewall.service' in ansible_facts.services"
+  failed_when: false
+  tags: firewall
 
-- name: Check if Proxmox Cluster Firewall is enabled
-  ansible.builtin.command: "pvesh get /cluster/firewall/options --output-format json"
-  register: pve_fw_options
+- name: Disable and mask netfilter-persistent if present (legacy iptables)
+  ansible.builtin.systemd:
+    name: netfilter-persistent
+    enabled: no
+    masked: yes
+    state: stopped
+  become: true
+  when: "'netfilter-persistent.service' in ansible_facts.services"
+  failed_when: false
+  tags: firewall
+
+- name: Ensure nftables package is installed
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+    update_cache: yes
+  become: true
+  tags: firewall
+
+- name: Deploy nftables configuration from template
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: /etc/nftables.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+    validate: 'nft -c -f %s'
+  notify: Reload nftables
+  become: true
+  tags: firewall
+
+- name: Ensure nftables service is enabled and started
+  ansible.builtin.systemd:
+    name: nftables
+    enabled: yes
+    state: started
+  become: true
+  tags: firewall
+
+- name: Verify nftables ruleset is loaded
+  ansible.builtin.command: nft list ruleset
+  register: nft_ruleset
   changed_when: false
-  tags: "proxmox_firewall"
+  become: true
+  tags: firewall
 
-- name: Ensure Proxmox Cluster Firewall is ENABLED
-  ansible.builtin.command: "pvesh set /cluster/firewall/options --enable 1"
-  when: "(pve_fw_options.stdout | from_json).get('enable', 0) != 1"
-  register: firewall_enable_result
-  changed_when: "'OK' in firewall_enable_result.stdout or firewall_enable_result.rc == 0"
-  tags: "proxmox_firewall"
+- name: Force system to use iptables-nft backend (Removes Legacy iptables kernel modules [reboot required])
+  community.general.alternatives:
+    name: "{{ item }}"
+    path: "/usr/sbin/{{ item }}-nft"
+  loop:
+    - iptables
+    - ip6tables
+    - arptables
+    - ebtables
 
-#- name: Deploy nftables NAT rules for Proxmox (ansible-managed)
-#  ansible.builtin.template:
-#    src: "pve-nat-rules.j2"
-#    dest: "/etc/proxmox-firewall/nftables.d/99-ansible-nat.nft"
-#    owner: root
-#    group: root
-#    mode: "0644"
-#  notify: "Reload proxmox-firewall"
-#  tags: "proxmox_firewall"
+- name: Display firewall status summary
+  ansible.builtin.debug:
+    msg:
+      - "nftables service is active"
+      - "Configuration: /etc/nftables.conf"
+      - "IP sets defined: {{ nftables_ipsets.keys() | list | length if nftables_ipsets is defined else 0 }}"
+      - "Input rules: {{ nftables_input_rules | length if nftables_input_rules is defined else 0 }}"
+      - "DNAT rules: {{ nftables_dnat_rules | length if nftables_dnat_rules is defined else 0 }}"
+      - "Total ruleset lines: {{ nft_ruleset.stdout_lines | length }}"
