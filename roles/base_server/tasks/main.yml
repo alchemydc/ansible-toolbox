@@ -14,6 +14,7 @@
 - name: Disable ipv6
   import_tasks: disable_ipv6.yml
   tags: "disable_ipv6"
+  when: ansible_virtualization_role == "guest"
 
 - name: Configure proxmox repos
   import_tasks: configure_proxmox_repos.yml
@@ -28,6 +29,7 @@
   apt:
     name:
       - screen
+      - tmux
       - htop
       - vim
       - jq
@@ -48,10 +50,11 @@
 #  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
 # not sure if this is going to be required on d13 guest containers with proxmox9, should be set automatically
-#- name: set SDN MTU for guest workloads
-#  import_tasks: set_mtu.yml
-#  tags: 'mtu'
-#  when: ansible_virtualization_role == "guest"
+# appears we still need this with proxmox9 / debian13 containers
+- name: set SDN MTU for guest workloads
+  import_tasks: set_mtu.yml
+  tags: 'mtu'
+  when: ansible_virtualization_role == "guest"
 
 - name: Disable password auth for sshd
   lineinfile:
@@ -101,6 +104,14 @@
   copy:
     src: 'screenrc'
     dest: '/etc/screenrc'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: Setup tmux.conf for all users
+  copy:
+    src: 'tmux.conf'
+    dest: '/etc/tmux.conf'
     owner: 'root'
     group: 'root'
     mode: '0644'
