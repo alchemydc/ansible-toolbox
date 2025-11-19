@@ -8,6 +8,13 @@
   tags: 'update_hosts'
   when: ansible_virtualization_role == "guest"
 
+# disable ipv6
+# looks like debian13 LXC template still tries to use ipv6 over the SDN interface which doesn't work.
+# disabling ipv6 again for now.
+- name: Disable ipv6
+  import_tasks: disable_ipv6.yml
+  tags: "disable_ipv6"
+
 - name: Configure proxmox repos
   import_tasks: configure_proxmox_repos.yml
   tags: 'proxmox_repos'
@@ -40,10 +47,11 @@
 #  tags: 'htop'
 #  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
-- name: set SDN MTU for guest workloads
-  import_tasks: set_mtu.yml
-  tags: 'mtu'
-  when: ansible_virtualization_role == "guest"
+# not sure if this is going to be required on d13 guest containers with proxmox9, should be set automatically
+#- name: set SDN MTU for guest workloads
+#  import_tasks: set_mtu.yml
+#  tags: 'mtu'
+#  when: ansible_virtualization_role == "guest"
 
 - name: Disable password auth for sshd
   lineinfile:
@@ -116,12 +124,7 @@
 #    masked: true
 #  when: ansible_facts['distribution_release'] == "bookworm"
 
-# had previously been disabling ipv6 to work around some issues with proxmox sdn and ipv6
-# but going to leave it enabled now with proxmox 9 and see if the issues are resolved.
-# disable ipv6
-#- name: Disable ipv6
-#  import_tasks: disable_ipv6.yml
-#  tags: "disable_ipv6"
+
 
 # smarthost role needs to be reworked now that SendGrid no longer has a free plan :(
 # configure smarthost
