@@ -15,7 +15,7 @@ Documents system architecture, key technical decisions, design patterns, compone
 - SDN subnets (anycast_subnets) for workload communication and prometheus monitoring.
 
 ### Key Technical Decisions
-- **Firewalling:** Use `community.proxmox.proxmox_firewall` module for cluster-wide rules + nftables files for NAT rules (`pve-nat-rules.j2`).
+- **Firewalling:** Prefer native `nftables` for NAT/DNAT and node-local rules (templates: `roles/proxmox_hypervisor/templates/nftables.conf.j2`). Cluster-wide filtering may be managed via the Proxmox API when stable, but we will not rely on the `proxmox-firewall` abstraction because it proved brittle when driven by Ansible and lacks reliable DNAT support which is critical for our use case.
 - **Wireguard:** Single data-driven configuration in `group_vars/proxmox/wireguard.yml`; template (`wg0.conf.j2`) generates per-host configs automatically.
 - **Vault:** Dictionary-based structure (`vault_proxmox_wg_private_keys.hostname`) for organized key management.
 - **Zaino:** Deployed as Docker container; TLS enforcement requires custom build with `disable_tls_unencrypted_traffic_mode`.
@@ -28,6 +28,7 @@ Documents system architecture, key technical decisions, design patterns, compone
 - **Network safety:** Template tasks use `backup: yes`; handlers implement rollback via `wait_for_connection` + restore.
 - **Quota synchronization:** Single variable (`timemachine_quota` or `wireguard_port`) drives all related configs.
 - **Vault scoping:** Encrypted keys in `group_vars/proxmox/vault.yml`; reference via `{{ vault_proxmox_wg_private_keys.hostname }}`.
+- **Firewalling approach:** Prefer native `nftables` files for NAT/DNAT rendered from templates and use the Proxmox API for cluster-wide filtering only when reliable. Avoid the proxmox-firewall abstraction for DNAT-heavy workloads due to Ansible brittleness and feature gaps.
 
 ### Component Relationships
 - **Proxmox Hypervisor Role** → configures repos, networking, firewall, Wireguard, ZFS, sysctl.
@@ -57,4 +58,3 @@ Documents system architecture, key technical decisions, design patterns, compone
 - **Zaino config:** Template at `roles/zcash_node/templates/zindexer.toml.j2`; mounted into container at runtime.
 ---
 
-*Update this file as system patterns and architecture evolve.*

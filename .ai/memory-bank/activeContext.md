@@ -74,7 +74,7 @@ Tracks current work focus, recent changes, next steps, active decisions, importa
 ### Active Decisions & Considerations
 - The container must run as UID/GID 10003 to match the internal `zaino` user.
 - The zaino repo is located at https://github.com/zingolabs/zaino/
-- Setting `grpc_tls = false` in `zindexer.toml` is not sufficient to disable TLS errors in dev/test environments.
+- Setting `grpc_tls = false` in the config is not sufficient to disable TLS errors in dev/test environments.
 - Disabling TLS enforcement requires compiling zaino with the `disable_tls_unencrypted_traffic_mode` feature, which is not done in the official Docker image.
 
 ### Patterns & Preferences
@@ -95,7 +95,7 @@ Tracks current work focus, recent changes, next steps, active decisions, importa
 After deploying firewall policy, multiple lockout incidents occurred (dev cluster became inaccessible after initial deployment, then again later). Investigation revealed two critical firewall rule gaps:
 
 1. **Admin network rule constraint:** Original rule pos 1 specified both `iface: "wg0"` and `source: "+admin_network"`, creating a race condition during Wireguard tunnel establishment.
-2. **Missing loopback rules:** No explicit rules for `iface: "lo"` traffic, blocking critical Proxmox service-to-service communication (corosync, pvedaemon, PVE proxy, etc.).
+2. **Missing loopback rules:** No explicit rules for `iface: "lo"` traffic, blocking critical Proxmox service-to-service communication (corosync, pvedaemon, PVE proxy, etc).
 
 ### Recent Changes (2025-11-17)
 - **Removed interface constraint from admin_network rule (pos 1):** Changed to allow all admin_network traffic regardless of interface. Prevents race condition where traffic from admin network arrives before wg0 interface is fully initialized.
@@ -139,6 +139,7 @@ After deploying firewall policy, multiple lockout incidents occurred (dev cluste
 - Run playbook multiple times (idempotency check) to ensure rules don't duplicate.
 - If stable, deploy to production cluster with serial: 1 and OOB console access available.
 - Document loopback rules requirement in Proxmox firewall best practices in .clinerules.
+- Implement MSS clamping in nftables forward chain to address SDN/VXLAN MTU mismatches causing LXC network hangs; update templates and test on staging.
 
 ---
 
@@ -225,3 +226,22 @@ After deploying firewall policy, multiple lockout incidents occurred (dev cluste
 - Decision: centralize Proxmox repo management in `base_server` and make `proxmox_hypervisor` repo tasks opt-in via `manage_proxmox_repos` variable.
 - Confirmed `base_server` role applies cleanly on Proxmox 9 host (zd1) when repo/key changes are present.
 
+---
+
+## Recent Changes: tmux, IPv6, nftables, proxmox-firewall decision (2025-11-19)
+
+- Implemented `tmux` across managed hosts for improved session multiplexing and recovery. Provisioned via the `roles/base_server` tasks; systemd user/session helpers and default tmux config templates applied where appropriate.
+- Disabled IPv6 for Proxmox 9 guests (trixie) due to observed network/runtime issues in guest environments. Applied via sysctl/cloud-init templates in `roles/proxmox_hypervisor` and `roles/base_server` (sysctl: `net.ipv6.conf.all.disable_ipv6=1`, `net.ipv6.conf.default.disable_ipv6=1` where applicable).
+- Deployed native `nftables` configuration (template: `roles/proxmox_hypervisor/templates/nftables.conf.j2`) and validated configs with `nft -c -f` and `nft list ruleset`. Handlers reload `nftables` via systemd; Proxmox firewall services are masked/disabled as part of the migration.
+- Decided to not proceed with the `proxmox-firewall` abstraction due to brittleness when driven by Ansible and lack of reliable DNAT rule support (DNAT is critical for our deployments). Continue to render DNAT/SNAT via native `nftables` templates and use Proxmox API for cluster-wide filtering only where stable.
+
+### Next Steps (2025-11-19)
+- Verify tmux sessions and default config on a sample of hosts; document usage and keybindings in repo README.
+- Run playbook on staging nodes 2-3 times to confirm idempotency for nftables deployment and IPv6-disable tasks.
+- Monitor staging for 24-48 hours for any regressions after nftables deployment and IPv6 changes.
+- Update `roles/proxmox_hypervisor/README.md` and Memory Bank entries to reflect the proxmox-firewall decision and NAT handling approach.
+- Record verification results and any follow-up fixes back into Memory Bank.
+
+---
+
+*Update this file as the active context evolves.

@@ -42,6 +42,14 @@ table inet filter {
   # FORWARD chain
   chain forward {
     type filter hook forward priority filter; policy {{ nftables_forward_policy | default('accept') }};
+
+    # CRITICAL: MSS Clamping for SDN/VXLAN/WireGuard
+    # This fixes the MTU 1358 vs 1500 issues automatically
+    tcp flags syn tcp option maxseg size set rt mtu
+
+    # Allow traffic from SDN to WAN (needed if policy is drop)
+    #iifname "vnet+" oifname "{{ public_bridge }}" accept
+    #ct state established,related accept
   }
 
   # OUTPUT chain
@@ -63,31 +71,32 @@ table ip nat {
     # DNAT rules (port forwarding to workloads)
 {% for dnat in nftables_dnat_rules %}
     # {{ dnat.name }}
-    {{ dnat.protocol }} dport {{ dnat.host_port }} dnat to {{ dnat.workload_ip }}:{{ dnat.workload_port }}
+    iifname {{ public_iface }} {{ dnat.protocol }} dport {{ dnat.host_port }} dnat to {{ dnat.workload_ip }}:{{ dnat.workload_port }}
 {% endfor %}
 {% endif %}
   }
 
-  # POSTROUTING chain (SNAT - masquerading for outbound traffic)
+  # POSTROUTING chain (SNAT for outbound traffic)
   chain postrouting {
     type nat hook postrouting priority srcnat; policy accept;
     
     # SNAT rules using existing variable names
-{% if private_subnet is defined and public_bridge is defined and public_ip is defined %}
+{% if private_subnet is defined and public_iface is defined and public_ip is defined %}
     # SNAT traffic from private subnet guests
-    ip saddr {{ private_subnet }} oifname "{{ public_bridge }}" snat to {{ public_ip }}
+    ip saddr {{ private_subnet }} oifname "{{ public_iface }}" snat to {{ public_ip }}
 {% endif %}
 
-{% if admin_net is defined and public_bridge is defined and public_ip is defined %}
+{% if admin_net is defined and public_iface is defined and public_ip is defined %}
     # SNAT traffic from private admin hosts
-    ip saddr {{ admin_net }} oifname "{{ public_bridge }}" snat to {{ public_ip }}
+    ip saddr {{ admin_net }} oifname "{{ public_iface }}" snat to {{ public_ip }}
 {% endif %}
 
-{% if anycast_subnets is defined and public_bridge is defined and public_ip is defined %}
+{% if anycast_subnets is defined and public_iface is defined and public_ip is defined %}
     # SNAT traffic from SDN subnet guests
 {% for anycast_subnet in anycast_subnets %}
-    ip saddr {{ anycast_subnet }} oifname "{{ public_bridge }}" snat to {{ public_ip }}
+    ip saddr {{ anycast_subnet }} oifname "{{ public_iface }}" snat to {{ public_ip }}
 {% endfor %}
 {% endif %}
   }
 }
+

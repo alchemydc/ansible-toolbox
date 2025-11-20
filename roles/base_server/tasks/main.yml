@@ -115,6 +115,7 @@
     owner: 'root'
     group: 'root'
     mode: '0644'
+  tags: 'tmux'
 
 - name: Setup passwordless sudo for members of sudo group
   lineinfile: 
