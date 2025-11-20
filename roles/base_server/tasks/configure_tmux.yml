@@ -1,0 +1,13 @@
+- name: Ensure tmux is installed
+  apt:
+    name: tmux
+    state: present
+    update_cache: yes
+
+- name: Setup tmux.conf for all users
+  copy:
+    src: 'tmux.conf'
+    dest: '/etc/tmux.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'

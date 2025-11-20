@@ -28,7 +28,6 @@
 - name: Install needful packages
   apt:
     name:
-      - screen
       - tmux
       - htop
       - vim
@@ -42,12 +41,6 @@
       - unattended-upgrades
     state: present
   when: ansible_virtualization_role == "guest"
-
-# doesn't seem to be required anymore as latest htop properly reports RAM within containers
-#- name: Replace packaged htop with binary that properly supports LXC
-#  import_tasks: htop.yml
-#  tags: 'htop'
-#  when: ansible_virtualization_role == "guest" and ansible_virtualization_type == "lxc"
 
 # not sure if this is going to be required on d13 guest containers with proxmox9, should be set automatically
 # appears we still need this with proxmox9 / debian13 containers
@@ -108,14 +101,9 @@
     group: 'root'
     mode: '0644'
 
-- name: Setup tmux.conf for all users
-  copy:
-    src: 'tmux.conf'
-    dest: '/etc/tmux.conf'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  tags: 'tmux'
+- name: Configure tmux
+  import_tasks: configure_tmux.yml
+  tags: "tmux"
 
 - name: Setup passwordless sudo for members of sudo group
   lineinfile: 
@@ -125,6 +113,7 @@
 
 - name: Configure vim to disable visual mouse and a few other tweaks
   import_tasks: configure_vim.yml
+
 
 # this this has been resolved in latest d12 template
 # Debian 12 (bullseye) has systemd-networkd-wait-online.service enabled by default
