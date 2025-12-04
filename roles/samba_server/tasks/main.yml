@@ -16,11 +16,22 @@
 
 - name: Create time machine directory
   file:
-    path: /mnt/timemachine
+    path: "{{ timemachine_path }}"
     state: directory
     owner: root
     group: sambashare
     mode: '0775'
+  become: true
+  when: timemachine_path is defined
+
+- name: Create share directories
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: root
+    group: sambashare
+    mode: '0775'
+  loop: "{{ smb_shares }}"
   become: true
 
 - name: Deploy samba smb.conf from template

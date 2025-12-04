@@ -1,8 +1,38 @@
-# Time Machine Server role
-This role will configure an SMB server to serve as a target for Apple Time Machine backups. Previously 
-such targets had to be served via AFP, but Apple added support for using SMB (Server Message Block) as a storage protocol for Time Machine backups starting with macOS Catalina (macOS 10.15) in 2019. Prior to macOS Catalina, Time Machine backups were primarily stored using the AFP (Apple Filing Protocol) or locally connected drives.
+# Samba Server Role (formerly timemachine_server)
 
-Tested using a Debian 12 LXC as the target and a M1 Macbook Air as the Time Machine client.
+This role configures a general-purpose SMB server using Samba, with specific support for Apple Time Machine backups.
+
+## Features
+- **General SMB Shares**: Configure arbitrary SMB shares with custom options.
+- **Time Machine Support**: Dedicated configuration for Time Machine compatibility (vfs objects, fruit settings, etc.).
+- **Standalone Server**: Configured as a standalone server, disabling unnecessary AD DC services.
+
+## Configuration
+
+### General Shares
+Define shares using the `smb_shares` list variable:
+
+```yaml
+smb_shares:
+  - name: Documents
+    path: /mnt/data/documents
+    comment: "Document Share"
+    valid_users: "@sambashare"
+    read_only: no
+    browseable: yes
+  - name: TimeMachine
+    path: /mnt/timemachine
+    time_machine: yes
+    quota: "3T"
+```
+
+### Legacy Time Machine Configuration
+For backward compatibility, the following variables are still supported and will create a Time Machine share if `timemachine_path` is defined:
+
+```yaml
+timemachine_path: "/mnt/timemachine"
+timemachine_quota: "3T"
+```
 
 ## ZFS specific configuration for underlying filesystem
 If you are using ZFS as the underlying filesystem for the target, setting these options will boost performance:
@@ -19,7 +49,7 @@ If you are using ZFS as the underlying filesystem for the target, setting these 
 
 ### Setting ZFS Quota for Time Machine on Proxmox
 
-To prevent Time Machine backups from exceeding available space, set a ZFS refquota on the dataset used for backups. This quota should match the value configured in the Ansible role (`timemachine_quota`, default: 3T).
+To prevent Time Machine backups from exceeding available space, set a ZFS refquota on the dataset used for backups. This quota should match the value configured in the Ansible role (`timemachine_quota` or `quota` in `smb_shares`, default: 3T).
 
 **Example command:**
 ```
@@ -47,7 +77,7 @@ sudo zfs set refquota=3T "$zfs_filesystem"
 
 ## Samba Service Configuration and Rationale
 
-This role is designed to run Samba strictly as a standalone SMB fileserver for Time Machine backups. The Active Directory Domain Controller (AD DC) service (`samba-ad-dc`) is not required and is explicitly disabled and masked. NetBIOS (`nmbd`) and Winbind (`winbind`) services are also disabled unless AD integration is needed.
+This role is designed to run Samba strictly as a standalone SMB fileserver. The Active Directory Domain Controller (AD DC) service (`samba-ad-dc`) is not required and is explicitly disabled and masked. NetBIOS (`nmbd`) and Winbind (`winbind`) services are also disabled unless AD integration is needed.
 
 **Key points:**
 - Only the `smbd` service is enabled and running.
@@ -55,4 +85,4 @@ This role is designed to run Samba strictly as a standalone SMB fileserver for T
 - `nmbd` and `winbind` are disabled for security and simplicity.
 - The `server role = standalone server` parameter is set in `smb.conf` to enforce fileserver-only operation.
 
-This configuration avoids AD DC-related errors and ensures the server operates as a secure, minimal SMB target for macOS Time Machine.
+This configuration avoids AD DC-related errors and ensures the server operates as a secure, minimal SMB target.
