@@ -1,0 +1,30 @@
+---
+arrr_stack_services:
+  - service: calibre-web
+    image: lscr.io/linuxserver/calibre-web:latest
+  - service: prowlarr
+    image: ghcr.io/hotio/prowlarr:latest
+  - service: wireguard
+    image: qmcgaw/gluetun:latest
+  - service: calibre
+    image: lscr.io/linuxserver/calibre:latest
+  - service: traefik
+    image: traefik:latest
+  - service: deluge
+    image: lscr.io/linuxserver/deluge:latest
+  - service: transmission
+    image: lscr.io/linuxserver/transmission:latest
+  - service: plex
+    image: ghcr.io/hotio/plex:latest
+  - service: radarr
+    image: ghcr.io/hotio/radarr:latest
+  - service: readarr
+    image: ghcr.io/hotio/readarr:latest
+  - service: lidarr
+    image: lscr.io/linuxserver/lidarr:latest
+  - service: jackett
+    image: lscr.io/linuxserver/jackett:latest
+  - service: overseerr
+    image: ghcr.io/hotio/overseerr:latest
+  - service: sonarr
+    image: ghcr.io/hotio/sonarr:latest
