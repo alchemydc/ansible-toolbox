@@ -80,18 +80,50 @@
   when: item.sshpublickey is defined
   loop: "{{ admin_users }}"
 
-- name: Setup common aliases for admin users
+- name: Setup common aliases file for admin users
   lineinfile:
-    path: /home/{{ item.username }}/.profile
-    line: alias ll='ls -laF'
+    path: /home/{{ item.username }}/.aliases
+    line: "alias ll='ls -laF'"
+    create: yes
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: '0644'
+  loop: "{{ admin_users }}"
+
+- name: Source .aliases in .bashrc for admin users
+  lineinfile:
+    path: /home/{{ item.username }}/.bashrc
+    line: "[[ -f ~/.aliases ]] && . ~/.aliases"
     state: present
   loop: "{{ admin_users }}"
 
-- name: Setup common aliases for root user
+- name: Setup common aliases file for root user
+  lineinfile:
+    path: /root/.aliases
+    line: "alias ll='ls -laF'"
+    create: yes
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Source .aliases in .bashrc for root user
+  lineinfile:
+    path: /root/.bashrc
+    line: "[[ -f ~/.aliases ]] && . ~/.aliases"
+    state: present
+
+- name: Remove legacy aliases from .profile for admin users
+  lineinfile:
+    path: /home/{{ item.username }}/.profile
+    line: "alias ll='ls -laF'"
+    state: absent
+  loop: "{{ admin_users }}"
+
+- name: Remove legacy aliases from .profile for root user
   lineinfile:
     path: /root/.profile
-    line: alias ll='ls -laF'
-    state: present
+    line: "alias ll='ls -laF'"
+    state: absent
 
 - name: Setup screenrc for all users
   copy:

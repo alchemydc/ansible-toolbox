@@ -1,4 +1,10 @@
-- name: Restart cloudflared
-  ansible.builtin.service:
-    name: cloudflared
+- name: daemon-reload
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Restart cloudflared tunnels
+  ansible.builtin.systemd:
+    name: "cloudflared@{{ item.name }}"
     state: restarted
+  loop: "{{ cloudflare_tunnels }}"
+  no_log: true

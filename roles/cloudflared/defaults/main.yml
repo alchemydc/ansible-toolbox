@@ -5,3 +5,4 @@ cloudflared_key_path: /usr/share/keyrings/cloudflare-main.gpg
 cloudflared_repo: "deb [signed-by={{ cloudflared_key_path }}] https://pkg.cloudflare.com/cloudflared any main"
 cloudflared_repo_filename: cloudflared
 cloudflared_ping_group_range: "0 2147483647"
+cloudflare_tunnels: []

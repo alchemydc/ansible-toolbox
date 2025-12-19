@@ -24,23 +24,37 @@
     update_cache: yes
     cache_valid_time: 3600
 
-- block:
-    - name: Ensure ping_group_range allows cloudflared to send ICMP
-      ansible.builtin.sysctl:
-        name: net.ipv4.ping_group_range
-        value: "{{ cloudflared_ping_group_range }}"
-        sysctl_set: true
-        state: present
-        reload: true
-        sysctl_file: /etc/sysctl.d/99-cloudflared.conf
-      notify: Restart cloudflared
-  rescue:
-    - name: Fallback ping_group_range for ICMP (0 65535)
-      ansible.builtin.sysctl:
-        name: net.ipv4.ping_group_range
-        value: "0 65535"
-        sysctl_set: true
-        state: present
-        reload: true
-        sysctl_file: /etc/sysctl.d/99-cloudflared.conf
-      notify: Restart cloudflared
+
+
+- name: Stop and disable legacy cloudflared service
+  ansible.builtin.systemd:
+    name: cloudflared
+    state: stopped
+    enabled: no
+  ignore_errors: true
+  failed_when: false
+
+- name: Create the systemd template file
+  ansible.builtin.template:
+    src: cloudflared@.service.j2
+    dest: /etc/systemd/system/cloudflared@.service
+    mode: '0644'
+  notify: daemon-reload
+
+- name: Create environment files for each tunnel
+  ansible.builtin.copy:
+    dest: "/etc/default/cloudflared-{{ item.name }}"
+    content: "TUNNEL_TOKEN={{ item.token }}"
+    mode: '0600'
+    owner: root
+  loop: "{{ cloudflare_tunnels }}"
+  notify: "Restart cloudflared tunnels"
+  no_log: true
+
+- name: Ensure all tunnels are enabled and started
+  ansible.builtin.systemd:
+    name: "cloudflared@{{ item.name }}"
+    enabled: yes
+    state: started
+  loop: "{{ cloudflare_tunnels }}"
+  no_log: true
