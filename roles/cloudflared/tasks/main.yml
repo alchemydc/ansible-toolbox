@@ -1,3 +1,13 @@
+- name: Ensure dependencies are installed
+  ansible.builtin.apt:
+    name:
+      - gpg
+      - ca-certificates
+      - curl
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
 - name: Ensure keyrings directory exists
   ansible.builtin.file:
     path: /usr/share/keyrings
