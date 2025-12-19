@@ -1,6 +1,9 @@
 global:
   scrape_interval: 30s
   scrape_timeout: 10s
+  external_labels:
+    cluster: 'monitor_server'
+    environment: 'production'
 
 rule_files:
   - alert.yml
@@ -64,6 +67,14 @@ scrape_configs:
 {% for monitored_host in monitored_hosts %}
           - '{{ monitored_host }}:9100'
 {% endfor %}
+
+  - job_name: alloy-internal
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        {% for monitored_host in monitored_hosts %}
+          - '{{ monitored_host }}:12345'
+        {% endfor %}
 
   - job_name: traefik
     metrics_path: /metrics

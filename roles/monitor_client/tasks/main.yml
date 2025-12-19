@@ -1,17 +1,25 @@
-- name: Install prometheus node exporter
-  import_tasks: node_exporter.yml
-  tags: "node_exporter"
+- name: Install legacy monitoring stack
+  block:
+    - name: Install prometheus node exporter
+      import_tasks: node_exporter.yml
+      tags: "node_exporter"
+
+    - name: Install promtail
+      import_tasks: promtail.yml
+      tags: 'promtail'
+
+    - name: Stop and disable alloy (if switching back to legacy)
+      systemd:
+        name: alloy
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+  when: monitor_agent_type == 'legacy'
   become: true
 
-#- name: debug promtail
-#  debug:
-#    #msg: "inventory_hostname: {{ inventory_hostname }}"
-#    var: ansible_facts
-#  tags: debug_promtail
-
-- name: Install promtail
-  import_tasks: promtail.yml
-  #when: inventory_hostname is defined and (inventory_hostname != 'monitor')   # because monitor pushes logs to itself
+- name: Install Alloy monitoring stack
+  import_tasks: alloy.yml
+  when: monitor_agent_type == 'alloy'
   become: true
-  tags: 'promtail'
+  tags: 'alloy'
 

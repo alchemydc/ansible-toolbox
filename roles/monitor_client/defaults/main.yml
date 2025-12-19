@@ -1,0 +1,10 @@
+---
+monitor_agent_type: "alloy" # Set to "legacy" to downgrade to node_exporter and promtail agent modes.
+alloy_version: "latest"
+
+# Default to the monitor host on the standard Prometheus remote write port
+# You can override this if you have a different setup
+prometheus_write_uri: "http://monitor:9090/api/v1/write"
+
+# existing variable used by promtail, reused here for Alloy
+loki_write_uri: "http://monitor:3100/loki/api/v1/push"
