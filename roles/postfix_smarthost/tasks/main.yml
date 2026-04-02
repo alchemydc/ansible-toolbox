@@ -25,6 +25,16 @@
   become: true
   notify: "restart postfix"
 
+- name: Deploy postfix generic sender rewrite map
+  template:
+    src: 'generic.j2'
+    dest: '/etc/postfix/generic'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+  notify: "restart postfix"
+
 - name: Rebuild sasl_passwd.db
   command:
     cmd: '/usr/sbin/postmap /etc/postfix/sasl_passwd'

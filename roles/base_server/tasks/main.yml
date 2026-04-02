@@ -146,23 +146,8 @@
 - name: Configure vim to disable visual mouse and a few other tweaks
   import_tasks: configure_vim.yml
 
-
-# this this has been resolved in latest d12 template
-# Debian 12 (bullseye) has systemd-networkd-wait-online.service enabled by default
-# but it doesn't work properly in Proxmox LXC's because networking isn't configured 
-# via systemd, so it will time out and cause the boot to hang for 2 minutes.
-#- name: Mask systemd-networkd-wait-online on Debian 12
-#  systemd:
-#    name: systemd-networkd-wait-online.service
-#    masked: true
-#  when: ansible_facts['distribution_release'] == "bookworm"
-
-
-
-# smarthost role needs to be reworked now that SendGrid no longer has a free plan :(
-# configure smarthost
-#- name: Configure smarthost
-#  import_tasks: configure_smarthost.yml
-#  tags: "configure_smarthost"
-#  become: true
-#  when: ansible_virtualization_role == "guest"
+- name: Configure smarthost
+  import_tasks: configure_smarthost.yml
+  tags: "configure_smarthost"
+  become: true
+  when: ansible_facts['virtualization_role'] == "guest"

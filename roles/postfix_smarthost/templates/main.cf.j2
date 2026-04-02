@@ -30,5 +30,6 @@ smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
 smtp_sasl_security_options = noanonymous
 smtp_sasl_tls_security_options = noanonymous
 smtp_tls_security_level = encrypt
+smtp_generic_maps = regexp:/etc/postfix/generic
 header_size_limit = 4096000
 relayhost = [{{ smtp_relay_host }}]:{{ smtp_relay_port }}
