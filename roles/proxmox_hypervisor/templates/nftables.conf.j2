@@ -43,6 +43,18 @@ table inet filter {
   chain forward {
     type filter hook forward priority filter; policy {{ nftables_forward_policy | default('accept') }};
 
+    # Connection tracking
+    ct state invalid drop
+    ct state established,related accept
+
+    # Custom forward rules
+{% if nftables_forward_rules is defined %}
+{% for rule_item in nftables_forward_rules %}
+    # {{ rule_item.comment }}
+    {{ rule_item.rule }}
+{% endfor %}
+{% endif %}
+
     # CRITICAL: MSS Clamping for SDN/VXLAN/WireGuard
     # This fixes the MTU 1358 vs 1500 issues automatically
     tcp flags syn tcp option maxseg size set rt mtu
@@ -55,6 +67,14 @@ table inet filter {
   # OUTPUT chain
   chain output {
     type filter hook output priority filter; policy {{ nftables_output_policy | default('accept') }};
+
+    # Custom output rules
+{% if nftables_output_rules is defined %}
+{% for rule_item in nftables_output_rules %}
+    # {{ rule_item.comment }}
+    {{ rule_item.rule }}
+{% endfor %}
+{% endif %}
   }
 }
 
