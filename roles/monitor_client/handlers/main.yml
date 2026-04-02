@@ -1,0 +1,18 @@
+---
+- name: restart alloy
+  systemd:
+    name: alloy
+    state: restarted
+    daemon_reload: yes
+
+- name: restart node-exporter
+  systemd:
+    name: node-exporter
+    state: restarted
+    daemon_reload: yes
+
+- name: restart promtail
+  systemd:
+    name: promtail
+    state: restarted
+    daemon_reload: yes

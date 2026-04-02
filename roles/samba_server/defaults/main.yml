@@ -1,6 +1,6 @@
 # path on the server or container to store time machine backups on
 # will be created if does not exist
-timemachine_path: "/mnt/timemachine"
+#timemachine_path: "/mnt/timemachine"
 
 # admin users
 # these will be created and will have valid shells and be able to login
@@ -19,4 +19,24 @@ timemachine_path: "/mnt/timemachine"
 # samba_password: cleartext samba password
 
 # Quota for Time Machine backups (used for both Samba and ZFS refquota synchronization)
-timemachine_quota: "3T"
+#timemachine_quota: "3T"
+
+# List of SMB shares to export
+# Each item can have:
+# name: Share name (e.g., "Documents")
+# path: Path on the server
+# comment: Optional comment
+# valid_users: List of valid users (default: @sambashare)
+# read_only: yes/no (default: no)
+# browseable: yes/no (default: yes)
+# time_machine: yes/no (default: no)
+# quota: Optional quota (for Time Machine)
+smb_shares: []
+#  - name: TimeMachineBackup
+#    path: "{{ timemachine_path }}"
+#    comment: "Time Machine Backup"
+#    valid_users: "@sambashare"
+#    read_only: no
+#    browseable: yes
+#    time_machine: yes
+#    quota: "{{ timemachine_quota }}"

@@ -50,6 +50,7 @@ services:
 
     volumes:
       - {{ monitor_user_dir }}/grafana:/var/lib/grafana
+      - {{ monitor_user_dir }}/grafana/provisioning:/etc/grafana/provisioning:ro
       #- /etc/hosts:/etc/hosts:ro
     ports:
       - "3000:3000"
@@ -66,7 +67,7 @@ services:
        - {{ monitor_user_dir }}/prometheus/data:/prometheus
        - /etc/hosts:/etc/hosts:ro
      #command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
-     command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time={{ prometheus_retention_period }}
+     command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time={{ prometheus_retention_period }} --web.enable-remote-write-receiver
      restart: unless-stopped
      networks:
        - monitoring

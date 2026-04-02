@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  connection: local
+  roles:
+    - role: ../../samba_server
+      vars:
+        smb_shares:
+          - name: TestShare
+            path: /tmp/testshare

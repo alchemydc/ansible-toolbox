@@ -1,0 +1,14 @@
+[Unit]
+Description=Cloudflare Tunnel (%i)
+After=network.target
+
+[Service]
+TimeoutStartSec=0
+Type=notify
+EnvironmentFile=/etc/default/cloudflared-%i
+ExecStart=/usr/bin/cloudflared --no-autoupdate tunnel run --token ${TUNNEL_TOKEN}
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

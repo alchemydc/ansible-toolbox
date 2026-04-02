@@ -74,8 +74,8 @@
       tags: eigenlayer
     - role: stacks_node
       tags: stacks_node
-    - role: timemachine_server
-      tags: timemachine_server
+    - role: samba_server
+      tags: samba_server
     - role: bitcoin_node
       tags: bitcoin_node
     - role: nodeset_server

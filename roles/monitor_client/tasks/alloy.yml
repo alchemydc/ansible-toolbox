@@ -1,0 +1,64 @@
+---
+- name: Install required packages for apt repository management
+  apt:
+    name:
+      - gpg
+      - curl
+      - debian-archive-keyring
+    state: present
+
+- name: Create keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Grafana GPG key
+  get_url:
+    url: https://apt.grafana.com/gpg.key
+    dest: /etc/apt/keyrings/grafana.gpg
+    mode: '0644'
+
+- name: Add Grafana APT repository
+  copy:
+    content: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main\n"
+    dest: /etc/apt/sources.list.d/grafana.list
+    mode: '0644'
+
+- name: Install Grafana Alloy
+  apt:
+    name: alloy
+    state: present
+    update_cache: yes
+
+- name: Create Alloy config
+  template:
+    src: alloy-config.alloy.j2
+    dest: /etc/alloy/config.alloy
+    owner: root
+    group: alloy
+    mode: '0640'
+  notify:
+    - restart alloy
+
+- name: Enable and start Alloy service
+  systemd:
+    name: alloy
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+# Cleanup Legacy services if present
+- name: Stop and disable legacy node-exporter
+  systemd:
+    name: node-exporter
+    state: stopped
+    enabled: no
+  ignore_errors: yes  # Service might not exist on a fresh install
+
+- name: Stop and disable legacy promtail
+  systemd:
+    name: promtail
+    state: stopped
+    enabled: no
+  ignore_errors: yes

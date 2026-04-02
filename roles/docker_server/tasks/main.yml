@@ -1,17 +1,18 @@
+---
 - name: Install dependencies
-  apt:
-    name: 
-     - ca-certificates 
-     - curl 
-     - gnupg 
-     - lsb-release
-     - jq
-     - acl            # required for ansible to become unpriv'd user to run tasks successfully
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - jq
+      - acl            # required for ansible to become unpriv'd user to run tasks successfully
     state: present
     update_cache: true
 
 - name: Ensure /etc/apt/keyrings dir exists
-  file:
+  ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     owner: root
@@ -19,39 +20,37 @@
     mode: '0755'
 
 - name: Add docker signing key to apt keyring securely
-  get_url: 
+  ansible.builtin.get_url:
     url: https://download.docker.com/linux/debian/gpg
-    dest: /etc/apt/keyrings/docker.asc  # note that this a key in ASCII, not binary (.gpg) format. see https://docs.docker.com/engine/install/debian/#install-using-the-repository
+    dest: /etc/apt/keyrings/docker.asc
     mode: '0644'
-    force: true 
+    force: true
+    checksum: "sha256:1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570"
 
 - name: Add docker repository to apt
-  apt_repository:
+  ansible.builtin.apt_repository:
     filename: docker
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
+    repo: "deb [arch={{ ansible_facts['architecture'] | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
     state: present
     update_cache: true
-    
+
 - name: Install docker engine
-  apt:
-    name: 
-      - docker-ce 
-      - docker-ce-cli 
-      - containerd.io
+  ansible.builtin.apt:
+    name: "{{ docker_packages }}"
     state: present
     update_cache: true
 
 # as of Docker version 23.0.0, build e92dd87 /etc/docker is no longer created by installing the debian package
-#- name: Ensure /etc/docker exists
-#  file:
-#    path: /etc/docker
-#    state: directory
-#    owner: root
-#    group: root
-#    mode: '0755'
+- name: Ensure /etc/docker exists
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
 - name: Configure docker daemon
-  template:
+  ansible.builtin.template:
     src: docker_daemon.json.j2
     dest: /etc/docker/daemon.json
     owner: root
@@ -60,32 +59,8 @@
   notify: restart docker
 
 - name: Add admin users to docker group
-  user:
+  ansible.builtin.user:
     name: "{{ item.username }}"
     groups: docker
     append: yes
   loop: "{{ admin_users }}"
-
-#- name: Install docker-compose
-#  import_tasks: compose.yml
-#  tags: docker_compose
-
-# docker-compose v2 not functional w/ ansible as of nov 2023
-# ref: https://github.com/ansible-collections/community.docker/issues/216
-#- name: Install packages required for ansible to interact w/ python on host
-#  apt:
-#    name:
-#      #- python3    # now installed by default in debian 12
-#      - python3-pip
-#      - python3-docker
-#    state: present
-#    update_cache: false
- 
-# not needed on debian 12
-#- name: Install required python packages for ansible to interact w/ docker on host
-#  pip:
-#    name:
-#      - docker
-#      - docker-compose
-#    state: present
-

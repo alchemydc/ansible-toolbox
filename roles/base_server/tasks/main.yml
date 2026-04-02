@@ -6,7 +6,7 @@
     group: root
     mode: '0644'
   tags: 'update_hosts'
-  when: ansible_virtualization_role == "guest"
+  when: ansible_facts['virtualization_role'] == "guest"
 
 # disable ipv6
 # looks like debian13 LXC template still tries to use ipv6 over the SDN interface which doesn't work.
@@ -14,7 +14,7 @@
 - name: Disable ipv6
   import_tasks: disable_ipv6.yml
   tags: "disable_ipv6"
-  when: ansible_virtualization_role == "guest"
+  when: ansible_facts['virtualization_role'] == "guest"
 
 - name: Configure proxmox repos
   import_tasks: configure_proxmox_repos.yml
@@ -40,14 +40,14 @@
     name:
       - unattended-upgrades
     state: present
-  when: ansible_virtualization_role == "guest"
+  when: ansible_facts['virtualization_role'] == "guest"
 
 # not sure if this is going to be required on d13 guest containers with proxmox9, should be set automatically
 # appears we still need this with proxmox9 / debian13 containers
 - name: set SDN MTU for guest workloads
   import_tasks: set_mtu.yml
   tags: 'mtu'
-  when: ansible_virtualization_role == "guest"
+  when: ansible_facts['virtualization_role'] == "guest"
 
 - name: Disable password auth for sshd
   lineinfile:
@@ -80,18 +80,50 @@
   when: item.sshpublickey is defined
   loop: "{{ admin_users }}"
 
-- name: Setup common aliases for admin users
+- name: Setup common aliases file for admin users
   lineinfile:
-    path: /home/{{ item.username }}/.profile
-    line: alias ll='ls -laF'
+    path: /home/{{ item.username }}/.aliases
+    line: "alias ll='ls -laF'"
+    create: yes
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: '0644'
+  loop: "{{ admin_users }}"
+
+- name: Source .aliases in .bashrc for admin users
+  lineinfile:
+    path: /home/{{ item.username }}/.bashrc
+    line: "[[ -f ~/.aliases ]] && . ~/.aliases"
     state: present
   loop: "{{ admin_users }}"
 
-- name: Setup common aliases for root user
+- name: Setup common aliases file for root user
+  lineinfile:
+    path: /root/.aliases
+    line: "alias ll='ls -laF'"
+    create: yes
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Source .aliases in .bashrc for root user
+  lineinfile:
+    path: /root/.bashrc
+    line: "[[ -f ~/.aliases ]] && . ~/.aliases"
+    state: present
+
+- name: Remove legacy aliases from .profile for admin users
+  lineinfile:
+    path: /home/{{ item.username }}/.profile
+    line: "alias ll='ls -laF'"
+    state: absent
+  loop: "{{ admin_users }}"
+
+- name: Remove legacy aliases from .profile for root user
   lineinfile:
     path: /root/.profile
-    line: alias ll='ls -laF'
-    state: present
+    line: "alias ll='ls -laF'"
+    state: absent
 
 - name: Setup screenrc for all users
   copy:

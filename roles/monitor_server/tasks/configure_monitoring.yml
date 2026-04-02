@@ -16,6 +16,11 @@
       - docker
       - adm
 
+- name: Remove existing provisioned dashboards to prevent duplicates
+  file:
+    path: "{{ monitor_user_dir }}/grafana/provisioning/dashboards/json"
+    state: absent
+
 - name: Create dirs for monitoring stack
   file:
     path: "{{ item }}"
@@ -27,6 +32,12 @@
     - "{{ monitor_user_dir }}/docker"
     - "{{ monitor_user_dir }}/loki"
     - "{{ monitor_user_dir }}/grafana"
+    - "{{ monitor_user_dir }}/grafana/provisioning"
+    - "{{ monitor_user_dir }}/grafana/provisioning/datasources"
+    - "{{ monitor_user_dir }}/grafana/provisioning/plugins"
+    - "{{ monitor_user_dir }}/grafana/provisioning/alerting"
+    - "{{ monitor_user_dir }}/grafana/provisioning/dashboards"
+    - "{{ monitor_user_dir }}/grafana/provisioning/dashboards/json"
     # promtail is now deployed as part of the `monitor_client` role
     #- "{{ monitor_user_dir }}/promtail"
     - "{{ monitor_user_dir }}/prometheus"
@@ -49,14 +60,29 @@
     group: "{{ monitor_user }}"
     mode: 0640
 
-# promtail is now deployed as part of the `monitor_client` role
-#- name: Copy promtail config to monitor promtail dir
-#  template:
-#    src: promtail-config.yml.j2
-#    dest: "{{ monitor_user_dir }}/promtail/promtail-config.yml"
-#    owner: "{{ monitor_user }}"
-#    group: "{{ monitor_user }}"
-#    mode: 0640
+- name: Copy grafana provisioning datasources config
+  template:
+    src: grafana_datasources.yml.j2
+    dest: "{{ monitor_user_dir }}/grafana/provisioning/datasources/all.yml"
+    owner: "{{ monitor_user }}"
+    group: "{{ monitor_user }}"
+    mode: 0640
+
+- name: Copy grafana dashboard provider config
+  template:
+    src: grafana_dashboards_provider.yml.j2
+    dest: "{{ monitor_user_dir }}/grafana/provisioning/dashboards/default.yml"
+    owner: "{{ monitor_user }}"
+    group: "{{ monitor_user }}"
+    mode: 0640
+
+- name: Copy node_exporter_full_1860 dashboard
+  copy:
+    src: dashboards/node_exporter_full_1860.json
+    dest: "{{ monitor_user_dir }}/grafana/provisioning/dashboards/json/node_exporter_full_1860.json"
+    owner: "{{ monitor_user }}"
+    group: "{{ monitor_user }}"
+    mode: 0640
 
 - name: Copy prometheus alerts.yml config to monitor prometheus etc dir
   template:

@@ -1,6 +1,9 @@
 global:
   scrape_interval: 30s
   scrape_timeout: 10s
+  external_labels:
+    cluster: 'monitor_server'
+    environment: 'production'
 
 rule_files:
   - alert.yml
@@ -12,58 +15,21 @@ scrape_configs:
       - targets:
           - 'localhost:9090'
 
-  - job_name: pocket
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-          - 'pokt:8083'
-
-  - job_name: cosmos
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-          #- 'agoric-snapshot:44660'
-          #- 'agoric-relayer-0:44660'
-          #- 'agoric-relayer-1:44660'
-          - 'agoric-main-0:44660'
-          #- 'agoric-main-1:44660'
-          #- 'agoric-emerynet-main-0:45660'
-
-  #- job_name: celo_attestation
-  #  metrics_path: /metrics
-  #  static_configs:
-  #    - targets:
-  #        - 'celo-attestation-v0:8080'
-  #        - 'celo-attestation-v1:8080'
-
-  - job_name: celo_validators
-    metrics_path: /debug/metrics/prometheus
-    static_configs:
-      - targets:
-          #- 'celo-baklava-validator:6060'
-          #- 'celo-v0-alpha:6060'
-          #- 'celo-v0-bravo:6060'
-          #- 'celo-v1-alpha:6060'
-          #- 'celo-v1-bravo:6060'
-          #- 'celo-backup:6060'
-
-  #- job_name: eth_validators
-  #  metrics_path: /metrics
-  #  static_configs:
-  #    - targets:
-  #        - 'eth-validator:5054'
-  #        - 'eth-mainnet-validator:5054'
-  #        - 'eth-validator:5064'
-  #        - 'eth-mainnet-validator:5064'
-
   - job_name: node  # node_exporter
     metrics_path: /metrics
     static_configs:
       - targets:
-          #- 'rocketpool-mainnet:9103'
 {% for monitored_host in monitored_hosts %}
           - '{{ monitored_host }}:9100'
 {% endfor %}
+
+  - job_name: alloy-internal
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        {% for monitored_host in monitored_hosts %}
+          - '{{ monitored_host }}:12345'
+        {% endfor %}
 
   - job_name: traefik
     metrics_path: /metrics
@@ -77,14 +43,6 @@ scrape_configs:
         #- 'zd6-ingress:8080'
         - 'zd7-ingress:8080'
   
-  - job_name: stacks
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-        #- 'stacks-testnet:9153'
-        #- 'stacks-mainnet:9153'
-        #- 'stacks-mainnet:9154'
-
   - job_name: zcash
     metrics_path: /metrics
     static_configs:
@@ -113,5 +71,4 @@ scrape_configs:
       - targets:
         - 'rocketpool-mainnet:9091'
         - 'rocketpool-signer:9091'
-        #- 'source-prometheus-2:9090'
-        #- 'source-prometheus-3:9090'
+

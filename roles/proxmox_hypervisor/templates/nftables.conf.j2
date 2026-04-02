@@ -43,6 +43,18 @@ table inet filter {
   chain forward {
     type filter hook forward priority filter; policy {{ nftables_forward_policy | default('accept') }};
 
+    # Connection tracking
+    ct state invalid drop
+    ct state established,related accept
+
+    # Custom forward rules
+{% if nftables_forward_rules is defined %}
+{% for rule_item in nftables_forward_rules %}
+    # {{ rule_item.comment }}
+    {{ rule_item.rule }}
+{% endfor %}
+{% endif %}
+
     # CRITICAL: MSS Clamping for SDN/VXLAN/WireGuard
     # This fixes the MTU 1358 vs 1500 issues automatically
     tcp flags syn tcp option maxseg size set rt mtu
@@ -55,48 +67,59 @@ table inet filter {
   # OUTPUT chain
   chain output {
     type filter hook output priority filter; policy {{ nftables_output_policy | default('accept') }};
+
+    # Custom output rules
+{% if nftables_output_rules is defined %}
+{% for rule_item in nftables_output_rules %}
+    # {{ rule_item.comment }}
+    {{ rule_item.rule }}
+{% endfor %}
+{% endif %}
   }
 }
 
 # ============================================================================
 # NAT TABLE - DNAT and SNAT rules
 # ============================================================================
-table ip nat {
+# FIX: Use 'inet' family to avoid conflict with legacy iptables/Proxmox rules
+table inet nat {
   
   # PREROUTING chain (DNAT - port forwarding)
   chain prerouting {
-    type nat hook prerouting priority dstnat; policy accept;
+    # Priority -100 corresponds to 'dstnat'
+    type nat hook prerouting priority -100; policy accept;
     
 {% if nftables_dnat_rules is defined and nftables_dnat_rules | length > 0 %}
     # DNAT rules (port forwarding to workloads)
 {% for dnat in nftables_dnat_rules %}
     # {{ dnat.name }}
-    iifname {{ public_iface }} {{ dnat.protocol }} dport {{ dnat.host_port }} dnat to {{ dnat.workload_ip }}:{{ dnat.workload_port }}
+    # NOTE: 'inet' table requires 'dnat ip to' syntax
+    iifname "{{ public_iface }}" {{ dnat.protocol }} dport {{ dnat.host_port }} dnat ip to {{ dnat.workload_ip }}:{{ dnat.workload_port }}
 {% endfor %}
 {% endif %}
   }
 
   # POSTROUTING chain (SNAT for outbound traffic)
   chain postrouting {
-    type nat hook postrouting priority srcnat; policy accept;
+    # Priority 100 corresponds to 'srcnat'
+    type nat hook postrouting priority 100; policy accept;
     
     # SNAT rules using existing variable names
 {% if private_subnet is defined and public_iface is defined and public_ip is defined %}
     # SNAT traffic from private subnet guests
-    ip saddr {{ private_subnet }} oifname "{{ public_iface }}" snat to {{ public_ip }}
+    ip saddr {{ private_subnet }} oifname "{{ public_iface }}" snat ip to {{ public_ip }}
 {% endif %}
 
 {% if admin_net is defined and public_iface is defined and public_ip is defined %}
     # SNAT traffic from private admin hosts
-    ip saddr {{ admin_net }} oifname "{{ public_iface }}" snat to {{ public_ip }}
+    ip saddr {{ admin_net }} oifname "{{ public_iface }}" snat ip to {{ public_ip }}
 {% endif %}
 
 {% if anycast_subnets is defined and public_iface is defined and public_ip is defined %}
     # SNAT traffic from SDN subnet guests
 {% for anycast_subnet in anycast_subnets %}
-    ip saddr {{ anycast_subnet }} oifname "{{ public_iface }}" snat to {{ public_ip }}
+    ip saddr {{ anycast_subnet }} oifname "{{ public_iface }}" snat ip to {{ public_ip }}
 {% endfor %}
 {% endif %}
   }
 }
-

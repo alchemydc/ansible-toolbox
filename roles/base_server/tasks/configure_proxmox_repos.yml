@@ -9,25 +9,25 @@
   file:
     path: /etc/apt/sources.list.d/pve-enterprise.list
     state: absent
-  when: ansible_virtualization_role == "host"
+  when: ansible_facts['virtualization_role'] == "host"
 
 - name: Remove enterprise apt sources file if present
   file:
     path: /etc/apt/sources.list.d/pve-enterprise.sources
     state: absent
-  when: ansible_virtualization_role == "host"
+  when: ansible_facts['virtualization_role'] == "host"
 
 - name: Remove ceph enterprise apt list file if present
   file:
     path: /etc/apt/sources.list.d/ceph.list
     state: absent
-  when: ansible_virtualization_role == "host"
+  when: ansible_facts['virtualization_role'] == "host"
 
 - name: Remove ceph enterprise apt sources file if present
   file:
     path: /etc/apt/sources.list.d/ceph.sources
     state: absent
-  when: ansible_virtualization_role == "host"
+  when: ansible_facts['virtualization_role'] == "host"
 
 - name: Remove any enterprise.proxmox.com lines from /etc/apt/sources.list
   lineinfile:
@@ -35,14 +35,14 @@
     regexp: '.*enterprise\.proxmox\.com.*'
     state: absent
     backrefs: no
-  when: ansible_virtualization_role == "host"
+  when: ansible_facts['virtualization_role'] == "host"
 
 - name: Download Proxmox archive GPG key for {{ proxmox_distro }}
   get_url:
     url: "https://enterprise.proxmox.com/debian/proxmox-release-{{ proxmox_distro }}.gpg"
     dest: /usr/share/keyrings/proxmox-archive-keyring.gpg
     mode: '0644'
-  when: ansible_virtualization_role == "host"
+  when: ansible_facts['virtualization_role'] == "host"
 
 - name: Enable proxmox community source (new .sources syntax) for trixie+
   copy:
@@ -59,7 +59,7 @@
     (proxmox_distro is defined)
     and (proxmox_distro in proxmox_distro_order)
     and (proxmox_distro_order.index(proxmox_distro) >= proxmox_distro_order.index('trixie'))
-    and (ansible_virtualization_role == "host")
+    and (ansible_facts['virtualization_role'] == "host")
 
 - name: Enable proxmox community repo (legacy .list) for older distros
   apt_repository:
@@ -69,9 +69,9 @@
     (proxmox_distro is defined)
     and (proxmox_distro in proxmox_distro_order)
     and (proxmox_distro_order.index(proxmox_distro) < proxmox_distro_order.index('trixie'))
-    and (ansible_virtualization_role == "host")
+    and (ansible_facts['virtualization_role'] == "host")
 
 - name: Update apt cache
   apt:
     update_cache: yes
-  when: ansible_virtualization_role == "host"
+  when: ansible_facts['virtualization_role'] == "host"
