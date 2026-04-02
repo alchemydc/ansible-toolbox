@@ -22,12 +22,37 @@ table inet filter {
 {% endfor %}
 {% endif %}
 
+  # Rate-limited logging helper chains
+  chain input_log_drop {
+    limit rate 10/minute burst 20 packets
+    log prefix "NFT_INPUT_DROP " level notice
+    drop
+  }
+
+  chain invalid_log_drop {
+    limit rate 5/minute burst 10 packets
+    log prefix "NFT_INVALID_DROP " level notice
+    drop
+  }
+
+  chain forward_log_drop {
+    limit rate 10/minute burst 20 packets
+    log prefix "NFT_FORWARD_DROP " level notice
+    drop
+  }
+
+  chain output_log_drop {
+    limit rate 10/minute burst 20 packets
+    log prefix "NFT_OUTPUT_DROP " level notice
+    drop
+  }
+
   # INPUT chain
   chain input {
     type filter hook input priority filter; policy {{ nftables_input_policy | default('drop') }};
     
     # Connection tracking
-    ct state invalid drop
+    ct state invalid jump invalid_log_drop
     ct state established,related accept
     
     # Custom input rules
@@ -37,6 +62,9 @@ table inet filter {
     {{ rule_item.rule }}
 {% endfor %}
 {% endif %}
+
+    # Log and drop any remaining input traffic before policy drop.
+    jump input_log_drop
   }
 
   # FORWARD chain
@@ -44,7 +72,7 @@ table inet filter {
     type filter hook forward priority filter; policy {{ nftables_forward_policy | default('accept') }};
 
     # Connection tracking
-    ct state invalid drop
+    ct state invalid jump invalid_log_drop
     ct state established,related accept
 
     # Custom forward rules
@@ -54,6 +82,8 @@ table inet filter {
     {{ rule_item.rule }}
 {% endfor %}
 {% endif %}
+
+  # Use the forward_log_drop helper in explicit deny rules when logging is desired.
 
     # CRITICAL: MSS Clamping for SDN/VXLAN/WireGuard
     # This fixes the MTU 1358 vs 1500 issues automatically
@@ -75,6 +105,8 @@ table inet filter {
     {{ rule_item.rule }}
 {% endfor %}
 {% endif %}
+
+    # Use the output_log_drop helper in explicit deny rules when logging is desired.
   }
 }
 
