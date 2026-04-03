@@ -1,0 +1,94 @@
+---
+- name: Check docker binary is available
+  ansible.builtin.command: docker --version
+  register: rocketpool_docker_version
+  changed_when: false
+  failed_when: false
+
+- name: Check docker daemon is reachable
+  ansible.builtin.command: docker info
+  register: rocketpool_docker_info
+  changed_when: false
+  failed_when: false
+
+- name: Check docker daemon config exists
+  ansible.builtin.stat:
+    path: /etc/docker/daemon.json
+  register: rocketpool_docker_daemon_json
+
+- name: Ensure docker_server role has been applied
+  ansible.builtin.fail:
+    msg: >-
+      Docker does not appear to be installed and configured for this host.
+      Apply the docker_server role first, then re-run rocketpool_server.
+  when:
+    - not rocketpool_docker_daemon_json.stat.exists or rocketpool_docker_version.rc != 0 or rocketpool_docker_info.rc != 0
+
+- name: Resolve rocketpool architecture
+  ansible.builtin.set_fact:
+    rocketpool_release_arch: "{{ rocketpool_arch_map.get(ansible_facts['architecture'], '') }}"
+
+- name: Resolve rocketpool release ref
+  ansible.builtin.set_fact:
+    rocketpool_release_ref: "{{ ('tags/' ~ rocketpool_version) if (rocketpool_version | trim | length > 0) else 'latest' }}"
+
+- name: Fail on unsupported architecture
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported architecture '{{ ansible_facts['architecture'] }}' for Rocket Pool.
+      Supported values are: {{ rocketpool_arch_map.keys() | join(', ') }}.
+  when: rocketpool_release_arch == ""
+
+- name: Fetch latest rocketpool release metadata
+  ansible.builtin.uri:
+    url: "{{ rocketpool_github_api_base }}/repos/{{ rocketpool_repo_owner }}/{{ rocketpool_repo_name }}/releases/{{ rocketpool_release_ref }}"
+    method: GET
+    return_content: true
+    headers:
+      Accept: application/vnd.github+json
+      X-GitHub-Api-Version: "2022-11-28"
+  register: rocketpool_release
+
+- name: Select rocketpool asset for this architecture
+  ansible.builtin.set_fact:
+    rocketpool_version_tag: "{{ rocketpool_release.json.tag_name }}"
+    rocketpool_asset_name: "{{ rocketpool_asset_prefix }}{{ rocketpool_release_arch }}"
+    rocketpool_asset_url: "{{ rocketpool_release.json.assets | selectattr('name', 'equalto', rocketpool_asset_prefix ~ rocketpool_release_arch) | map(attribute='browser_download_url') | first | default('') }}"
+
+- name: Fail if matching rocketpool asset was not found
+  ansible.builtin.fail:
+    msg: >-
+      Could not find a Rocket Pool release asset named {{ rocketpool_asset_name }}
+      in {{ rocketpool_version_tag }}.
+  when: rocketpool_asset_url == ""
+
+- name: Ensure rocketpool download directory exists
+  ansible.builtin.file:
+    path: "{{ rocketpool_download_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Download rocketpool binary
+  ansible.builtin.get_url:
+    url: "{{ rocketpool_asset_url }}"
+    dest: "{{ rocketpool_download_dir }}/{{ rocketpool_asset_name }}"
+    mode: '0644'
+
+- name: Install rocketpool binary
+  ansible.builtin.copy:
+    src: "{{ rocketpool_download_dir }}/{{ rocketpool_asset_name }}"
+    dest: "{{ rocketpool_install_dir }}/{{ rocketpool_binary_name }}"
+    remote_src: true
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Verify rocketpool binary is executable
+  ansible.builtin.command: "{{ rocketpool_install_dir }}/{{ rocketpool_binary_name }} --version"
+  register: rocketpool_verify
+  changed_when: false
+
+- name: Remove rocketpool download artifact
+  ansible.builtin.file:
+    path: "{{ rocketpool_download_dir }}/{{ rocketpool_asset_name }}"
+    state: absent

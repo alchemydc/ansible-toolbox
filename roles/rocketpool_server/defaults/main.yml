@@ -1,0 +1,12 @@
+---
+rocketpool_repo_owner: rocket-pool
+rocketpool_repo_name: smartnode
+rocketpool_install_dir: /usr/local/bin
+rocketpool_binary_name: rocketpool
+rocketpool_download_dir: /tmp/rocketpool
+rocketpool_asset_prefix: rocketpool-cli-linux-
+rocketpool_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+rocketpool_github_api_base: https://api.github.com
+rocketpool_version: ""

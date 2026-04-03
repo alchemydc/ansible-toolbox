@@ -17,6 +17,9 @@
     - role: docker_server
       tags: 'docker_server'
       become: true
+    - role: rocketpool_server
+      tags: 'rocketpool_server'
+      become: true
     - role: celo_attestation_server
       tags: 'celo_attestation_server'
       become: true
