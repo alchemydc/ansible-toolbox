@@ -125,7 +125,6 @@ table inet nat {
     # DNAT rules (port forwarding to workloads)
 {% for dnat in nftables_dnat_rules %}
     # {{ dnat.name }}
-    # NOTE: 'inet' table requires 'dnat ip to' syntax
     iifname "{{ public_iface }}" {{ dnat.protocol }} dport {{ dnat.host_port }} dnat ip to {{ dnat.workload_ip }}:{{ dnat.workload_port }}
 {% endfor %}
 {% endif %}
